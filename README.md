@@ -23,16 +23,18 @@ impl ChainInfo for YourRuntimeInfo {
 }
 
 // next create the neccessary client subsystems
-let (rpc, task_manager, client, pool, command_sink, backend) =
-    build_node_subsystems::<NodeTemplateChainInfo, _>(
-        ConfigOrChainSpec::ChainSpec(
-            Box::new(development_config()),
-            tokio_runtime.handle().clone(),
-        ),
-        |_client, _select_chain, _keystore| {
-            // chain specific block_import, consensus_data_provider and inherent_data_provider
-        }
-    );
+let node = build_node_subsystems::<NodeTemplateChainInfo, _>(
+    ConfigOrChainSpec::ChainSpec(
+        Box::new(development_config()),
+        tokio_runtime.handle().clone(),
+    ),
+    |_client, _select_chain, _keystore| {
+        // chain specific block_import, consensus_data_provider and inherent_data_provider
+    }
+);
 
+// create blocks, empty if no txs in in the pool
+node.seal_blocks(10).await;
 
+// submit extrinsics into the node's txpool.
 ```
