@@ -16,22 +16,20 @@
 
 //! Utilities for creating the neccessary client subsystems.
 
-use crate::{default_config, ChainInfo, FullClientFor};
+use crate::{default_config, ChainInfo, FullClientFor, Node};
 use futures::channel::mpsc;
-use jsonrpc_core::MetaIoHandler;
 use manual_seal::{
 	import_queue,
 	rpc::{ManualSeal, ManualSealApi},
-	run_manual_seal, ConsensusDataProvider, EngineCommand, ManualSealParams,
+	run_manual_seal, ConsensusDataProvider, ManualSealParams,
 };
 use sc_client_api::backend::Backend;
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{
 	build_network, new_full_parts, spawn_tasks, BuildNetworkParams, ChainSpec, Configuration,
-	KeystoreContainer, SpawnTasksParams, TFullBackend, TFullClient, TaskManager,
+	KeystoreContainer, SpawnTasksParams, TFullBackend,
 };
 use sc_transaction_pool::BasicPool;
-use sc_transaction_pool_api::TransactionPool;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core, Metadata, TransactionFor};
 use sp_block_builder::BlockBuilder;
 use sp_inherents::CreateInherentDataProviders;
@@ -41,31 +39,6 @@ use sp_session::SessionKeys;
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use std::{str::FromStr, sync::Arc};
 
-type ClientParts<T> = (
-	Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>>,
-	TaskManager,
-	Arc<
-		TFullClient<
-			<T as ChainInfo>::Block,
-			<T as ChainInfo>::RuntimeApi,
-			NativeElseWasmExecutor<<T as ChainInfo>::ExecutorDispatch>,
-		>,
-	>,
-	Arc<
-		dyn TransactionPool<
-			Block = <T as ChainInfo>::Block,
-			Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-			Error = sc_transaction_pool::error::Error,
-			InPoolTransaction = sc_transaction_pool::Transaction<
-				<<T as ChainInfo>::Block as BlockT>::Hash,
-				<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-			>,
-		>,
-	>,
-	mpsc::Sender<EngineCommand<<<T as ChainInfo>::Block as BlockT>::Hash>>,
-	Arc<TFullBackend<<T as ChainInfo>::Block>>,
-);
-
 /// Provide the config or chain spec for a given chain
 pub enum ConfigOrChainSpec {
 	/// Configuration object
@@ -74,10 +47,10 @@ pub enum ConfigOrChainSpec {
 	ChainSpec(Box<dyn ChainSpec>, tokio::runtime::Handle),
 }
 /// Creates all the client parts you need for [`Node`](crate::node::Node)
-pub fn client_parts<T, I>(
+pub fn build_node_subsystems<T, I>(
 	config_or_chain_spec: ConfigOrChainSpec,
 	block_import_provider: I,
-) -> Result<ClientParts<T>, sc_service::Error>
+) -> Result<Node<T>, sc_service::Error>
 where
 	T: ChainInfo + 'static,
 	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
@@ -129,7 +102,6 @@ where
 		config.wasm_method,
 		config.default_heap_pages,
 		config.max_runtime_instances,
-		config.runtime_cache_size,
 	);
 
 	let (client, backend, keystore, mut task_manager) =
@@ -142,7 +114,7 @@ where
 		block_import_provider(client.clone(), select_chain.clone(), &keystore)?;
 	let import_queue =
 		import_queue(Box::new(block_import.clone()), &task_manager.spawn_essential_handle(), None);
-	let transaction_pool = BasicPool::new_full(
+	let pool = BasicPool::new_full(
 		config.transaction_pool.clone(),
 		true.into(),
 		config.prometheus_registry(),
@@ -154,7 +126,7 @@ where
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),
-			transaction_pool: transaction_pool.clone(),
+			transaction_pool: pool.clone(),
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
@@ -175,7 +147,7 @@ where
 	let env = sc_basic_authorship::ProposerFactory::new(
 		task_manager.spawn_handle(),
 		client.clone(),
-		transaction_pool.clone(),
+		pool.clone(),
 		config.prometheus_registry(),
 		None,
 	);
@@ -192,7 +164,7 @@ where
 			backend: backend.clone(),
 			task_manager: &mut task_manager,
 			keystore: keystore.sync_keystore(),
-			transaction_pool: transaction_pool.clone(),
+			transaction_pool: pool.clone(),
 			rpc_extensions_builder: Box::new(move |_, _| {
 				let mut io = jsonrpc_core::IoHandler::default();
 				io.extend_with(ManualSealApi::to_delegate(ManualSeal::new(rpc_sink.clone())));
@@ -210,7 +182,7 @@ where
 		block_import,
 		env,
 		client: client.clone(),
-		pool: transaction_pool.clone(),
+		pool: pool.clone(),
 		commands_stream,
 		select_chain,
 		consensus_data_provider,
@@ -225,5 +197,7 @@ where
 	network_starter.start_network();
 	let rpc_handler = rpc_handlers.io_handler();
 
-	Ok((rpc_handler, task_manager, client, transaction_pool, command_sink, backend))
+	let node = Node::<T>::new(rpc_handler, task_manager, client, pool, command_sink, backend);
+
+	Ok(node)
 }

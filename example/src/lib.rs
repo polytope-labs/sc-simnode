@@ -20,10 +20,9 @@
 use grandpa::GrandpaBlockImport;
 use sc_consensus_babe::BabeBlockImport;
 use sc_consensus_manual_seal::consensus::timestamp::SlotTimestampProvider;
-use sc_executor::NativeElseWasmExecutor;
-use sc_service::{TFullBackend, TFullClient};
+use sc_service::TFullBackend;
 use sp_runtime::generic::Era;
-use test_runner::{ChainInfo, SignatureVerificationOverride};
+use substrate_simnode::{ChainInfo, FullClientFor, SignatureVerificationOverride};
 
 type BlockImport<B, BE, C, SC> = BabeBlockImport<B, C, GrandpaBlockImport<BE, B, C, SC>>;
 
@@ -53,12 +52,8 @@ impl ChainInfo for NodeTemplateChainInfo {
 	type Runtime = node_runtime::Runtime;
 	type RuntimeApi = node_runtime::RuntimeApi;
 	type SelectChain = sc_consensus::LongestChain<TFullBackend<Self::Block>, Self::Block>;
-	type BlockImport = BlockImport<
-		Self::Block,
-		TFullBackend<Self::Block>,
-		TFullClient<Self::Block, Self::RuntimeApi, NativeElseWasmExecutor<Self::ExecutorDispatch>>,
-		Self::SelectChain,
-	>;
+	type BlockImport =
+		BlockImport<Self::Block, TFullBackend<Self::Block>, FullClientFor<Self>, Self::SelectChain>;
 	type SignedExtras = node_runtime::SignedExtra;
 	type InherentDataProviders =
 		(SlotTimestampProvider, sp_consensus_babe::inherents::InherentDataProvider);
@@ -67,11 +62,10 @@ impl ChainInfo for NodeTemplateChainInfo {
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras {
 		(
-			frame_system::CheckNonZeroSender::<Self::Runtime>::new(),
 			frame_system::CheckSpecVersion::<Self::Runtime>::new(),
 			frame_system::CheckTxVersion::<Self::Runtime>::new(),
 			frame_system::CheckGenesis::<Self::Runtime>::new(),
-			frame_system::CheckMortality::<Self::Runtime>::from(Era::Immortal),
+			frame_system::CheckEra::<Self::Runtime>::from(Era::Immortal),
 			frame_system::CheckNonce::<Self::Runtime>::from(
 				frame_system::Pallet::<Self::Runtime>::account_nonce(from),
 			),
@@ -90,69 +84,60 @@ mod tests {
 	use sp_keyring::sr25519::Keyring::Alice;
 	use sp_runtime::{traits::IdentifyAccount, MultiSigner};
 	use std::sync::Arc;
-	use test_runner::{build_runtime, client_parts, ConfigOrChainSpec, Node};
+	use substrate_simnode::{build_node_subsystems, build_runtime, ConfigOrChainSpec};
 
 	#[test]
-	fn test_runner() {
+	fn substrate_simnode() {
 		let tokio_runtime = build_runtime().unwrap();
-		let (rpc, task_manager, client, pool, command_sink, backend) =
-			client_parts::<NodeTemplateChainInfo, _>(
-				ConfigOrChainSpec::ChainSpec(
-					Box::new(development_config()),
-					tokio_runtime.handle().clone(),
-				),
-				|client, select_chain, keystore| {
-					let (grandpa_block_import, ..) = grandpa::block_import(
-						client.clone(),
-						&(client.clone() as Arc<_>),
-						select_chain.clone(),
-						None,
-					)?;
+		let node = build_node_subsystems::<NodeTemplateChainInfo, _>(
+			ConfigOrChainSpec::ChainSpec(
+				Box::new(development_config()),
+				tokio_runtime.handle().clone(),
+			),
+			|client, select_chain, keystore| {
+				let (grandpa_block_import, ..) = grandpa::block_import(
+					client.clone(),
+					&(client.clone() as Arc<_>),
+					select_chain.clone(),
+					None,
+				)?;
 
-					let slot_duration = sc_consensus_babe::Config::get_or_compute(&*client)?;
-					let (block_import, babe_link) = sc_consensus_babe::block_import(
-						slot_duration.clone(),
-						grandpa_block_import,
-						client.clone(),
-					)?;
+				let slot_duration = sc_consensus_babe::Config::get_or_compute(&*client)?;
+				let (block_import, babe_link) = sc_consensus_babe::block_import(
+					slot_duration.clone(),
+					grandpa_block_import,
+					client.clone(),
+				)?;
 
-					let consensus_data_provider = BabeConsensusDataProvider::new(
-						client.clone(),
-						keystore.sync_keystore(),
-						babe_link.epoch_changes().clone(),
-						vec![(AuthorityId::from(Alice.public()), 1000)],
-					)
-					.expect("failed to create ConsensusDataProvider");
+				let consensus_data_provider = BabeConsensusDataProvider::new(
+					client.clone(),
+					keystore.sync_keystore(),
+					babe_link.epoch_changes().clone(),
+					vec![(AuthorityId::from(Alice.public()), 1000)],
+				)
+				.expect("failed to create ConsensusDataProvider");
 
-					let cloned_client = client.clone();
-					let create_inherent_data_providers = Box::new(move |_, _| {
-						let client = cloned_client.clone();
-						async move {
-							let timestamp = SlotTimestampProvider::babe(client.clone())
-								.map_err(|err| format!("{:?}", err))?;
-							let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
-								timestamp.slot().into(),
-							);
-							Ok((timestamp, babe))
-						}
-					});
+				let cloned_client = client.clone();
+				let create_inherent_data_providers = Box::new(move |_, _| {
+					let client = cloned_client.clone();
+					async move {
+						let timestamp = SlotTimestampProvider::babe(client.clone())
+							.map_err(|err| format!("{:?}", err))?;
+						let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
+							timestamp.slot().into(),
+						);
+						Ok((timestamp, babe))
+					}
+				});
 
-					Ok((
-						block_import,
-						Some(Box::new(consensus_data_provider)),
-						create_inherent_data_providers,
-					))
-				},
-			)
-			.unwrap();
-		let node = Node::<NodeTemplateChainInfo>::new(
-			rpc,
-			task_manager,
-			client,
-			pool,
-			command_sink,
-			backend,
-		);
+				Ok((
+					block_import,
+					Some(Box::new(consensus_data_provider)),
+					create_inherent_data_providers,
+				))
+			},
+		)
+		.unwrap();
 
 		tokio_runtime.block_on(async {
 			// seals blocks
