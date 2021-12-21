@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [workspace]
-members = ["example"]
+members = ["examples/standalone", "examples/parachain"]
 
 [dependencies]
 # client deps

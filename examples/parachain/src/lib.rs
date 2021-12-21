@@ -15,7 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 #![deny(unused_extern_crates, missing_docs)]
 
-//! Basic example of end to end runtime tests.
+//! Basic example of end to end runtime tests with a standalone blockchain
 
 use grandpa::GrandpaBlockImport;
 use sc_consensus_babe::BabeBlockImport;
@@ -35,26 +35,26 @@ impl sc_executor::NativeExecutionDispatch for ExecutorDispatch {
 		(frame_benchmarking::benchmarking::HostFunctions, SignatureVerificationOverride);
 
 	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
-		node_runtime::api::dispatch(method, data)
+		parachain_runtime::api::dispatch(method, data)
 	}
 
 	fn native_version() -> sc_executor::NativeVersion {
-		node_runtime::native_version()
+		parachain_runtime::native_version()
 	}
 }
 
 /// ChainInfo implementation.
-struct NodeTemplateChainInfo;
+struct ParachainTemplateChainInfo;
 
-impl ChainInfo for NodeTemplateChainInfo {
-	type Block = node_primitives::Block;
+impl ChainInfo for ParachainTemplateChainInfo {
+	type Block = parachain_runtime::Block;
 	type ExecutorDispatch = ExecutorDispatch;
-	type Runtime = node_runtime::Runtime;
-	type RuntimeApi = node_runtime::RuntimeApi;
+	type Runtime = parachain_runtime::Runtime;
+	type RuntimeApi = parachain_runtime::RuntimeApi;
 	type SelectChain = sc_consensus::LongestChain<TFullBackend<Self::Block>, Self::Block>;
 	type BlockImport =
 		BlockImport<Self::Block, TFullBackend<Self::Block>, FullClientFor<Self>, Self::SelectChain>;
-	type SignedExtras = node_runtime::SignedExtra;
+	type SignedExtras = parachain_runtime::SignedExtra;
 	type InherentDataProviders =
 		(SlotTimestampProvider, sp_consensus_babe::inherents::InherentDataProvider);
 
@@ -79,7 +79,7 @@ impl ChainInfo for NodeTemplateChainInfo {
 mod tests {
 	use super::*;
 	use node_cli::chain_spec::development_config;
-	use sc_consensus_manual_seal::consensus::babe::BabeConsensusDataProvider;
+	use sc_consensus_manual_seal::consensus::aura::AuraConsensusDataProvider;
 	use sp_consensus_babe::AuthorityId;
 	use sp_keyring::sr25519::Keyring::Alice;
 	use sp_runtime::{traits::IdentifyAccount, MultiSigner};
@@ -89,31 +89,14 @@ mod tests {
 	#[test]
 	fn substrate_simnode() {
 		let tokio_runtime = build_runtime().unwrap();
-		let node = build_node_subsystems::<NodeTemplateChainInfo, _>(
+		let node = build_node_subsystems::<ParachainTemplateChainInfo, _>(
 			ConfigOrChainSpec::ChainSpec(
 				Box::new(development_config()),
 				tokio_runtime.handle().clone(),
 			),
 			|client, select_chain, keystore| {
-				let (grandpa_block_import, ..) = grandpa::block_import(
+				let consensus_data_provider = AuraConsensusDataProvider::new(
 					client.clone(),
-					&(client.clone() as Arc<_>),
-					select_chain.clone(),
-					None,
-				)?;
-
-				let slot_duration = sc_consensus_babe::Config::get_or_compute(&*client)?;
-				let (block_import, babe_link) = sc_consensus_babe::block_import(
-					slot_duration.clone(),
-					grandpa_block_import,
-					client.clone(),
-				)?;
-
-				let consensus_data_provider = BabeConsensusDataProvider::new(
-					client.clone(),
-					keystore.sync_keystore(),
-					babe_link.epoch_changes().clone(),
-					vec![(AuthorityId::from(Alice.public()), 1000)],
 				)
 				.expect("failed to create ConsensusDataProvider");
 
@@ -154,7 +137,7 @@ mod tests {
 
 			// look ma, I can read state.
 			let _events =
-				node.with_state(|| frame_system::Pallet::<node_runtime::Runtime>::events());
+				node.with_state(|| frame_system::Pallet::<parachain_runtime::Runtime>::events());
 			// get access to the underlying client.
 			let _client = node.client();
 		})

@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-substrate-simnode = { path = "../" }
+substrate-simnode = { path = "../../" }
 
 # pallets
 frame-system = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
@@ -15,9 +15,7 @@ pallet-transaction-payment = {  git = "https://github.com/paritytech/substrate",
 pallet-asset-tx-payment = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 
 # runtime
-node-runtime = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
-node-primitives = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
-node-cli = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
+parachain-runtime = { package = "parachain-template-runtime",  git = "https://github.com/substrate-developer-hub/substrate-parachain-template", branch = "master" }
 
 # client
 sc-consensus-babe = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
@@ -26,6 +24,7 @@ sc-service = {  git = "https://github.com/paritytech/substrate", branch = "polka
 sc-executor = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-consensus = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 grandpa = { package = "sc-finality-grandpa",  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
+sc-cli = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 
 # primitives
 sp-consensus-babe = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
