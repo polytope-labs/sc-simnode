@@ -16,7 +16,7 @@
 
 use std::sync::Arc;
 
-use crate::ChainInfo;
+use crate::{ChainInfo, FullClientFor, TransactionPoolFor};
 use futures::{
 	channel::{mpsc, oneshot},
 	FutureExt, SinkExt,
@@ -49,17 +49,7 @@ pub struct Node<T: ChainInfo> {
 	/// client instance
 	client: Arc<TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>>,
 	/// transaction pool
-	pool: Arc<
-		dyn TransactionPool<
-			Block = <T as ChainInfo>::Block,
-			Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-			Error = sc_transaction_pool::error::Error,
-			InPoolTransaction = sc_transaction_pool::Transaction<
-				<<T as ChainInfo>::Block as BlockT>::Hash,
-				<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-			>,
-		>,
-	>,
+	pool: TransactionPoolFor<T>,
 	/// channel to communicate with manual seal on.
 	manual_seal_command_sink: mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
 	/// backend type.
@@ -82,20 +72,8 @@ where
 	pub fn new(
 		rpc_handler: Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>>,
 		task_manager: TaskManager,
-		client: Arc<
-			TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
-		>,
-		pool: Arc<
-			dyn TransactionPool<
-				Block = <T as ChainInfo>::Block,
-				Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-				Error = sc_transaction_pool::error::Error,
-				InPoolTransaction = sc_transaction_pool::Transaction<
-					<<T as ChainInfo>::Block as BlockT>::Hash,
-					<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-				>,
-			>,
-		>,
+		client: Arc<FullClientFor<T>>,
+		pool: TransactionPoolFor<T>,
 		command_sink: mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
 		backend: Arc<TFullBackend<T::Block>>,
 	) -> Self {
@@ -131,29 +109,16 @@ where
 	}
 
 	/// Return a reference to the pool.
-	pub fn pool(
-		&self,
-	) -> Arc<
-		dyn TransactionPool<
-			Block = <T as ChainInfo>::Block,
-			Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-			Error = sc_transaction_pool::error::Error,
-			InPoolTransaction = sc_transaction_pool::Transaction<
-				<<T as ChainInfo>::Block as BlockT>::Hash,
-				<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-			>,
-		>,
-	> {
+	pub fn pool(&self) -> TransactionPoolFor<T> {
 		self.pool.clone()
 	}
 
-	/// Executes closure in an externalities provided environment.
-	pub fn with_state<R>(&self, closure: impl FnOnce() -> R) -> R
+	/// Allows you read state at any given block, provided it hasn't been pruned.
+	pub fn with_state<R>(&self, id: BlockId<T::Block>, closure: impl FnOnce() -> R) -> R
 	where
 		<TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
 			std::fmt::Debug,
 	{
-		let id = BlockId::Hash(self.client.info().best_hash);
 		let mut overlay = OverlayedChanges::default();
 		let mut cache = StorageTransactionCache::<
 			T::Block,
@@ -192,7 +157,8 @@ where
 		>,
 	{
 		let signed_data = if let Some(signer) = signer {
-			let extra = self.with_state(|| T::signed_extras(signer.clone()));
+			let id = BlockId::Hash(self.client.info().best_hash);
+			let extra = self.with_state(id, || T::signed_extras(signer.clone()));
 			Some((
 				signer.into(),
 				MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
@@ -218,9 +184,9 @@ where
 			.await
 	}
 
-	/// Get the events of the most recently produced block
-	pub fn events(&self) -> Vec<EventRecord<T::Runtime>> {
-		self.with_state(|| frame_system::Pallet::<T::Runtime>::events())
+	/// Get the events at [`BlockId`]
+	pub fn events(&self, id: BlockId<B>) -> Vec<EventRecord<T::Runtime>> {
+		self.with_state(id, || frame_system::Pallet::<T::Runtime>::events())
 	}
 
 	/// Instructs manual seal to seal new, possibly empty blocks.

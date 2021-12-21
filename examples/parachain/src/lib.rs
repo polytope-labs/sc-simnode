@@ -95,10 +95,8 @@ mod tests {
 				tokio_runtime.handle().clone(),
 			),
 			|client, select_chain, keystore| {
-				let consensus_data_provider = AuraConsensusDataProvider::new(
-					client.clone(),
-				)
-				.expect("failed to create ConsensusDataProvider");
+				let consensus_data_provider = AuraConsensusDataProvider::new(client.clone())
+					.expect("failed to create ConsensusDataProvider");
 
 				let cloned_client = client.clone();
 				let create_inherent_data_providers = Box::new(move |_, _| {

@@ -1,5 +1,5 @@
 [package]
-name = "substrate-simnode-example"
+name = "substrate-simnode-standalone-example"
 version = "0.1.0"
 authors = ["Seun Lanlege <seun@polytope.capital>"]
 edition = "2021"

@@ -17,9 +17,11 @@
 
 //! ### substrate-simnode
 
+use std::sync::Arc;
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sc_service::TFullClient;
+use sc_transaction_pool_api::TransactionPool;
 use sp_api::{ConstructRuntimeApi, TransactionFor};
 use sp_consensus::SelectChain;
 use sp_inherents::InherentDataProvider;
@@ -37,11 +39,24 @@ pub use node::*;
 pub use sproof::*;
 pub use utils::*;
 
-/// Type alias for [`ChainInfo`]
+/// Type alias for [`sc_service::TFullClient`]
 pub type FullClientFor<C> = TFullClient<
 	<C as ChainInfo>::Block,
 	<C as ChainInfo>::RuntimeApi,
 	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
+>;
+
+/// Type alias for [`sc_transaction_pool_api::TransactionPool`]
+type TransactionPoolFor<T> = Arc<
+	dyn TransactionPool<
+		Block = <T as ChainInfo>::Block,
+		Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
+		Error = sc_transaction_pool::error::Error,
+		InPoolTransaction = sc_transaction_pool::Transaction<
+			<<T as ChainInfo>::Block as BlockT>::Hash,
+			<<T as ChainInfo>::Block as BlockT>::Extrinsic,
+		>,
+	>,
 >;
 
 /// Wrapper trait for concrete type required by this testing framework.

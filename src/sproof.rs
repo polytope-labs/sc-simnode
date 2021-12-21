@@ -31,13 +31,15 @@ use std::{marker::PhantomData, sync::Arc};
 
 /// Provides the inherent for parachain runtimes. Can also be manipulated to send relay chain
 /// signals to simulated node runtime.
-pub struct ParachainInherentSproof<B, C> {
+pub struct ParachainInherentSproofProvider<B, C> {
+	// client type
 	client: Arc<C>,
+	// parachain id
 	para_id: u32,
 	_phantom: PhantomData<B>,
 }
 
-impl<B, C> ParachainInherentSproof<B, C>
+impl<B, C> ParachainInherentSproofProvider<B, C>
 where
 	B: Block,
 	C: HeaderBackend<B>,
@@ -45,7 +47,7 @@ where
 {
 	/// Construct a new sproof-er
 	pub fn new(client: Arc<C>, para_id: u32) -> Self {
-		ParachainInherentSproof { client, para_id, _phantom: PhantomData }
+		ParachainInherentSproofProvider { client, para_id, _phantom: PhantomData }
 	}
 
 	/// Given the current slot, create the inherent.
