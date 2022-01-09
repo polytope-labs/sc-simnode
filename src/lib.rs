@@ -17,13 +17,16 @@
 
 //! ### substrate-simnode
 
+use sc_cli::{structopt::StructOpt, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sc_service::TFullClient;
+use sc_transaction_pool_api::TransactionPool;
 use sp_api::{ConstructRuntimeApi, TransactionFor};
 use sp_consensus::SelectChain;
 use sp_inherents::InherentDataProvider;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
+use std::sync::Arc;
 
 mod client;
 mod host_functions;
@@ -37,11 +40,24 @@ pub use node::*;
 pub use sproof::*;
 pub use utils::*;
 
-/// Type alias for [`ChainInfo`]
+/// Type alias for [`sc_service::TFullClient`]
 pub type FullClientFor<C> = TFullClient<
 	<C as ChainInfo>::Block,
 	<C as ChainInfo>::RuntimeApi,
 	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
+>;
+
+/// Type alias for [`sc_transaction_pool_api::TransactionPool`]
+type TransactionPoolFor<T> = Arc<
+	dyn TransactionPool<
+		Block = <T as ChainInfo>::Block,
+		Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
+		Error = sc_transaction_pool::error::Error,
+		InPoolTransaction = sc_transaction_pool::Transaction<
+			<<T as ChainInfo>::Block as BlockT>::Hash,
+			<<T as ChainInfo>::Block as BlockT>::Extrinsic,
+		>,
+	>,
 >;
 
 /// Wrapper trait for concrete type required by this testing framework.
@@ -77,8 +93,26 @@ pub trait ChainInfo: Sized {
 	/// The inherent data providers.
 	type InherentDataProviders: InherentDataProvider + 'static;
 
+	/// Cli utilities
+	type Cli: SimnodeCli;
+
 	/// Signed extras, this function is caled in an externalities provided environment.
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras;
+}
+
+/// Cli Extension trait for simnode
+pub trait SimnodeCli {
+	/// type that implements [`CliConfiguration`]
+	type CliConfig: CliConfiguration;
+
+	/// type that implements [`SubstrateCli`]
+	type SubstrateCli: StructOpt + SubstrateCli + Sized;
+
+	/// get a reference to [`CliConfiguration`]
+	fn cli_config(cli: &Self::SubstrateCli) -> &Self::CliConfig;
+
+	/// get logging filters
+	fn log_filters(cli_config: &Self::CliConfig) -> Result<String, sc_cli::Error>;
 }

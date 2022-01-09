@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [workspace]
-members = ["example"]
+members = ["examples/standalone", "examples/parachain"]
 
 [dependencies]
 # client deps
@@ -17,10 +17,12 @@ sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkad
 sc-cli = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-basic-authorship = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
+sc-tracing = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 grandpa = { package = "sc-finality-grandpa", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sp-finality-grandpa = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
+sp-consensus-aura = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-consensus = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 sc-transaction-pool-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
@@ -52,6 +54,7 @@ frame-system = { git = "https://github.com/paritytech/substrate", branch = "polk
 parachain-inherent = { package = "cumulus-primitives-parachain-inherent", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.13" }
 parachain-system = { package = "cumulus-pallet-parachain-system", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.13" }
 sproof-builder = { package = "cumulus-test-relay-sproof-builder", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.13" }
+parachain-info = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.13", default-features = false }
 
 # polkadot
 polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.13", default-featires = false }

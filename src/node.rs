@@ -14,19 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-use crate::ChainInfo;
+use crate::{
+	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
+};
 use futures::{
 	channel::{mpsc, oneshot},
 	FutureExt, SinkExt,
 };
 use jsonrpc_core::MetaIoHandler;
 use manual_seal::EngineCommand;
+use polkadot_primitives::v1::UpgradeGoAhead;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
-use sc_transaction_pool_api::TransactionPool;
 use sp_api::{OverlayedChanges, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
@@ -37,35 +39,33 @@ use sp_runtime::{
 	MultiAddress, MultiSignature,
 };
 use sp_state_machine::Ext;
+use sproof_builder::RelayStateSproofBuilder;
+
+/// Shared instance of [`ParachainInherentSproofProvider`]
+pub type SharedParachainInherentProvider<T> =
+	Arc<Mutex<ParachainInherentSproofProvider<<T as ChainInfo>::Block, FullClientFor<T>>>>;
 
 /// This holds a reference to a running node on another thread,
 /// the node process is dropped when this struct is dropped
 /// also holds logs from the process.
 pub struct Node<T: ChainInfo> {
 	/// rpc handler for communicating with the node over rpc.
-	rpc_handler: Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>>,
+	pub(crate) rpc_handler: Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>>,
 	/// handle to the running node.
-	task_manager: Option<TaskManager>,
+	pub(crate) task_manager: Option<TaskManager>,
 	/// client instance
-	client: Arc<TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>>,
+	pub(crate) client:
+		Arc<TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>>,
 	/// transaction pool
-	pool: Arc<
-		dyn TransactionPool<
-			Block = <T as ChainInfo>::Block,
-			Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-			Error = sc_transaction_pool::error::Error,
-			InPoolTransaction = sc_transaction_pool::Transaction<
-				<<T as ChainInfo>::Block as BlockT>::Hash,
-				<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-			>,
-		>,
-	>,
+	pub(crate) pool: TransactionPoolFor<T>,
 	/// channel to communicate with manual seal on.
-	manual_seal_command_sink: mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
+	pub(crate) manual_seal_command_sink: mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
 	/// backend type.
-	backend: Arc<TFullBackend<T::Block>>,
+	pub(crate) backend: Arc<TFullBackend<T::Block>>,
 	/// Block number at initialization of this Node.
-	initial_block_number: NumberFor<T::Block>,
+	pub(crate) initial_block_number: NumberFor<T::Block>,
+	/// a reference to the [`ParachainInherentSproofProvider`] for setting runtime upgrade signals
+	pub(crate) parachain_inherent_provider: Option<SharedParachainInherentProvider<T>>,
 }
 
 type EventRecord<T> = frame_system::EventRecord<
@@ -78,38 +78,6 @@ where
 	T: ChainInfo,
 	<<T::Block as BlockT>::Header as Header>::Number: From<u32>,
 {
-	/// Creates a new node.
-	pub fn new(
-		rpc_handler: Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>>,
-		task_manager: TaskManager,
-		client: Arc<
-			TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
-		>,
-		pool: Arc<
-			dyn TransactionPool<
-				Block = <T as ChainInfo>::Block,
-				Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-				Error = sc_transaction_pool::error::Error,
-				InPoolTransaction = sc_transaction_pool::Transaction<
-					<<T as ChainInfo>::Block as BlockT>::Hash,
-					<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-				>,
-			>,
-		>,
-		command_sink: mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
-		backend: Arc<TFullBackend<T::Block>>,
-	) -> Self {
-		Self {
-			rpc_handler,
-			task_manager: Some(task_manager),
-			client: client.clone(),
-			pool,
-			backend,
-			manual_seal_command_sink: command_sink,
-			initial_block_number: client.info().best_number,
-		}
-	}
-
 	/// Returns a reference to the rpc handlers, use this to send rpc requests.
 	/// eg
 	/// ```ignore
@@ -131,34 +99,22 @@ where
 	}
 
 	/// Return a reference to the pool.
-	pub fn pool(
-		&self,
-	) -> Arc<
-		dyn TransactionPool<
-			Block = <T as ChainInfo>::Block,
-			Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-			Error = sc_transaction_pool::error::Error,
-			InPoolTransaction = sc_transaction_pool::Transaction<
-				<<T as ChainInfo>::Block as BlockT>::Hash,
-				<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-			>,
-		>,
-	> {
+	pub fn pool(&self) -> TransactionPoolFor<T> {
 		self.pool.clone()
 	}
 
-	/// Executes closure in an externalities provided environment.
-	pub fn with_state<R>(&self, closure: impl FnOnce() -> R) -> R
+	/// Allows you read state at any given block, provided it hasn't been pruned.
+	pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R
 	where
 		<TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
 			std::fmt::Debug,
 	{
-		let id = BlockId::Hash(self.client.info().best_hash);
 		let mut overlay = OverlayedChanges::default();
 		let mut cache = StorageTransactionCache::<
 			T::Block,
 			<TFullBackend<T::Block> as Backend<T::Block>>::State,
 		>::default();
+		let id = id.unwrap_or_else(|| BlockId::Hash(self.client.info().best_hash));
 		let mut extensions = self
 			.client
 			.execution_extensions()
@@ -192,7 +148,7 @@ where
 		>,
 	{
 		let signed_data = if let Some(signer) = signer {
-			let extra = self.with_state(|| T::signed_extras(signer.clone()));
+			let extra = self.with_state(None, || T::signed_extras(signer.clone()));
 			Some((
 				signer.into(),
 				MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
@@ -218,9 +174,28 @@ where
 			.await
 	}
 
-	/// Get the events of the most recently produced block
-	pub fn events(&self) -> Vec<EventRecord<T::Runtime>> {
-		self.with_state(|| frame_system::Pallet::<T::Runtime>::events())
+	/// Get the events at [`BlockId`]
+	pub fn events(&self, id: Option<BlockId<T::Block>>) -> Vec<EventRecord<T::Runtime>> {
+		self.with_state(id, || frame_system::Pallet::<T::Runtime>::events())
+	}
+
+	/// If this is a parachain node, it will allow you to signal runtime upgrades to your
+	/// parachain runtime.
+	pub fn give_upgrade_signal(&self, signal: UpgradeGoAhead)
+	where
+		<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+		T::Runtime: parachain_info::Config,
+	{
+		if let Some(sproof_provider) = &self.parachain_inherent_provider {
+			let para_id =
+				self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
+			let builder = RelayStateSproofBuilder {
+				para_id,
+				upgrade_go_ahead: Some(signal),
+				..Default::default()
+			};
+			sproof_provider.lock().unwrap().update_sproof_builder(builder)
+		}
 	}
 
 	/// Instructs manual seal to seal new, possibly empty blocks.

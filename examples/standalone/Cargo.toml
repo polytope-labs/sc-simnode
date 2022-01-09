@@ -1,12 +1,12 @@
 [package]
-name = "substrate-simnode-example"
+name = "substrate-simnode-standalone-example"
 version = "0.1.0"
 authors = ["Seun Lanlege <seun@polytope.capital>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-substrate-simnode = { path = "../" }
+substrate-simnode = { path = "../../" }
 
 # pallets
 frame-system = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
