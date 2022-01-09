@@ -17,110 +17,79 @@
 
 //! Basic example of end to end runtime tests with a standalone blockchain
 
-use grandpa::GrandpaBlockImport;
-use sc_consensus_babe::BabeBlockImport;
-use sc_consensus_manual_seal::consensus::timestamp::SlotTimestampProvider;
-use sc_service::TFullBackend;
-use sp_runtime::generic::Era;
-use substrate_simnode::{ChainInfo, FullClientFor, SignatureVerificationOverride};
-
-type BlockImport<B, BE, C, SC> = BabeBlockImport<B, C, GrandpaBlockImport<BE, B, C, SC>>;
-
-/// A unit struct which implements `NativeExecutionDispatch` feeding in the
-/// hard-coded runtime.
-pub struct ExecutorDispatch;
-
-impl sc_executor::NativeExecutionDispatch for ExecutorDispatch {
-	type ExtendHostFunctions =
-		(frame_benchmarking::benchmarking::HostFunctions, SignatureVerificationOverride);
-
-	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
-		parachain_runtime::api::dispatch(method, data)
-	}
-
-	fn native_version() -> sc_executor::NativeVersion {
-		parachain_runtime::native_version()
-	}
-}
-
-/// ChainInfo implementation.
-struct ParachainTemplateChainInfo;
-
-impl ChainInfo for ParachainTemplateChainInfo {
-	type Block = parachain_runtime::Block;
-	type ExecutorDispatch = ExecutorDispatch;
-	type Runtime = parachain_runtime::Runtime;
-	type RuntimeApi = parachain_runtime::RuntimeApi;
-	type SelectChain = sc_consensus::LongestChain<TFullBackend<Self::Block>, Self::Block>;
-	type BlockImport =
-		BlockImport<Self::Block, TFullBackend<Self::Block>, FullClientFor<Self>, Self::SelectChain>;
-	type SignedExtras = parachain_runtime::SignedExtra;
-	type InherentDataProviders =
-		(SlotTimestampProvider, sp_consensus_babe::inherents::InherentDataProvider);
-
-	fn signed_extras(
-		from: <Self::Runtime as frame_system::Config>::AccountId,
-	) -> Self::SignedExtras {
-		(
-			frame_system::CheckSpecVersion::<Self::Runtime>::new(),
-			frame_system::CheckTxVersion::<Self::Runtime>::new(),
-			frame_system::CheckGenesis::<Self::Runtime>::new(),
-			frame_system::CheckEra::<Self::Runtime>::from(Era::Immortal),
-			frame_system::CheckNonce::<Self::Runtime>::from(
-				frame_system::Pallet::<Self::Runtime>::account_nonce(from),
-			),
-			frame_system::CheckWeight::<Self::Runtime>::new(),
-			pallet_asset_tx_payment::ChargeAssetTxPayment::<Self::Runtime>::from(0, None),
-		)
-	}
-}
-
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use node_cli::chain_spec::development_config;
-	use sc_consensus_manual_seal::consensus::aura::AuraConsensusDataProvider;
+	use parachain_inherent::ParachainInherentData;
+	use sc_cli::Error;
+	use sc_consensus_manual_seal::consensus::{
+		aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider,
+	};
+	use sc_service::TFullBackend;
 	use sp_consensus_babe::AuthorityId;
 	use sp_keyring::sr25519::Keyring::Alice;
-	use sp_runtime::{traits::IdentifyAccount, MultiSigner};
+	use sp_runtime::{generic::Era, traits::IdentifyAccount, MultiSigner};
 	use std::sync::Arc;
-	use substrate_simnode::{build_node_subsystems, build_runtime, ConfigOrChainSpec};
+	use substrate_simnode::{
+		build_node_subsystems, build_runtime, ChainInfo, ConfigOrChainSpec, FullClientFor,
+		SignatureVerificationOverride, SimnodeCli,
+	};
+
+	/// A unit struct which implements `NativeExecutionDispatch` feeding in the
+	/// hard-coded runtime.
+	pub struct ExecutorDispatch;
+
+	impl sc_executor::NativeExecutionDispatch for ExecutorDispatch {
+		type ExtendHostFunctions =
+			(frame_benchmarking::benchmarking::HostFunctions, SignatureVerificationOverride);
+
+		fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
+			parachain_runtime::api::dispatch(method, data)
+		}
+
+		fn native_version() -> sc_executor::NativeVersion {
+			parachain_runtime::native_version()
+		}
+	}
+
+	/// ChainInfo implementation.
+	struct ParachainTemplateChainInfo;
+
+	impl ChainInfo for ParachainTemplateChainInfo {
+		type Block = parachain_runtime::Block;
+		type ExecutorDispatch = ExecutorDispatch;
+		type Runtime = parachain_runtime::Runtime;
+		type RuntimeApi = parachain_runtime::RuntimeApi;
+		type SelectChain = sc_consensus::LongestChain<TFullBackend<Self::Block>, Self::Block>;
+		type BlockImport = Arc<FullClientFor<Self>>;
+		type SignedExtras = parachain_runtime::SignedExtra;
+		type InherentDataProviders = (
+			SlotTimestampProvider,
+			sp_consensus_babe::inherents::InherentDataProvider,
+			ParachainInherentData,
+		);
+		type Cli = ();
+
+		fn signed_extras(
+			from: <Self::Runtime as frame_system::Config>::AccountId,
+		) -> Self::SignedExtras {
+			(
+				frame_system::CheckSpecVersion::<Self::Runtime>::new(),
+				frame_system::CheckTxVersion::<Self::Runtime>::new(),
+				frame_system::CheckGenesis::<Self::Runtime>::new(),
+				frame_system::CheckEra::<Self::Runtime>::from(Era::Immortal),
+				frame_system::CheckNonce::<Self::Runtime>::from(frame_system::Pallet::<
+					Self::Runtime,
+				>::account_nonce(from)),
+				frame_system::CheckWeight::<Self::Runtime>::new(),
+				pallet_transaction_payment::ChargeTransactionPayment::<Self::Runtime>::from(0),
+			)
+		}
+	}
 
 	#[test]
 	fn substrate_simnode() {
-		let tokio_runtime = build_runtime().unwrap();
-		let node = build_node_subsystems::<ParachainTemplateChainInfo, _>(
-			ConfigOrChainSpec::ChainSpec(
-				Box::new(development_config()),
-				tokio_runtime.handle().clone(),
-			),
-			|client, select_chain, keystore| {
-				let consensus_data_provider = AuraConsensusDataProvider::new(client.clone())
-					.expect("failed to create ConsensusDataProvider");
-
-				let cloned_client = client.clone();
-				let create_inherent_data_providers = Box::new(move |_, _| {
-					let client = cloned_client.clone();
-					async move {
-						let timestamp = SlotTimestampProvider::babe(client.clone())
-							.map_err(|err| format!("{:?}", err))?;
-						let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
-							timestamp.slot().into(),
-						);
-						Ok((timestamp, babe))
-					}
-				});
-
-				Ok((
-					block_import,
-					Some(Box::new(consensus_data_provider)),
-					create_inherent_data_providers,
-				))
-			},
-		)
-		.unwrap();
-
-		tokio_runtime.block_on(async {
+		substrate_simnode::parachain_node::<ParachainTemplateChainInfo, _, _>(|node| async move {
 			// seals blocks
 			node.seal_blocks(1).await;
 			// submit extrinsics
@@ -134,10 +103,10 @@ mod tests {
 				.unwrap();
 
 			// look ma, I can read state.
-			let _events =
-				node.with_state(|| frame_system::Pallet::<parachain_runtime::Runtime>::events());
+			let _events = node
+				.with_state(None, || frame_system::Pallet::<parachain_runtime::Runtime>::events());
 			// get access to the underlying client.
 			let _client = node.client();
-		})
+		});
 	}
 }

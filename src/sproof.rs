@@ -34,8 +34,8 @@ use std::{marker::PhantomData, sync::Arc};
 pub struct ParachainInherentSproofProvider<B, C> {
 	// client type
 	client: Arc<C>,
-	// parachain id
-	para_id: u32,
+	// sproof builder
+	sproof_builder: Option<RelayStateSproofBuilder>,
 	_phantom: PhantomData<B>,
 }
 
@@ -46,16 +46,19 @@ where
 	<B::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
-	pub fn new(client: Arc<C>, para_id: u32) -> Self {
-		ParachainInherentSproofProvider { client, para_id, _phantom: PhantomData }
+	pub fn new(client: Arc<C>) -> Self {
+		ParachainInherentSproofProvider { client, sproof_builder: None, _phantom: PhantomData }
+	}
+
+	/// updates the sproof to a new state
+	pub fn update_sproof_builder(&mut self, sproof: RelayStateSproofBuilder) {
+		self.sproof_builder = Some(sproof);
 	}
 
 	/// Given the current slot, create the inherent.
-	pub fn create_inherent(&self, slot: u64) -> ParachainInherentData {
-		// todo: how to give upgrade signal?
-		let mut sproof = RelayStateSproofBuilder::default();
+	pub fn create_inherent(&mut self, slot: u64) -> ParachainInherentData {
+		let mut sproof = self.sproof_builder.take().unwrap_or_default();
 		sproof.current_slot = slot.into();
-		sproof.para_id = self.para_id.into();
 		sproof.host_config.validation_upgrade_delay = 1;
 
 		let info = self.client.info();

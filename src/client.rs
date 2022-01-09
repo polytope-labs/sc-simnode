@@ -16,28 +16,42 @@
 
 //! Utilities for creating the neccessary client subsystems.
 
-use crate::{default_config, ChainInfo, FullClientFor, Node};
+use crate::{
+	default_config, ChainInfo, FullClientFor, Node, ParachainInherentSproofProvider,
+	SharedParachainInherentProvider, SimnodeCli,
+};
 use futures::channel::mpsc;
 use manual_seal::{
+	consensus::{aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider},
 	import_queue,
 	rpc::{ManualSeal, ManualSealApi},
 	run_manual_seal, ConsensusDataProvider, ManualSealParams,
 };
+use parachain_inherent::ParachainInherentData;
+use sc_cli::{build_runtime, structopt::StructOpt, SubstrateCli};
 use sc_client_api::backend::Backend;
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{
 	build_network, new_full_parts, spawn_tasks, BuildNetworkParams, ChainSpec, Configuration,
 	KeystoreContainer, SpawnTasksParams, TFullBackend,
 };
+use sc_tracing::logging::LoggerBuilder;
 use sc_transaction_pool::BasicPool;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core, Metadata, TransactionFor};
 use sp_block_builder::BlockBuilder;
+use sp_blockchain::HeaderBackend;
+use sp_consensus_aura::{sr25519::AuthorityId, AuraApi};
 use sp_inherents::CreateInherentDataProviders;
 use sp_offchain::OffchainWorkerApi;
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_session::SessionKeys;
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
-use std::{str::FromStr, sync::Arc};
+use std::{
+	error::Error,
+	future::Future,
+	str::FromStr,
+	sync::{Arc, Mutex},
+};
 
 /// Provide the config or chain spec for a given chain
 pub enum ConfigOrChainSpec {
@@ -49,6 +63,7 @@ pub enum ConfigOrChainSpec {
 /// Creates all the client parts you need for [`Node`](crate::node::Node)
 pub fn build_node_subsystems<T, I>(
 	config_or_chain_spec: ConfigOrChainSpec,
+	is_parachain: bool,
 	block_import_provider: I,
 ) -> Result<Node<T>, sc_service::Error>
 where
@@ -65,11 +80,12 @@ where
 	<<T as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<T as ChainInfo>::Block as BlockT>::Header: Unpin,
 	<<<T as ChainInfo>::Block as BlockT>::Header as Header>::Number:
-		num_traits::cast::AsPrimitive<usize>,
+		num_traits::cast::AsPrimitive<usize> + num_traits::cast::AsPrimitive<u32>,
 	I: Fn(
 		Arc<FullClientFor<T>>,
 		sc_consensus::LongestChain<TFullBackend<T::Block>, T::Block>,
 		&KeystoreContainer,
+		Option<SharedParachainInherentProvider<T>>,
 	) -> Result<
 		(
 			T::BlockImport,
@@ -110,8 +126,18 @@ where
 
 	let select_chain = sc_consensus::LongestChain::new(backend.clone());
 
+	let parachain_inherent_provider = if is_parachain {
+		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
+	} else {
+		None
+	};
 	let (block_import, consensus_data_provider, create_inherent_data_providers) =
-		block_import_provider(client.clone(), select_chain.clone(), &keystore)?;
+		block_import_provider(
+			client.clone(),
+			select_chain.clone(),
+			&keystore,
+			parachain_inherent_provider.clone(),
+		)?;
 	let import_queue =
 		import_queue(Box::new(block_import.clone()), &task_manager.spawn_essential_handle(), None);
 	let pool = BasicPool::new_full(
@@ -197,7 +223,88 @@ where
 	network_starter.start_network();
 	let rpc_handler = rpc_handlers.io_handler();
 
-	let node = Node::<T>::new(rpc_handler, task_manager, client, pool, command_sink, backend);
+	let node = Node::<T> {
+		rpc_handler,
+		task_manager: Some(task_manager),
+		pool,
+		backend,
+		initial_block_number: client.info().best_number,
+		client,
+		manual_seal_command_sink: command_sink,
+		parachain_inherent_provider,
+	};
 
 	Ok(node)
+}
+
+/// Set up and run simnode for a parachain runtime.
+pub fn parachain_node<C, F, Fut>(callback: F) -> Result<(), Box<dyn Error>>
+where
+	C: ChainInfo<
+			BlockImport = Arc<FullClientFor<C>>,
+			InherentDataProviders = (
+				SlotTimestampProvider,
+				sp_consensus_aura::inherents::InherentDataProvider,
+				ParachainInherentData,
+			),
+		> + 'static,
+	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
+		Core<C::Block>
+			+ AuraApi<C::Block, AuthorityId>
+			+ Metadata<C::Block>
+			+ OffchainWorkerApi<C::Block>
+			+ SessionKeys<C::Block>
+			+ TaggedTransactionQueue<C::Block>
+			+ BlockBuilder<C::Block>
+			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>,
+	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
+	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
+	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
+	<<<C as ChainInfo>::Block as BlockT>::Header as Header>::Number:
+		num_traits::cast::AsPrimitive<usize> + num_traits::cast::AsPrimitive<u32>,
+	F: FnOnce(Node<C>) -> Fut,
+	Fut: Future<Output = Result<(), Box<dyn Error>>>,
+{
+	let tokio_runtime = build_runtime()?;
+	// parse cli args
+	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as StructOpt>::from_args();
+	let cli_config = <C as ChainInfo>::Cli::cli_config(&cli);
+
+	// set up logging
+	LoggerBuilder::new(<C as ChainInfo>::Cli::log_filters(cli_config)?).init()?;
+
+	// set up the test-runner
+	let config = cli.create_configuration(cli_config, tokio_runtime.handle().clone())?;
+	sc_cli::print_node_infos::<<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli>(&config);
+
+	let node = build_node_subsystems::<C, _>(
+		ConfigOrChainSpec::Config(config),
+		true,
+		|client, _sc, _keystore, parachain_inherent| {
+			let cloned_client = client.clone();
+			let create_inherent_data_providers = Box::new(move |_, _| {
+				let client = cloned_client.clone();
+				let parachain_sproof = parachain_inherent.clone().unwrap();
+				async move {
+					let timestamp = SlotTimestampProvider::aura(client.clone())
+						.map_err(|err| format!("{:?}", err))?;
+
+					let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
+						timestamp.slot().into(),
+					);
+
+					let parachain_system =
+						parachain_sproof.lock().unwrap().create_inherent(timestamp.slot());
+					Ok((timestamp, _aura, parachain_system))
+				}
+			});
+			let aura_provider = AuraConsensusDataProvider::new(client.clone());
+			Ok((client, Some(Box::new(aura_provider)), create_inherent_data_providers))
+		},
+	)?;
+
+	// hand off node.
+	tokio_runtime.block_on(callback(node))?;
+
+	Ok(())
 }

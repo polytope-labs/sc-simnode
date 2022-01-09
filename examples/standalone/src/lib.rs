@@ -22,6 +22,7 @@ use sc_consensus_babe::BabeBlockImport;
 use sc_consensus_manual_seal::consensus::timestamp::SlotTimestampProvider;
 use sc_service::TFullBackend;
 use sp_runtime::generic::Era;
+use std::sync::Arc;
 use substrate_simnode::{ChainInfo, FullClientFor, SignatureVerificationOverride};
 
 type BlockImport<B, BE, C, SC> = BabeBlockImport<B, C, GrandpaBlockImport<BE, B, C, SC>>;
@@ -57,6 +58,7 @@ impl ChainInfo for NodeTemplateChainInfo {
 	type SignedExtras = node_runtime::SignedExtra;
 	type InherentDataProviders =
 		(SlotTimestampProvider, sp_consensus_babe::inherents::InherentDataProvider);
+	type Cli = ();
 
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::Config>::AccountId,
@@ -94,6 +96,7 @@ mod tests {
 				Box::new(development_config()),
 				tokio_runtime.handle().clone(),
 			),
+			false,
 			|client, select_chain, keystore| {
 				let (grandpa_block_import, ..) = grandpa::block_import(
 					client.clone(),
@@ -154,7 +157,7 @@ mod tests {
 
 			// look ma, I can read state.
 			let _events =
-				node.with_state(|| frame_system::Pallet::<node_runtime::Runtime>::events());
+				node.with_state(None, || frame_system::Pallet::<node_runtime::Runtime>::events());
 			// get access to the underlying client.
 			let _client = node.client();
 		})

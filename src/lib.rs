@@ -17,7 +17,7 @@
 
 //! ### substrate-simnode
 
-use std::sync::Arc;
+use sc_cli::{structopt::StructOpt, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sc_service::TFullClient;
@@ -26,6 +26,7 @@ use sp_api::{ConstructRuntimeApi, TransactionFor};
 use sp_consensus::SelectChain;
 use sp_inherents::InherentDataProvider;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
+use std::sync::Arc;
 
 mod client;
 mod host_functions;
@@ -92,8 +93,26 @@ pub trait ChainInfo: Sized {
 	/// The inherent data providers.
 	type InherentDataProviders: InherentDataProvider + 'static;
 
+	/// Cli utilities
+	type Cli: SimnodeCli;
+
 	/// Signed extras, this function is caled in an externalities provided environment.
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras;
+}
+
+/// Cli Extension trait for simnode
+pub trait SimnodeCli {
+	/// type that implements [`CliConfiguration`]
+	type CliConfig: CliConfiguration;
+
+	/// type that implements [`SubstrateCli`]
+	type SubstrateCli: StructOpt + SubstrateCli + Sized;
+
+	/// get a reference to [`CliConfiguration`]
+	fn cli_config(cli: &Self::SubstrateCli) -> &Self::CliConfig;
+
+	/// get logging filters
+	fn log_filters(cli_config: &Self::CliConfig) -> Result<String, sc_cli::Error>;
 }
