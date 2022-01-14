@@ -18,6 +18,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
 	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
+	UncheckedExtrinsicFor,
 };
 use futures::{
 	channel::{mpsc, oneshot},
@@ -135,17 +136,7 @@ where
 		signer: Option<<T::Runtime as frame_system::Config>::AccountId>,
 	) -> Result<<T::Block as BlockT>::Hash, sc_transaction_pool::error::Error>
 	where
-		<T::Block as BlockT>::Extrinsic: From<
-			UncheckedExtrinsic<
-				MultiAddress<
-					<T::Runtime as frame_system::Config>::AccountId,
-					<T::Runtime as frame_system::Config>::Index,
-				>,
-				<T::Runtime as frame_system::Config>::Call,
-				MultiSignature,
-				T::SignedExtras,
-			>,
-		>,
+		<T::Block as BlockT>::Extrinsic: From<UncheckedExtrinsicFor<T>>,
 	{
 		let signed_data = if let Some(signer) = signer {
 			let extra = self.with_state(None, || T::signed_extras(signer.clone()));
@@ -157,16 +148,8 @@ where
 		} else {
 			None
 		};
-		let ext = UncheckedExtrinsic::<
-			MultiAddress<
-				<T::Runtime as frame_system::Config>::AccountId,
-				<T::Runtime as frame_system::Config>::Index,
-			>,
-			<T::Runtime as frame_system::Config>::Call,
-			MultiSignature,
-			T::SignedExtras,
-		>::new(call.into(), signed_data)
-		.expect("UncheckedExtrinsic::new() always returns Some");
+		let ext = UncheckedExtrinsicFor::<T>::new(call.into(), signed_data)
+			.expect("UncheckedExtrinsic::new() always returns Some");
 		let at = self.client.info().best_hash;
 
 		self.pool
