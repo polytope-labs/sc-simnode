@@ -1,40 +1,34 @@
-## substrate-simnode ⚙️
+# <h1 align="center"> substrate-simnode ⚙️ </h1>
 
-This library exists to allow substrate runtime developers test:
- - [x] complex pallets that require a full runtime
- - [x] runtime upgrades
- - [x] runtime migrations
+***
 
-This library meets its stated goals by setting up a full node complete with all subsystems (networking, import_queue, rpc, block authorship via manual seal).
+This library exists to allow substrate runtime developers:
+ - ✅ Test complex pallets that require a full runtime, not a mocked runtime.
+ - ✅ Simulate runtime upgrades.
+ - ✅ Simulate runtime migrations.
+ - ✅ Simulate transactions on their live chain state.
+
+This library meets its stated goals by setting up a full substrate node complete with all subsystems (networking, transaction pool, runtime executor, import_queue, rpc, block authorship via manual seal).
+
 Since its a full node environment, <b>it also supports resuming an existing live chain state, given the path to one</b>. 
 
 ***
 
-
-## How does it work?
-
-First you have to describe the chain you're trying to simulate.
+## Examples
 
 ```rust
-struct YourRuntimeInfo;
-
-impl ChainInfo for YourRuntimeInfo {
-    // fill in the neccessary details
+struct YourRuntimeChainInfo;
+impl substrate_simnode::ChainInfo for YourRuntimeChainInfo {
+    // fill in implementation details
 }
 
-// next create the neccessary client subsystems
-let node = build_node_subsystems::<NodeTemplateChainInfo, _>(
-    ConfigOrChainSpec::ChainSpec(
-        Box::new(development_config()),
-        tokio_runtime.handle().clone(),
-    ),
-    |_client, _select_chain, _keystore| {
-        // chain specific block_import, consensus_data_provider and inherent_data_provider
-    }
-);
+fn main() {
+    substrate_simnode::parachain_node::<YourRuntimeChainInfo, _>(|node| async move {
+        // node is a handle to the running subsystems, use it to do whatever you want.
+    });
+}
 
-// create blocks, empty if no txs in in the pool
-node.seal_blocks(10).await;
-
-// submit extrinsics into the node's txpool.
 ```
+
+
+Check out the [examples folder](./examples) to see how to set up simnode for your substrate runtime.

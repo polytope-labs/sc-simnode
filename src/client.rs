@@ -17,7 +17,7 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
-	default_config, ChainInfo, FullClientFor, Node, ParachainInherentSproofProvider,
+	ChainInfo, FullClientFor, Node, ParachainInherentSproofProvider,
 	SharedParachainInherentProvider, SimnodeCli,
 };
 use futures::channel::mpsc;
@@ -32,7 +32,7 @@ use sc_cli::{build_runtime, structopt::StructOpt, SubstrateCli};
 use sc_client_api::backend::Backend;
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{
-	build_network, new_full_parts, spawn_tasks, BuildNetworkParams, ChainSpec, Configuration,
+	build_network, new_full_parts, spawn_tasks, BuildNetworkParams, Configuration,
 	KeystoreContainer, SpawnTasksParams, TFullBackend,
 };
 use sc_tracing::logging::LoggerBuilder;
@@ -53,16 +53,9 @@ use std::{
 	sync::{Arc, Mutex},
 };
 
-/// Provide the config or chain spec for a given chain
-pub enum ConfigOrChainSpec {
-	/// Configuration object
-	Config(Configuration),
-	/// Chain spec object
-	ChainSpec(Box<dyn ChainSpec>, tokio::runtime::Handle),
-}
 /// Creates all the client parts you need for [`Node`](crate::node::Node)
 pub fn build_node_subsystems<T, I>(
-	config_or_chain_spec: ConfigOrChainSpec,
+	config: Configuration,
 	is_parachain: bool,
 	block_import_provider: I,
 ) -> Result<Node<T>, sc_service::Error>
@@ -108,12 +101,6 @@ where
 		sc_service::Error,
 	>,
 {
-	let config = match config_or_chain_spec {
-		ConfigOrChainSpec::Config(config) => config,
-		ConfigOrChainSpec::ChainSpec(chain_spec, tokio_handle) =>
-			default_config(tokio_handle, chain_spec),
-	};
-
 	let executor = NativeElseWasmExecutor::<T::ExecutorDispatch>::new(
 		config.wasm_method,
 		config.default_heap_pages,
@@ -237,6 +224,98 @@ where
 	Ok(node)
 }
 
+/// Set up and run simnode for a standalone runtime.
+pub fn standalone_node<C, B, F, Fut>(build_subsystems: B, callback: F) -> Result<(), Box<dyn Error>>
+where
+	C: ChainInfo + 'static,
+	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
+		Core<C::Block>
+			+ Metadata<C::Block>
+			+ OffchainWorkerApi<C::Block>
+			+ SessionKeys<C::Block>
+			+ TaggedTransactionQueue<C::Block>
+			+ BlockBuilder<C::Block>
+			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>,
+	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
+	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
+	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
+	<<<C as ChainInfo>::Block as BlockT>::Header as Header>::Number:
+		num_traits::cast::AsPrimitive<usize> + num_traits::cast::AsPrimitive<u32>,
+	F: FnOnce(Node<C>) -> Fut,
+	Fut: Future<Output = Result<(), Box<dyn Error>>>,
+	B: Fn(
+		Arc<FullClientFor<C>>,
+		sc_consensus::LongestChain<TFullBackend<C::Block>, C::Block>,
+		&KeystoreContainer,
+		Option<SharedParachainInherentProvider<C>>,
+	) -> Result<
+		(
+			C::BlockImport,
+			Option<
+				Box<
+					dyn ConsensusDataProvider<
+						C::Block,
+						Transaction = TransactionFor<FullClientFor<C>, C::Block>,
+					>,
+				>,
+			>,
+			Box<
+				dyn CreateInherentDataProviders<
+					C::Block,
+					(),
+					InherentDataProviders = C::InherentDataProviders,
+				>,
+			>,
+		),
+		sc_service::Error,
+	>,
+	B: Fn(
+		Arc<FullClientFor<C>>,
+		sc_consensus::LongestChain<TFullBackend<C::Block>, C::Block>,
+		&KeystoreContainer,
+		Option<SharedParachainInherentProvider<C>>,
+	) -> Result<
+		(
+			C::BlockImport,
+			Option<
+				Box<
+					dyn ConsensusDataProvider<
+						C::Block,
+						Transaction = TransactionFor<FullClientFor<C>, C::Block>,
+					>,
+				>,
+			>,
+			Box<
+				dyn CreateInherentDataProviders<
+					C::Block,
+					(),
+					InherentDataProviders = C::InherentDataProviders,
+				>,
+			>,
+		),
+		sc_service::Error,
+	>,
+{
+	let tokio_runtime = build_runtime()?;
+	// parse cli args
+	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as StructOpt>::from_args();
+	let cli_config = <C as ChainInfo>::Cli::cli_config(&cli);
+
+	// set up logging
+	LoggerBuilder::new(<C as ChainInfo>::Cli::log_filters(cli_config)?).init()?;
+
+	// set up the test-runner
+	let config = cli.create_configuration(cli_config, tokio_runtime.handle().clone())?;
+	sc_cli::print_node_infos::<<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli>(&config);
+
+	let node = build_node_subsystems::<C, _>(config, false, build_subsystems)?;
+
+	// hand off node.
+	tokio_runtime.block_on(callback(node))?;
+
+	Ok(())
+}
+
 /// Set up and run simnode for a parachain runtime.
 pub fn parachain_node<C, F, Fut>(callback: F) -> Result<(), Box<dyn Error>>
 where
@@ -278,7 +357,7 @@ where
 	sc_cli::print_node_infos::<<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli>(&config);
 
 	let node = build_node_subsystems::<C, _>(
-		ConfigOrChainSpec::Config(config),
+		config,
 		true,
 		|client, _sc, _keystore, parachain_inherent| {
 			let cloned_client = client.clone();

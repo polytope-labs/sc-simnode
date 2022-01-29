@@ -18,6 +18,8 @@ pallet-asset-tx-payment = {  git = "https://github.com/paritytech/substrate", br
 node-runtime = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 node-primitives = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
 node-cli = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
+sc-cli = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
+polkadot-cli = {  git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.13" }
 
 # client
 sc-consensus-babe = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.13" }
