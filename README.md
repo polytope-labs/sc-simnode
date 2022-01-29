@@ -1,6 +1,5 @@
 # <h1 align="center"> substrate-simnode ⚙️ </h1>
 
-***
 
 This library exists to allow substrate runtime developers:
  - ✅ Test complex pallets that require a full runtime, not a mocked runtime.
@@ -24,7 +23,11 @@ impl substrate_simnode::ChainInfo for YourRuntimeChainInfo {
 
 fn main() {
     substrate_simnode::parachain_node::<YourRuntimeChainInfo, _>(|node| async move {
-        // node is a handle to the running subsystems, use it to do whatever you want.
+        // node is a handle to the running subsystems, use it to:
+        // - submit transactions to the transaction pool, from any on-chain account
+        // - seal blocks
+        // - inspect pallet state
+        // - revert blocks
     });
 }
 
