@@ -36,13 +36,11 @@ mod client;
 mod host_functions;
 mod node;
 mod sproof;
-mod utils;
 
 pub use client::*;
 pub use host_functions::*;
 pub use node::*;
 pub use sproof::*;
-pub use utils::*;
 
 /// Type alias for [`sc_service::TFullClient`]
 pub type FullClientFor<C> = TFullClient<
