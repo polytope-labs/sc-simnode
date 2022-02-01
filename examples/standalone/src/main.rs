@@ -110,6 +110,7 @@ impl ChainInfo for NodeTemplateChainInfo {
         from: <Self::Runtime as frame_system::Config>::AccountId,
     ) -> Self::SignedExtras {
         (
+            frame_system::CheckNonZeroSender::<Self::Runtime>::new(),
             frame_system::CheckSpecVersion::<Self::Runtime>::new(),
             frame_system::CheckTxVersion::<Self::Runtime>::new(),
             frame_system::CheckGenesis::<Self::Runtime>::new(),
@@ -123,7 +124,7 @@ impl ChainInfo for NodeTemplateChainInfo {
     }
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     substrate_simnode::standalone_node::<NodeTemplateChainInfo, _, _, _>(
         |client, select_chain, keystore, _| {
             // set up the babe -> grandpa import pipeline
@@ -134,7 +135,7 @@ fn main() {
                 None,
             )?;
 
-            let slot_duration = sc_consensus_babe::Config::get_or_compute(&*client)?;
+            let slot_duration = sc_consensus_babe::Config::get(&*client)?;
             let (block_import, babe_link) = sc_consensus_babe::block_import(
                 slot_duration.clone(),
                 grandpa_block_import,
@@ -159,7 +160,7 @@ fn main() {
                     let client = cloned_client.clone();
                     async move {
                         // inherents that our runtime expects.
-                        let timestamp = SlotTimestampProvider::babe(client.clone())
+                        let timestamp = SlotTimestampProvider::new_babe(client.clone())
                             .map_err(|err| format!("{:?}", err))?;
                         let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
                             timestamp.slot().into(),
@@ -192,12 +193,12 @@ fn main() {
             // look ma, I can read state.
             let _events =
                 node.with_state(None, || frame_system::Pallet::<node_runtime::Runtime>::events());
-            
+
             println!("{:#?}", _events);
             // get access to the underlying client.
             let _client = node.client();
 
             Ok(())
         },
-    );
+    )
 }

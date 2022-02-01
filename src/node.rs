@@ -27,17 +27,17 @@ use futures::{
 use jsonrpc_core::MetaIoHandler;
 use manual_seal::EngineCommand;
 use polkadot_primitives::v1::UpgradeGoAhead;
-use sc_client_api::{backend::Backend, ExecutorProvider};
+use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
-use sc_service::{TFullBackend, TFullClient, TaskManager};
+use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
 use sp_api::{OverlayedChanges, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
 use sp_runtime::{
-	generic::BlockId,
+	generic::{BlockId},
 	traits::{Block as BlockT, Extrinsic, Header, NumberFor},
 	transaction_validity::TransactionSource,
-	MultiSignature,
+	 MultiSignature,
 };
 use sp_state_machine::Ext;
 use sproof_builder::RelayStateSproofBuilder;
@@ -105,7 +105,11 @@ where
 	}
 
 	/// Allows you read state at any given block, provided it hasn't been pruned.
-	pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R {
+	pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R
+	where
+		<TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
+			std::fmt::Debug,
+	{
 		let mut overlay = OverlayedChanges::default();
 		let mut cache = StorageTransactionCache::<
 			T::Block,

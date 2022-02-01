@@ -102,6 +102,7 @@ impl ChainInfo for ParachainTemplateChainInfo {
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras {
 		(
+			frame_system::CheckNonZeroSender::<Self::Runtime>::new(),
 			frame_system::CheckSpecVersion::<Self::Runtime>::new(),
 			frame_system::CheckTxVersion::<Self::Runtime>::new(),
 			frame_system::CheckGenesis::<Self::Runtime>::new(),
@@ -115,7 +116,7 @@ impl ChainInfo for ParachainTemplateChainInfo {
 	}
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>>{
 	substrate_simnode::parachain_node::<ParachainTemplateChainInfo, _, _>(|node| async move {
 		// submit extrinsics to the tx pool.
 		let alice = MultiSigner::from(Alice.public()).into_account();
@@ -140,5 +141,5 @@ fn main() {
 		let _client = node.client();
 
 		Ok(())
-	});
+	})
 }

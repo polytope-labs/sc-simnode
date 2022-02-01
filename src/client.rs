@@ -105,6 +105,7 @@ where
 		config.wasm_method,
 		config.default_heap_pages,
 		config.max_runtime_instances,
+		config.runtime_cache_size,
 	);
 
 	let (client, backend, keystore, mut task_manager) =
@@ -365,7 +366,7 @@ where
 				let client = cloned_client.clone();
 				let parachain_sproof = parachain_inherent.clone().unwrap();
 				async move {
-					let timestamp = SlotTimestampProvider::aura(client.clone())
+					let timestamp = SlotTimestampProvider::new_aura(client.clone())
 						.map_err(|err| format!("{:?}", err))?;
 
 					let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
