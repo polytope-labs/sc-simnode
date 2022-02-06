@@ -60,6 +60,7 @@ where
 		let mut sproof = self.sproof_builder.take().unwrap_or_default();
 		sproof.current_slot = slot.into();
 		sproof.host_config.validation_upgrade_delay = 1;
+		sproof.host_config.max_code_size = 15 * 1024 * 1024;
 
 		let info = self.client.info();
 		let header = self
