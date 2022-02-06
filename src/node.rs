@@ -182,10 +182,23 @@ where
 	}
 
 	/// Instructs manual seal to seal new, possibly empty blocks.
-	pub async fn seal_blocks(&self, num: usize) {
+	pub async fn seal_blocks(&self, num: usize)
+		where
+			<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+			T::Runtime: parachain_info::Config,
+	{
 		let mut sink = self.manual_seal_command_sink.clone();
 
 		for count in 0..num {
+			if let Some(sproof_provider) = &self.parachain_inherent_provider {
+				let para_id =
+					self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
+				let builder = RelayStateSproofBuilder {
+					para_id,
+					..Default::default()
+				};
+				sproof_provider.lock().unwrap().update_sproof_builder(builder)
+			}
 			let (sender, future_block) = oneshot::channel();
 			let future = sink.send(EngineCommand::SealNewBlock {
 				create_empty: true,
