@@ -208,7 +208,7 @@ where
 		.spawn_essential_handle()
 		.spawn("manual-seal", None, authorship_future);
 
-	network_starter.start_network();
+	// network_starter.start_network();
 	let rpc_handler = rpc_handlers.io_handler();
 
 	let node = Node::<T> {
