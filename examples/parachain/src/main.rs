@@ -80,8 +80,6 @@ impl ChainInfo for ParachainTemplateChainInfo {
 	type SelectChain = sc_consensus::LongestChain<TFullBackend<Self::Block>, Self::Block>;
 	// no consensus checks are performed on blocks that are to be imported.
 	type BlockImport = Arc<FullClientFor<Self>>;
-	// Signed extras for tx construction
-	type SignedExtras = parachain_runtime::SignedExtra;
 	// Inherent providers
 	type InherentDataProviders = (
 		//  Here we use [`SlotTimestampProvider`] to provide us with the next timestamp,
@@ -97,33 +95,16 @@ impl ChainInfo for ParachainTemplateChainInfo {
 	);
 	// Pass your Cli impl here
 	type Cli = PolkadotCli;
-
-	fn signed_extras(
-		from: <Self::Runtime as frame_system::Config>::AccountId,
-	) -> Self::SignedExtras {
-		(
-			frame_system::CheckNonZeroSender::<Self::Runtime>::new(),
-			frame_system::CheckSpecVersion::<Self::Runtime>::new(),
-			frame_system::CheckTxVersion::<Self::Runtime>::new(),
-			frame_system::CheckGenesis::<Self::Runtime>::new(),
-			frame_system::CheckEra::<Self::Runtime>::from(Era::Immortal),
-			frame_system::CheckNonce::<Self::Runtime>::from(
-				frame_system::Pallet::<Self::Runtime>::account_nonce(from),
-			),
-			frame_system::CheckWeight::<Self::Runtime>::new(),
-			pallet_transaction_payment::ChargeTransactionPayment::<Self::Runtime>::from(0),
-		)
-	}
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>>{
+fn main() -> Result<(), Box<dyn std::error::Error>> {
 	substrate_simnode::parachain_node::<ParachainTemplateChainInfo, _, _>(|node| async move {
 		// submit extrinsics to the tx pool.
 		let alice = MultiSigner::from(Alice.public()).into_account();
 		let _hash = node
 			.submit_extrinsic(
 				frame_system::Call::remark_with_event { remark: (b"hello world").to_vec() },
-				Some(alice),
+				Some(AccountIdOrPair::<parachain_runtime::Runtime, _>::Keypair(alice)),
 			)
 			.await
 			.unwrap();

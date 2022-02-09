@@ -136,7 +136,7 @@ where
 		client.clone(),
 	);
 
-	let (network, system_rpc_tx, network_starter) = {
+	let (network, system_rpc_tx, _network_starter) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),

@@ -7,6 +7,7 @@ publish = false
 
 [dependencies]
 substrate-simnode = { path = "../../" }
+runtime-apis = { path = "../../runtime-apis" }
 
 # pallets
 frame-system = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }

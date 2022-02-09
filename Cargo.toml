@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [workspace]
-members = ["examples/standalone", "examples/parachain"]
+members = ["examples/standalone", "examples/parachain", "runtime-apis"]
 
 [dependencies]
 # client deps
@@ -68,6 +68,9 @@ tokio = { version = "1.13", features = ["signal"] }
 # Calling RPC
 jsonrpc-core = "18.0"
 num-traits = "0.2.14"
+
+# local deps
+runtime-apis = { path = "./runtime-apis" }
 
 [features]
 default = ["std"]

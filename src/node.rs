@@ -18,7 +18,6 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
 	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
-	UncheckedExtrinsicFor,
 };
 use futures::{
 	channel::{mpsc, oneshot},
@@ -27,6 +26,7 @@ use futures::{
 use jsonrpc_core::MetaIoHandler;
 use manual_seal::EngineCommand;
 use polkadot_primitives::v1::UpgradeGoAhead;
+use runtime_apis::CreateTransaction;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
@@ -34,10 +34,10 @@ use sp_api::{OverlayedChanges, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
 use sp_runtime::{
-	generic::{BlockId},
-	traits::{Block as BlockT, Extrinsic, Header, NumberFor},
+	generic::BlockId,
+	traits::{Block as BlockT, Header, NumberFor},
 	transaction_validity::TransactionSource,
-	 MultiSignature,
+	MultiSignature,
 };
 use sp_state_machine::Ext;
 use sproof_builder::RelayStateSproofBuilder;
@@ -136,20 +136,23 @@ where
 		signer: Option<<T::Runtime as frame_system::Config>::AccountId>,
 	) -> Result<<T::Block as BlockT>::Hash, sc_transaction_pool::error::Error>
 	where
-		<T::Block as BlockT>::Extrinsic: From<UncheckedExtrinsicFor<T>>,
+		<<T as ChainInfo>::Block as BlockT>::Extrinsic: From<
+			<<T as ChainInfo>::Runtime as CreateTransaction<<T as ChainInfo>::Runtime>>::Extrinsic,
+		>,
 	{
-		let signed_data = if let Some(signer) = signer {
-			let extra = self.with_state(None, || T::signed_extras(signer.clone()));
-			Some((
-				signer.into(),
-				MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
-				extra,
-			))
-		} else {
-			None
+		let ext = {
+			self.with_state(None, || {
+				let signature =
+					MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64]));
+				<T::Runtime as CreateTransaction<T::Runtime>>::create_transaction(
+					call.into(),
+					signer,
+					signature,
+				)
+			})
+			.expect("Extrinsic should always Some")
 		};
-		let ext = UncheckedExtrinsicFor::<T>::new(call.into(), signed_data)
-			.expect("UncheckedExtrinsic::new() always returns Some");
+
 		let at = self.client.info().best_hash;
 
 		self.pool
@@ -183,9 +186,9 @@ where
 
 	/// Instructs manual seal to seal new, possibly empty blocks.
 	pub async fn seal_blocks(&self, num: usize)
-		where
-			<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
-			T::Runtime: parachain_info::Config,
+	where
+		<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+		T::Runtime: parachain_info::Config,
 	{
 		let mut sink = self.manual_seal_command_sink.clone();
 
@@ -193,10 +196,7 @@ where
 			if let Some(sproof_provider) = &self.parachain_inherent_provider {
 				let para_id =
 					self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
-				let builder = RelayStateSproofBuilder {
-					para_id,
-					..Default::default()
-				};
+				let builder = RelayStateSproofBuilder { para_id, ..Default::default() };
 				sproof_provider.lock().unwrap().update_sproof_builder(builder)
 			}
 			let (sender, future_block) = oneshot::channel();
