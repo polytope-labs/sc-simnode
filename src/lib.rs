@@ -17,7 +17,6 @@
 
 //! ### substrate-simnode
 
-use runtime_apis::CreateTransaction;
 use sc_cli::{structopt::StructOpt, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
