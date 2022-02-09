@@ -22,7 +22,7 @@ use sc_cli::{CliConfiguration, Error};
 use sc_consensus_manual_seal::consensus::timestamp::SlotTimestampProvider;
 use sc_service::TFullBackend;
 use sp_keyring::sr25519::Keyring::Alice;
-use sp_runtime::{generic::Era, traits::IdentifyAccount, MultiSigner};
+use sp_runtime::{traits::IdentifyAccount, MultiSigner};
 use std::sync::Arc;
 use substrate_simnode::{ChainInfo, FullClientFor, SignatureVerificationOverride, SimnodeCli};
 
