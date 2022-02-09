@@ -15,6 +15,7 @@ frame-system = {git = "https://github.com/paritytech/substrate", default-feature
 
 # primitive deps
 sp-api = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
+sp-std = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
 sp-runtime = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
 
 [features]
@@ -24,4 +25,5 @@ std = [
   "frame-system/std",
   "sp-api/std",
   "sp-runtime/std",
+  "sp-std/std",
 ]
