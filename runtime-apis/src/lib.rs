@@ -12,23 +12,23 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-use codec::Encode;
-use sp_runtime::{traits::Extrinsic, MultiSignature};
+use codec::Codec;
 
+sp_api::decl_runtime_apis! {
 /// Create transaction.
 /// This trait is meant to be implemented by the runtime and is responsible for constructing
 /// a transaction to be included in the block.
-pub trait CreateTransaction<T: frame_system::Config> {
-	type Extrinsic: Extrinsic + Encode;
-	/// Attempt to create signed transaction
-	/// Runtime implementation is free to construct the payload to sign
-	/// in any way it wants.
-	/// Returns `None` if signed transaction could not be created (
-	/// for runtime-specific reason).
-	/// If signer is None, an unsigned extrinsic should be created.
-	fn create_transaction(
-		call: <T as frame_system::Config>::Call,
-		account: Option<<T as frame_system::Config>::AccountId>,
-		signature: MultiSignature,
-	) -> Option<Self::Extrinsic>;
+	pub trait CreateTransaction<AccountId: Codec, Call: Codec> {
+		/// Attempt to create signed transaction
+		/// Runtime implementation is free to construct the payload to sign
+		/// in any way it wants.
+		/// Returns a scale encoded extrinsic
+		/// Returns `None` if signed transaction could not be created (
+		/// for runtime-specific reason).
+		/// If signer is None, an unsigned extrinsic should be created.
+		fn create_transaction(
+			call: Call,
+			account: Option<AccountId>,
+		) -> Option<Vec<u8>>;
+	}
 }

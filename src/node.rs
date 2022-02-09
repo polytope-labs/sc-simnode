@@ -19,6 +19,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
 	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
 };
+use codec::Decode;
 use futures::{
 	channel::{mpsc, oneshot},
 	FutureExt, SinkExt,
@@ -30,14 +31,13 @@ use runtime_apis::CreateTransaction;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
-use sp_api::{OverlayedChanges, StorageTransactionCache};
+use sp_api::{ConstructRuntimeApi, OverlayedChanges, ProvideRuntimeApi, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
 use sp_runtime::{
 	generic::BlockId,
 	traits::{Block as BlockT, Header, NumberFor},
 	transaction_validity::TransactionSource,
-	MultiSignature,
 };
 use sp_state_machine::Ext;
 use sproof_builder::RelayStateSproofBuilder;
@@ -45,6 +45,14 @@ use sproof_builder::RelayStateSproofBuilder;
 /// Shared instance of [`ParachainInherentSproofProvider`]
 pub type SharedParachainInherentProvider<T> =
 	Arc<Mutex<ParachainInherentSproofProvider<<T as ChainInfo>::Block, FullClientFor<T>>>>;
+
+/// Node Error type
+pub enum Error {
+	/// Transaction pool errors
+	TxPool(sc_transaction_pool::error::Error),
+	/// Extrinsic related errors
+	ExtrinsicError(String),
+}
 
 /// This holds a reference to a running node on another thread,
 /// the node process is dropped when this struct is dropped
@@ -77,6 +85,14 @@ type EventRecord<T> = frame_system::EventRecord<
 impl<T> Node<T>
 where
 	T: ChainInfo,
+	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
+		CreateTransaction<
+			T::Block,
+			<T::Runtime as frame_system::Config>::AccountId,
+			<T::Runtime as frame_system::Config>::Call,
+		>,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<<T::Block as BlockT>::Header as Header>::Number: From<u32>,
 {
 	/// Returns a reference to the rpc handlers, use this to send rpc requests.
@@ -134,30 +150,31 @@ where
 		&self,
 		call: impl Into<<T::Runtime as frame_system::Config>::Call>,
 		signer: Option<<T::Runtime as frame_system::Config>::AccountId>,
-	) -> Result<<T::Block as BlockT>::Hash, sc_transaction_pool::error::Error>
-	where
-		<<T as ChainInfo>::Block as BlockT>::Extrinsic: From<
-			<<T as ChainInfo>::Runtime as CreateTransaction<<T as ChainInfo>::Runtime>>::Extrinsic,
-		>,
-	{
-		let ext = {
-			self.with_state(None, || {
-				let signature =
-					MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64]));
-				<T::Runtime as CreateTransaction<T::Runtime>>::create_transaction(
-					call.into(),
-					signer,
-					signature,
-				)
-			})
-			.expect("Extrinsic should always Some")
-		};
-
+	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
+		let id = BlockId::Hash(at);
+		let raw_bytes = self
+			.with_state(None, || {
+				self.client
+					.runtime_api()
+					.create_transaction(&id, call.into(), signer)
+					.ok()
+					.flatten()
+			})
+			.ok_or(Error::ExtrinsicError("Runtime API returned None".into()))?;
+		let ext = match <T::Block as BlockT>::Extrinsic::decode(&mut &*raw_bytes) {
+			Ok(xt) => xt,
+			Err(e) =>
+				return Err(Error::ExtrinsicError(format!(
+					"Extrinsic could not be decoded: {:?}",
+					e
+				))),
+		};
 
 		self.pool
 			.submit_one(&BlockId::Hash(at), TransactionSource::Local, ext.into())
 			.await
+			.map_err(|e| Error::TxPool(e))
 	}
 
 	/// Get the events at [`BlockId`]
@@ -221,11 +238,6 @@ where
 		}
 	}
 
-	/// Revert count number of blocks from the chain.
-	pub fn revert_blocks(&self, count: NumberFor<T::Block>) {
-		self.backend.revert(count, true).expect("Failed to revert blocks: ");
-	}
-
 	/// so you've decided to run the test runner as a binary, use this to shutdown gracefully.
 	pub async fn until_shutdown(mut self) {
 		let manager = self.task_manager.take();
@@ -235,6 +247,13 @@ where
 			futures::pin_mut!(signal);
 			futures::future::select(task, signal).await;
 		}
+	}
+}
+
+impl<T: ChainInfo> Node<T> {
+	/// Revert count number of blocks from the chain.
+	pub fn revert_blocks(&self, count: NumberFor<T::Block>) {
+		self.backend.revert(count, true).expect("Failed to revert blocks: ");
 	}
 }
 

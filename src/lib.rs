@@ -68,7 +68,7 @@ pub trait ChainInfo: Sized {
 	type ExecutorDispatch: NativeExecutionDispatch + 'static;
 
 	/// Runtime
-	type Runtime: frame_system::Config + CreateTransaction<Self::Runtime>;
+	type Runtime: frame_system::Config;
 
 	/// RuntimeApi
 	type RuntimeApi: Send + Sync + 'static + ConstructRuntimeApi<Self::Block, FullClientFor<Self>>;

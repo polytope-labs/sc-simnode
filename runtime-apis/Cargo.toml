@@ -14,7 +14,7 @@ codec = {package = "parity-scale-codec", default-features = false, version = "2.
 frame-system = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
 
 # primitive deps
-sp-core = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
+sp-api = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
 sp-runtime = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
 
 [features]
@@ -22,6 +22,6 @@ default = ["std"]
 std = [
   "codec/std",
   "frame-system/std",
-  "sp-core/std",
+  "sp-api/std",
   "sp-runtime/std",
 ]

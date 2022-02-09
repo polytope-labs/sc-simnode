@@ -28,6 +28,7 @@ use manual_seal::{
 	run_manual_seal, ConsensusDataProvider, ManualSealParams,
 };
 use parachain_inherent::ParachainInherentData;
+use runtime_apis::CreateTransaction;
 use sc_cli::{build_runtime, structopt::StructOpt, SubstrateCli};
 use sc_client_api::backend::Backend;
 use sc_executor::NativeElseWasmExecutor;
@@ -68,12 +69,19 @@ where
 			+ SessionKeys<T::Block>
 			+ TaggedTransactionQueue<T::Block>
 			+ BlockBuilder<T::Block>
-			+ ApiExt<T::Block, StateBackend = <TFullBackend<T::Block> as Backend<T::Block>>::State>,
+			+ ApiExt<T::Block, StateBackend = <TFullBackend<T::Block> as Backend<T::Block>>::State>
+			+ CreateTransaction<
+				T::Block,
+				<T::Runtime as frame_system::Config>::AccountId,
+				<T::Runtime as frame_system::Config>::Call,
+			>,
 	<T::Runtime as frame_system::Config>::Call: From<frame_system::Call<T::Runtime>>,
 	<<T as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<T as ChainInfo>::Block as BlockT>::Header: Unpin,
 	<<<T as ChainInfo>::Block as BlockT>::Header as Header>::Number:
 		num_traits::cast::AsPrimitive<usize> + num_traits::cast::AsPrimitive<u32>,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	I: Fn(
 		Arc<FullClientFor<T>>,
 		sc_consensus::LongestChain<TFullBackend<T::Block>, T::Block>,
@@ -236,7 +244,14 @@ where
 			+ SessionKeys<C::Block>
 			+ TaggedTransactionQueue<C::Block>
 			+ BlockBuilder<C::Block>
-			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>,
+			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>
+			+ CreateTransaction<
+				C::Block,
+				<C::Runtime as frame_system::Config>::AccountId,
+				<C::Runtime as frame_system::Config>::Call,
+			>,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
 	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
@@ -336,7 +351,14 @@ where
 			+ SessionKeys<C::Block>
 			+ TaggedTransactionQueue<C::Block>
 			+ BlockBuilder<C::Block>
-			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>,
+			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>
+			+ CreateTransaction<
+				C::Block,
+				<C::Runtime as frame_system::Config>::AccountId,
+				<C::Runtime as frame_system::Config>::Call,
+			>,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
 	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
