@@ -70,7 +70,7 @@ jsonrpc-core = "18.0"
 num-traits = "0.2.14"
 
 # local deps
-runtime-apis = { path = "./runtime-apis" }
+simnode-runtime-apis = { path = "./runtime-apis" }
 
 [features]
 default = ["std"]

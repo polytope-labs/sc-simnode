@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "runtime-apis"
+name = "simnode-runtime-apis"
 authors = ["David Salami <wizdave97@gmail.com>"]
 version = "0.1.0"
 publish = false
@@ -8,22 +8,17 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-codec = {package = "parity-scale-codec", default-features = false, version = "2.0.0"}
-
-# frame deps
-frame-system = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
+codec = { package = "parity-scale-codec", default-features = false, version = "2.0.0" }
 
 # primitive deps
 sp-api = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
 sp-std = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
-sp-runtime = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.16"}
+
 
 [features]
 default = ["std"]
 std = [
   "codec/std",
-  "frame-system/std",
   "sp-api/std",
-  "sp-runtime/std",
   "sp-std/std",
 ]
