@@ -27,10 +27,10 @@ use futures::{
 use jsonrpc_core::MetaIoHandler;
 use manual_seal::EngineCommand;
 use polkadot_primitives::v1::UpgradeGoAhead;
-use simnode_runtime_apis::CreateTransaction;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
+use simnode_runtime_apis::CreateTransaction;
 use sp_api::{ConstructRuntimeApi, OverlayedChanges, ProvideRuntimeApi, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
@@ -47,12 +47,21 @@ pub type SharedParachainInherentProvider<T> =
 	Arc<Mutex<ParachainInherentSproofProvider<<T as ChainInfo>::Block, FullClientFor<T>>>>;
 
 /// Node Error type
+#[derive(Debug)]
 pub enum Error {
 	/// Transaction pool errors
 	TxPool(sc_transaction_pool::error::Error),
 	/// Extrinsic related errors
 	ExtrinsicError(String),
 }
+
+impl std::fmt::Display for Error {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{:?}", self)
+	}
+}
+
+impl std::error::Error for Error {}
 
 /// This holds a reference to a running node on another thread,
 /// the node process is dropped when this struct is dropped
