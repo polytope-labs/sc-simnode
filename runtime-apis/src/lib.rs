@@ -12,6 +12,8 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+#![cfg_attr(not(feature = "std"), no_std)]
+
 use codec::Codec;
 #[cfg(not(feature = "std"))]
 use sp_std::vec::Vec;
