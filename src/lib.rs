@@ -25,11 +25,7 @@ use sc_transaction_pool_api::TransactionPool;
 use sp_api::{ConstructRuntimeApi, TransactionFor};
 use sp_consensus::SelectChain;
 use sp_inherents::InherentDataProvider;
-use sp_runtime::{
-	generic::UncheckedExtrinsic,
-	traits::{Block as BlockT, SignedExtension},
-	MultiAddress, MultiSignature,
-};
+use sp_runtime::traits::Block as BlockT;
 use std::sync::Arc;
 
 mod client;
@@ -47,17 +43,6 @@ pub type FullClientFor<C> = TFullClient<
 	<C as ChainInfo>::Block,
 	<C as ChainInfo>::RuntimeApi,
 	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
->;
-
-/// UncheckedExtrinsic type for Simnode
-pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
-	MultiAddress<
-		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
-		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
-	>,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::Call,
-	MultiSignature,
-	<T as ChainInfo>::SignedExtras,
 >;
 
 /// Type alias for [`sc_transaction_pool_api::TransactionPool`]
@@ -100,19 +85,11 @@ pub trait ChainInfo: Sized {
 			Transaction = TransactionFor<FullClientFor<Self>, Self::Block>,
 		> + 'static;
 
-	/// The signed extras required by the runtime
-	type SignedExtras: SignedExtension;
-
 	/// The inherent data providers.
 	type InherentDataProviders: InherentDataProvider + 'static;
 
 	/// Cli utilities
 	type Cli: SimnodeCli;
-
-	/// Signed extras, this function is caled in an externalities provided environment.
-	fn signed_extras(
-		from: <Self::Runtime as frame_system::Config>::AccountId,
-	) -> Self::SignedExtras;
 }
 
 /// Cli Extension trait for simnode

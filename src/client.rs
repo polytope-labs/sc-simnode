@@ -37,6 +37,7 @@ use sc_service::{
 };
 use sc_tracing::logging::LoggerBuilder;
 use sc_transaction_pool::BasicPool;
+use simnode_runtime_apis::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core, Metadata, TransactionFor};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
@@ -68,12 +69,19 @@ where
 			+ SessionKeys<T::Block>
 			+ TaggedTransactionQueue<T::Block>
 			+ BlockBuilder<T::Block>
-			+ ApiExt<T::Block, StateBackend = <TFullBackend<T::Block> as Backend<T::Block>>::State>,
+			+ ApiExt<T::Block, StateBackend = <TFullBackend<T::Block> as Backend<T::Block>>::State>
+			+ CreateTransactionApi<
+				T::Block,
+				<T::Runtime as frame_system::Config>::AccountId,
+				<T::Runtime as frame_system::Config>::Call,
+			>,
 	<T::Runtime as frame_system::Config>::Call: From<frame_system::Call<T::Runtime>>,
 	<<T as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<T as ChainInfo>::Block as BlockT>::Header: Unpin,
 	<<<T as ChainInfo>::Block as BlockT>::Header as Header>::Number:
 		num_traits::cast::AsPrimitive<usize> + num_traits::cast::AsPrimitive<u32>,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	I: Fn(
 		Arc<FullClientFor<T>>,
 		sc_consensus::LongestChain<TFullBackend<T::Block>, T::Block>,
@@ -136,7 +144,7 @@ where
 		client.clone(),
 	);
 
-	let (network, system_rpc_tx, network_starter) = {
+	let (network, system_rpc_tx, _network_starter) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),
@@ -236,7 +244,14 @@ where
 			+ SessionKeys<C::Block>
 			+ TaggedTransactionQueue<C::Block>
 			+ BlockBuilder<C::Block>
-			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>,
+			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>
+			+ CreateTransactionApi<
+				C::Block,
+				<C::Runtime as frame_system::Config>::AccountId,
+				<C::Runtime as frame_system::Config>::Call,
+			>,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
 	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
@@ -336,7 +351,14 @@ where
 			+ SessionKeys<C::Block>
 			+ TaggedTransactionQueue<C::Block>
 			+ BlockBuilder<C::Block>
-			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>,
+			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>
+			+ CreateTransactionApi<
+				C::Block,
+				<C::Runtime as frame_system::Config>::AccountId,
+				<C::Runtime as frame_system::Config>::Call,
+			>,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
 	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
