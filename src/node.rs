@@ -37,6 +37,7 @@ use sp_runtime::{
 	generic::BlockId,
 	traits::{Block as BlockT, Header, NumberFor},
 	transaction_validity::TransactionSource,
+	OpaqueExtrinsic,
 };
 use sp_state_machine::Ext;
 use sproof_builder::RelayStateSproofBuilder;
@@ -102,7 +103,7 @@ where
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<<T::Block as BlockT>::Header as Header>::Number: From<u32>,
-	<T::Block as BlockT>::Extrinsic: From<Vec<u8>>,
+	<<T as ChainInfo>::Block as BlockT>::Extrinsic: From<OpaqueExtrinsic>,
 {
 	/// Returns a reference to the rpc handlers, use this to send rpc requests.
 	/// eg
@@ -167,7 +168,8 @@ where
 			.runtime_api()
 			.create_transaction(&id, call.into(), signer)
 			.map_err(|_| Error::ExtrinsicError("Runtime API returned Err".into()))?;
-		let ext: <T::Block as BlockT>::Extrinsic = raw_bytes.into();
+		let ext = OpaqueExtrinsic::from_bytes(&raw_bytes[..])
+			.map_err(|_| Error::ExtrinsicError("Could not decode extrinsic".into()))?;
 
 		self.pool
 			.submit_one(&BlockId::Hash(at), TransactionSource::Local, ext.into())
