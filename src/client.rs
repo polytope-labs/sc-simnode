@@ -37,7 +37,7 @@ use sc_service::{
 };
 use sc_tracing::logging::LoggerBuilder;
 use sc_transaction_pool::BasicPool;
-use simnode_runtime_apis::CreateTransaction;
+use simnode_runtime_apis::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core, Metadata, TransactionFor};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
@@ -70,7 +70,7 @@ where
 			+ TaggedTransactionQueue<T::Block>
 			+ BlockBuilder<T::Block>
 			+ ApiExt<T::Block, StateBackend = <TFullBackend<T::Block> as Backend<T::Block>>::State>
-			+ CreateTransaction<
+			+ CreateTransactionApi<
 				T::Block,
 				<T::Runtime as frame_system::Config>::AccountId,
 				<T::Runtime as frame_system::Config>::Call,
@@ -245,7 +245,7 @@ where
 			+ TaggedTransactionQueue<C::Block>
 			+ BlockBuilder<C::Block>
 			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>
-			+ CreateTransaction<
+			+ CreateTransactionApi<
 				C::Block,
 				<C::Runtime as frame_system::Config>::AccountId,
 				<C::Runtime as frame_system::Config>::Call,
@@ -352,7 +352,7 @@ where
 			+ TaggedTransactionQueue<C::Block>
 			+ BlockBuilder<C::Block>
 			+ ApiExt<C::Block, StateBackend = <TFullBackend<C::Block> as Backend<C::Block>>::State>
-			+ CreateTransaction<
+			+ CreateTransactionApi<
 				C::Block,
 				<C::Runtime as frame_system::Config>::AccountId,
 				<C::Runtime as frame_system::Config>::Call,

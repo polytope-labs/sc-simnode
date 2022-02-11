@@ -30,7 +30,7 @@ use polkadot_primitives::v1::UpgradeGoAhead;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
-use simnode_runtime_apis::CreateTransaction;
+use simnode_runtime_apis::CreateTransactionApi;
 use sp_api::{ConstructRuntimeApi, OverlayedChanges, ProvideRuntimeApi, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
@@ -95,7 +95,7 @@ impl<T> Node<T>
 where
 	T: ChainInfo,
 	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
-		CreateTransaction<
+		CreateTransactionApi<
 			T::Block,
 			<T::Runtime as frame_system::Config>::AccountId,
 			<T::Runtime as frame_system::Config>::Call,
@@ -162,15 +162,13 @@ where
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
 		let id = BlockId::Hash(at);
-		let raw_bytes = self
-			.with_state(None, || {
-				self.client
-					.runtime_api()
-					.create_transaction(&id, call.into(), signer)
-					.ok()
-					.flatten()
-			})
-			.ok_or(Error::ExtrinsicError("Runtime API returned None".into()))?;
+		let raw_bytes = {
+			let res = self.client.runtime_api().create_transaction(&id, call.into(), signer);
+			// TODO: remove println!
+			println!("{:?}", res);
+			res.ok().flatten()
+		}
+		.ok_or(Error::ExtrinsicError("Runtime API returned None".into()))?;
 		let ext = match <T::Block as BlockT>::Extrinsic::decode(&mut &*raw_bytes) {
 			Ok(xt) => xt,
 			Err(e) =>
