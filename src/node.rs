@@ -19,7 +19,6 @@ use std::sync::{Arc, Mutex};
 use crate::{
 	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
 };
-use codec::Decode;
 use futures::{
 	channel::{mpsc, oneshot},
 	FutureExt, SinkExt,
@@ -103,6 +102,7 @@ where
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
 	<<T::Block as BlockT>::Header as Header>::Number: From<u32>,
+	<T::Block as BlockT>::Extrinsic: From<Vec<u8>>,
 {
 	/// Returns a reference to the rpc handlers, use this to send rpc requests.
 	/// eg
@@ -158,25 +158,16 @@ where
 	pub async fn submit_extrinsic(
 		&self,
 		call: impl Into<<T::Runtime as frame_system::Config>::Call>,
-		signer: Option<<T::Runtime as frame_system::Config>::AccountId>,
+		signer: <T::Runtime as frame_system::Config>::AccountId,
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
 		let id = BlockId::Hash(at);
-		let raw_bytes = {
-			let res = self.client.runtime_api().create_transaction(&id, call.into(), signer);
-			// TODO: remove println!
-			println!("{:?}", res);
-			res.ok().flatten()
-		}
-		.ok_or(Error::ExtrinsicError("Runtime API returned None".into()))?;
-		let ext = match <T::Block as BlockT>::Extrinsic::decode(&mut &*raw_bytes) {
-			Ok(xt) => xt,
-			Err(e) =>
-				return Err(Error::ExtrinsicError(format!(
-					"Extrinsic could not be decoded: {:?}",
-					e
-				))),
-		};
+		let raw_bytes = self
+			.client
+			.runtime_api()
+			.create_transaction(&id, call.into(), signer)
+			.map_err(|_| Error::ExtrinsicError("Runtime API returned Err".into()))?;
+		let ext: <T::Block as BlockT>::Extrinsic = raw_bytes.into();
 
 		self.pool
 			.submit_one(&BlockId::Hash(at), TransactionSource::Local, ext.into())

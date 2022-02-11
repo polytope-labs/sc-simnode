@@ -164,7 +164,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			let _hash = node
 				.submit_extrinsic(
 					frame_system::Call::remark_with_event { remark: (b"hello world").to_vec() },
-					Some(alice),
+					alice,
 				)
 				.await
 				.unwrap();

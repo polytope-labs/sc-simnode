@@ -27,12 +27,11 @@ sp_api::decl_runtime_apis! {
 		/// Runtime implementation is free to construct the payload to sign
 		/// in any way it wants.
 		/// Returns a scale encoded extrinsic
-		/// Returns `None` if signed transaction could not be created (
-		/// for runtime-specific reason).
+		/// Should panic if signed transaction cannot be created
 		/// If signer is None, an unsigned extrinsic should be created.
 		fn create_transaction(
 			call: Call,
-			account: Option<AccountId>,
-		) -> Option<Vec<u8>>;
+			account: AccountId,
+		) -> Vec<u8>;
 	}
 }
