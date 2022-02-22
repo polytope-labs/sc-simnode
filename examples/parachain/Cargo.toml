@@ -31,3 +31,6 @@ sp-runtime = {  git = "https://github.com/paritytech/substrate", branch = "polka
 sp-keyring = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }
 
 parachain-inherent = { package = "cumulus-primitives-parachain-inherent", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.16" }
+
+# rpc
+jsonrpc-core = "18.0"

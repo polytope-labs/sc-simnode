@@ -17,6 +17,7 @@
 
 //! Basic example of end to end parachain runtime tests
 
+use frame_benchmarking::frame_support::metadata::StorageEntryModifier::Default;
 use parachain_inherent::ParachainInherentData;
 use sc_cli::{CliConfiguration, Error};
 use sc_consensus_manual_seal::consensus::timestamp::SlotTimestampProvider;
@@ -24,7 +25,9 @@ use sc_service::TFullBackend;
 use sp_keyring::sr25519::Keyring::Alice;
 use sp_runtime::{traits::IdentifyAccount, MultiSigner};
 use std::sync::Arc;
-use substrate_simnode::{ChainInfo, FullClientFor, SignatureVerificationOverride, SimnodeCli};
+use substrate_simnode::{
+	ChainInfo, FullClientFor, RpcHandlerArgs, SignatureVerificationOverride, SimnodeCli,
+};
 
 /// A unit struct which implements `NativeExecutionDispatch` feeding in the
 /// hard-coded runtime.
@@ -95,6 +98,12 @@ impl ChainInfo for ParachainTemplateChainInfo {
 	);
 	// Pass your Cli impl here
 	type Cli = PolkadotCli;
+
+	fn create_rpc_io_handler<SC>(
+		_deps: RpcHandlerArgs<Self, SC>,
+	) -> jsonrpc_core::io::MetaIoHandler<sc_rpc_api::metadata::Metadata> {
+		Default::default()
+	}
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

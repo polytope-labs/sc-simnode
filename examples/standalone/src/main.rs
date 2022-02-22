@@ -17,6 +17,7 @@
 
 //! Basic example of end to end runtime tests with a standalone blockchain
 
+use frame_benchmarking::frame_support::metadata::StorageEntryModifier::Default;
 use grandpa::GrandpaBlockImport;
 use sc_cli::CliConfiguration;
 use sc_consensus_babe::BabeBlockImport;
@@ -28,7 +29,9 @@ use sp_consensus_babe::AuthorityId;
 use sp_keyring::sr25519::Keyring::Alice;
 use sp_runtime::{traits::IdentifyAccount, MultiSigner};
 use std::sync::Arc;
-use substrate_simnode::{ChainInfo, FullClientFor, SignatureVerificationOverride, SimnodeCli};
+use substrate_simnode::{
+	ChainInfo, FullClientFor, RpcHandlerArgs, SignatureVerificationOverride, SimnodeCli,
+};
 
 /// Stand alone blockchains have to define their own [`BlockImport`] implementation, which may
 /// include digests in the block header that are relevant to the runtime.
@@ -101,6 +104,11 @@ impl ChainInfo for NodeTemplateChainInfo {
 	);
 	// Pass your Cli impl here
 	type Cli = PolkadotCli;
+	fn create_rpc_io_handler<SC>(
+		_deps: RpcHandlerArgs<Self, SC>,
+	) -> jsonrpc_core::io::MetaIoHandler<sc_rpc_api::metadata::Metadata> {
+		Default::default()
+	}
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
