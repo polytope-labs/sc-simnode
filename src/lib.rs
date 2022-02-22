@@ -61,22 +61,6 @@ type TransactionPoolFor<T> = Arc<
 	>,
 >;
 
-/// Arguments to pass to the `create_rpc_io_handler`
-pub struct RpcHandlerArgs<C: ChainInfo, SC> {
-	/// Client
-	pub client: Arc<FullClientFor<C>>,
-	/// Client Backend
-	pub backend: Arc<FullBackendFor<C>>,
-	/// Transaction pool
-	pub pool: TransactionPoolFor<C>,
-	/// Select chain implementation
-	pub select_chain: SC,
-	/// Signifies whether a potentially unsafe RPC should be denied.
-	pub deny_unsafe: sc_rpc::DenyUnsafe,
-	/// Subscription task executor
-	pub subscription_executor: sc_rpc::SubscriptionTaskExecutor,
-}
-
 /// Wrapper trait for concrete type required by this testing framework.
 pub trait ChainInfo: Sized {
 	/// Opaque block type
@@ -113,7 +97,13 @@ pub trait ChainInfo: Sized {
 	/// Should return the json rpc Iohandler
 	fn create_rpc_io_handler<SC>(
 		deps: RpcHandlerArgs<Self, SC>,
-	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>;
+	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>
+	where
+		<<Self as ChainInfo>::RuntimeApi as ConstructRuntimeApi<
+			Self::Block,
+			FullClientFor<Self>,
+		>>::RuntimeApi: sp_api::Core<Self::Block>
+			+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
 }
 
 /// Cli Extension trait for simnode
