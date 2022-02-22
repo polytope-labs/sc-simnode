@@ -20,7 +20,7 @@
 use sc_cli::{structopt::StructOpt, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
-use sc_service::TFullClient;
+use sc_service::{TFullBackend, TFullClient};
 use sc_transaction_pool_api::TransactionPool;
 use sp_api::{ConstructRuntimeApi, TransactionFor};
 use sp_consensus::SelectChain;
@@ -45,6 +45,9 @@ pub type FullClientFor<C> = TFullClient<
 	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
 >;
 
+/// Type alias for [`sc_service::TFullBackend`]
+pub type FullBackendFor<C> = TFullBackend<<C as ChainInfo>::Block>;
+
 /// Type alias for [`sc_transaction_pool_api::TransactionPool`]
 type TransactionPoolFor<T> = Arc<
 	dyn TransactionPool<
@@ -59,13 +62,13 @@ type TransactionPoolFor<T> = Arc<
 >;
 
 /// Arguments to pass to the `create_rpc_io_handler`
-pub struct RpcHandlerArgs<C, P, SC, B> {
+pub struct RpcHandlerArgs<C: ChainInfo, SC> {
 	/// Client
-	pub client: Arc<C>,
+	pub client: Arc<FullClientFor<C>>,
 	/// Client Backend
-	pub backend: Arc<B>,
+	pub backend: Arc<FullBackendFor<C>>,
 	/// Transaction pool
-	pub pool: Arc<P>,
+	pub pool: TransactionPoolFor<C>,
 	/// Select chain implementation
 	pub select_chain: SC,
 	/// Signifies whether a potentially unsafe RPC should be denied.
@@ -108,8 +111,8 @@ pub trait ChainInfo: Sized {
 	type Cli: SimnodeCli;
 
 	/// Should return the json rpc Iohandler
-	fn create_rpc_io_handler<C, P, SC, B>(
-		deps: RpcHandlerArgs<C, P, SC, B>,
+	fn create_rpc_io_handler<SC>(
+		deps: RpcHandlerArgs<Self, SC>,
 	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>;
 }
 
