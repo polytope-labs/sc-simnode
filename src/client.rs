@@ -17,7 +17,7 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
-	ChainInfo, FullClientFor, Node, ParachainInherentSproofProvider, RpcHandlerArgs,
+	ChainInfo, FullBackendFor, FullClientFor, Node, ParachainInherentSproofProvider,
 	SharedParachainInherentProvider, SimnodeCli,
 };
 use futures::channel::mpsc;
@@ -53,6 +53,26 @@ use std::{
 	str::FromStr,
 	sync::{Arc, Mutex},
 };
+
+/// Arguments to pass to the `create_rpc_io_handler`
+pub struct RpcHandlerArgs<C: ChainInfo, SC>
+where
+	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
+		Core<C::Block> + TaggedTransactionQueue<C::Block>,
+{
+	/// Client
+	pub client: Arc<FullClientFor<C>>,
+	/// Client Backend
+	pub backend: Arc<FullBackendFor<C>>,
+	/// Transaction pool
+	pub pool: Arc<sc_transaction_pool::FullPool<C::Block, FullClientFor<C>>>,
+	/// Select chain implementation
+	pub select_chain: SC,
+	/// Signifies whether a potentially unsafe RPC should be denied.
+	pub deny_unsafe: sc_rpc::DenyUnsafe,
+	/// Subscription task executor
+	pub subscription_executor: sc_rpc::SubscriptionTaskExecutor,
+}
 
 /// Creates all the client parts you need for [`Node`](crate::node::Node)
 pub fn build_node_subsystems<T, I>(
