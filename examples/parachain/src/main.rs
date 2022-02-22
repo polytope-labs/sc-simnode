@@ -101,7 +101,7 @@ impl ChainInfo for ParachainTemplateChainInfo {
 
 	fn create_rpc_io_handler<SC>(
 		_deps: RpcHandlerArgs<Self, SC>,
-	) -> jsonrpc_core::io::MetaIoHandler<sc_rpc_api::metadata::Metadata> {
+	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata> {
 		Default::default()
 	}
 }

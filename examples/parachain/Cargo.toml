@@ -24,6 +24,7 @@ sc-executor = {  git = "https://github.com/paritytech/substrate", branch = "polk
 sc-consensus = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }
 grandpa = { package = "sc-finality-grandpa",  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }
 sc-cli = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }
+sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }
 polkadot-cli = {  git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.16" }
 # primitives
 sp-consensus-aura = {  git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.16" }
