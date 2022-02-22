@@ -20,7 +20,7 @@
 use sc_cli::{structopt::StructOpt, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
-use sc_service::TFullClient;
+use sc_service::{TFullBackend, TFullClient};
 use sc_transaction_pool_api::TransactionPool;
 use sp_api::{ConstructRuntimeApi, TransactionFor};
 use sp_consensus::SelectChain;
@@ -45,6 +45,9 @@ pub type FullClientFor<C> = TFullClient<
 	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
 >;
 
+/// Type alias for [`sc_service::TFullBackend`]
+pub type FullBackendFor<C> = TFullBackend<<C as ChainInfo>::Block>;
+
 /// Type alias for [`sc_transaction_pool_api::TransactionPool`]
 type TransactionPoolFor<T> = Arc<
 	dyn TransactionPool<
@@ -57,6 +60,22 @@ type TransactionPoolFor<T> = Arc<
 		>,
 	>,
 >;
+
+/// Arguments to pass to the `create_rpc_io_handler`
+pub struct RpcHandlerArgs<C: ChainInfo, SC> {
+	/// Client
+	pub client: Arc<FullClientFor<C>>,
+	/// Client Backend
+	pub backend: Arc<FullBackendFor<C>>,
+	/// Transaction pool
+	pub pool: TransactionPoolFor<C>,
+	/// Select chain implementation
+	pub select_chain: SC,
+	/// Signifies whether a potentially unsafe RPC should be denied.
+	pub deny_unsafe: sc_rpc::DenyUnsafe,
+	/// Subscription task executor
+	pub subscription_executor: sc_rpc::SubscriptionTaskExecutor,
+}
 
 /// Wrapper trait for concrete type required by this testing framework.
 pub trait ChainInfo: Sized {
@@ -90,6 +109,11 @@ pub trait ChainInfo: Sized {
 
 	/// Cli utilities
 	type Cli: SimnodeCli;
+
+	/// Should return the json rpc Iohandler
+	fn create_rpc_io_handler<SC>(
+		deps: RpcHandlerArgs<Self, SC>,
+	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>;
 }
 
 /// Cli Extension trait for simnode

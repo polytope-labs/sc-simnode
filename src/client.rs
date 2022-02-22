@@ -17,7 +17,7 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
-	ChainInfo, FullClientFor, Node, ParachainInherentSproofProvider,
+	ChainInfo, FullClientFor, Node, ParachainInherentSproofProvider, RpcHandlerArgs,
 	SharedParachainInherentProvider, SimnodeCli,
 };
 use futures::channel::mpsc;
@@ -180,6 +180,10 @@ where
 	let rpc_sink = command_sink.clone();
 
 	let rpc_handlers = {
+		let client = client.clone();
+		let backend = backend.clone();
+		let select_chain = select_chain.clone();
+		let pool = pool.clone();
 		let params = SpawnTasksParams {
 			config,
 			client: client.clone(),
@@ -187,8 +191,15 @@ where
 			task_manager: &mut task_manager,
 			keystore: keystore.sync_keystore(),
 			transaction_pool: pool.clone(),
-			rpc_extensions_builder: Box::new(move |_, _| {
-				let mut io = jsonrpc_core::IoHandler::default();
+			rpc_extensions_builder: Box::new(move |deny_unsafe, subscription_executor| {
+				let mut io = <T as ChainInfo>::create_rpc_io_handler(RpcHandlerArgs {
+					client: client.clone(),
+					backend: backend.clone(),
+					pool: pool.clone(),
+					select_chain: select_chain.clone(),
+					deny_unsafe,
+					subscription_executor,
+				});
 				io.extend_with(ManualSealApi::to_delegate(ManualSeal::new(rpc_sink.clone())));
 				Ok(io)
 			}),
