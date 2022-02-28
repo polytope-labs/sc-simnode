@@ -28,7 +28,7 @@ use manual_seal::{
 	run_manual_seal, ConsensusDataProvider, ManualSealParams,
 };
 use parachain_inherent::ParachainInherentData;
-use sc_cli::{build_runtime, structopt::StructOpt, SubstrateCli};
+use sc_cli::{build_runtime, SubstrateCli};
 use sc_client_api::backend::Backend;
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{
@@ -53,6 +53,7 @@ use std::{
 	str::FromStr,
 	sync::{Arc, Mutex},
 };
+use structopt::StructOpt;
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo, SC>
