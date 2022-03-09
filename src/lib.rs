@@ -17,7 +17,7 @@
 
 //! ### substrate-simnode
 
-use structopt::StructOpt;
+use clap::Parser;
 use sc_cli::{CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
@@ -41,9 +41,9 @@ pub use sproof::*;
 
 /// Type alias for [`sc_service::TFullClient`]
 pub type FullClientFor<C> = TFullClient<
-    <C as ChainInfo>::Block,
-    <C as ChainInfo>::RuntimeApi,
-    NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
+	<C as ChainInfo>::Block,
+	<C as ChainInfo>::RuntimeApi,
+	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
 >;
 
 /// Type alias for [`sc_service::TFullBackend`]
@@ -51,73 +51,73 @@ pub type FullBackendFor<C> = TFullBackend<<C as ChainInfo>::Block>;
 
 /// Type alias for [`sc_transaction_pool_api::TransactionPool`]
 type TransactionPoolFor<T> = Arc<
-    dyn TransactionPool<
-        Block=<T as ChainInfo>::Block,
-        Hash=<<T as ChainInfo>::Block as BlockT>::Hash,
-        Error=sc_transaction_pool::error::Error,
-        InPoolTransaction=sc_transaction_pool::Transaction<
-            <<T as ChainInfo>::Block as BlockT>::Hash,
-            <<T as ChainInfo>::Block as BlockT>::Extrinsic,
-        >,
-    >,
+	dyn TransactionPool<
+		Block = <T as ChainInfo>::Block,
+		Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
+		Error = sc_transaction_pool::error::Error,
+		InPoolTransaction = sc_transaction_pool::Transaction<
+			<<T as ChainInfo>::Block as BlockT>::Hash,
+			<<T as ChainInfo>::Block as BlockT>::Extrinsic,
+		>,
+	>,
 >;
 
 /// Wrapper trait for concrete type required by this testing framework.
 pub trait ChainInfo: Sized {
-    /// Opaque block type
-    type Block: BlockT;
+	/// Opaque block type
+	type Block: BlockT;
 
-    /// ExecutorDispatch dispatch type
-    type ExecutorDispatch: NativeExecutionDispatch + 'static;
+	/// ExecutorDispatch dispatch type
+	type ExecutorDispatch: NativeExecutionDispatch + 'static;
 
-    /// Runtime
-    type Runtime: frame_system::Config;
+	/// Runtime
+	type Runtime: frame_system::Config;
 
-    /// RuntimeApi
-    type RuntimeApi: Send + Sync + 'static + ConstructRuntimeApi<Self::Block, FullClientFor<Self>>;
+	/// RuntimeApi
+	type RuntimeApi: Send + Sync + 'static + ConstructRuntimeApi<Self::Block, FullClientFor<Self>>;
 
-    /// select chain type.
-    type SelectChain: SelectChain<Self::Block> + 'static;
+	/// select chain type.
+	type SelectChain: SelectChain<Self::Block> + 'static;
 
-    /// Block import type.
-    type BlockImport: Send
-    + Sync
-    + Clone
-    + BlockImport<
-        Self::Block,
-        Error=sp_consensus::Error,
-        Transaction=TransactionFor<FullClientFor<Self>, Self::Block>,
-    > + 'static;
+	/// Block import type.
+	type BlockImport: Send
+		+ Sync
+		+ Clone
+		+ BlockImport<
+			Self::Block,
+			Error = sp_consensus::Error,
+			Transaction = TransactionFor<FullClientFor<Self>, Self::Block>,
+		> + 'static;
 
-    /// The inherent data providers.
-    type InherentDataProviders: InherentDataProvider + 'static;
+	/// The inherent data providers.
+	type InherentDataProviders: InherentDataProvider + 'static;
 
-    /// Cli utilities
-    type Cli: SimnodeCli;
+	/// Cli utilities
+	type Cli: SimnodeCli;
 
-    /// Should return the json rpc Iohandler
-    fn create_rpc_io_handler<SC>(
-        deps: RpcHandlerArgs<Self, SC>,
-    ) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>
-        where
-            <<Self as ChainInfo>::RuntimeApi as ConstructRuntimeApi<
-                Self::Block,
-                FullClientFor<Self>,
-            >>::RuntimeApi: sp_api::Core<Self::Block>
-            + sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
+	/// Should return the json rpc Iohandler
+	fn create_rpc_io_handler<SC>(
+		deps: RpcHandlerArgs<Self, SC>,
+	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>
+	where
+		<<Self as ChainInfo>::RuntimeApi as ConstructRuntimeApi<
+			Self::Block,
+			FullClientFor<Self>,
+		>>::RuntimeApi: sp_api::Core<Self::Block>
+			+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
 }
 
 /// Cli Extension trait for simnode
 pub trait SimnodeCli {
-    /// type that implements [`CliConfiguration`]
-    type CliConfig: CliConfiguration;
+	/// type that implements [`CliConfiguration`]
+	type CliConfig: CliConfiguration;
 
-    /// type that implements [`SubstrateCli`]
-    type SubstrateCli: StructOpt + SubstrateCli + Sized;
+	/// type that implements [`SubstrateCli`]
+	type SubstrateCli: Parser + SubstrateCli + Sized;
 
-    /// get a reference to [`CliConfiguration`]
-    fn cli_config(cli: &Self::SubstrateCli) -> &Self::CliConfig;
+	/// get a reference to [`CliConfiguration`]
+	fn cli_config(cli: &Self::SubstrateCli) -> &Self::CliConfig;
 
-    /// get logging filters
-    fn log_filters(cli_config: &Self::CliConfig) -> Result<String, sc_cli::Error>;
+	/// get logging filters
+	fn log_filters(cli_config: &Self::CliConfig) -> Result<String, sc_cli::Error>;
 }

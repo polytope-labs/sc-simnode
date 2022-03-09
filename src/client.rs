@@ -20,6 +20,7 @@ use crate::{
 	ChainInfo, FullBackendFor, FullClientFor, Node, ParachainInherentSproofProvider,
 	SharedParachainInherentProvider, SimnodeCli,
 };
+use clap::Parser;
 use futures::channel::mpsc;
 use manual_seal::{
 	consensus::{aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider},
@@ -53,7 +54,6 @@ use std::{
 	str::FromStr,
 	sync::{Arc, Mutex},
 };
-use structopt::StructOpt;
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo, SC>
@@ -346,7 +346,7 @@ where
 {
 	let tokio_runtime = build_runtime()?;
 	// parse cli args
-	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as StructOpt>::from_args();
+	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as Parser>::parse();
 	let cli_config = <C as ChainInfo>::Cli::cli_config(&cli);
 
 	// set up logging
@@ -401,7 +401,7 @@ where
 {
 	let tokio_runtime = build_runtime()?;
 	// parse cli args
-	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as StructOpt>::from_args();
+	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as Parser>::parse();
 	let cli_config = <C as ChainInfo>::Cli::cli_config(&cli);
 
 	// set up logging
