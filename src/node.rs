@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use codec::Encode;
 use std::sync::{Arc, Mutex};
 
 use crate::{
 	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
+	UncheckedExtrinsicFor,
 };
 use futures::{
 	channel::{mpsc, oneshot},
@@ -37,7 +39,7 @@ use sp_runtime::{
 	generic::BlockId,
 	traits::{Block as BlockT, Header, NumberFor},
 	transaction_validity::TransactionSource,
-	OpaqueExtrinsic,
+	MultiSignature, OpaqueExtrinsic,
 };
 use sp_state_machine::Ext;
 use sproof_builder::RelayStateSproofBuilder;
@@ -131,11 +133,11 @@ where
 	}
 
 	/// Allows you read state at any given block, provided it hasn't been pruned.
-	pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R
-	where
-		<TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
-			std::fmt::Debug,
-	{
+    pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R
+        where
+            <TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
+            std::fmt::Debug,
+    {
 		let mut overlay = OverlayedChanges::default();
 		let mut cache = StorageTransactionCache::<
 			T::Block,
@@ -158,17 +160,27 @@ where
 	/// submit some extrinsic to the node. if signer is None, will submit unsigned_extrinsic.
 	pub async fn submit_extrinsic(
 		&self,
-		call: impl Into<<T::Runtime as frame_system::Config>::Call>,
+		call: impl Into<<T::Runtime as frame_system::Config>::Call> + Clone,
 		signer: <T::Runtime as frame_system::Config>::AccountId,
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
 		let id = BlockId::Hash(at);
-		let raw_bytes = self
-			.client
+		let extrinsic = self.client
 			.runtime_api()
-			.create_transaction(&id, call.into(), signer)
-			.map_err(|_| Error::ExtrinsicError("Runtime API returned Err".into()))?;
-		let ext = OpaqueExtrinsic::from_bytes(&raw_bytes[..])
+			.create_transaction(&id, call.clone().into(), signer.clone());
+		let ext_bytes = if let Ok(raw_bytes) = extrinsic {
+			raw_bytes
+		} else {
+			let extra = self.with_state(None, || T::signed_extras(signer.clone()));
+			let ext = UncheckedExtrinsicFor::<T>::new_signed(
+				call.into(),
+				signer.into(),
+				MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
+				extra,
+			);
+			ext.encode()
+		};
+		let ext = OpaqueExtrinsic::from_bytes(&ext_bytes[..])
 			.map_err(|_| Error::ExtrinsicError("Could not decode extrinsic".into()))?;
 
 		self.pool
