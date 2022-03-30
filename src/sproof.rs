@@ -35,7 +35,7 @@ pub struct ParachainInherentSproofProvider<B, C> {
 	// client type
 	client: Arc<C>,
 	// sproof builder
-	sproof_builder: Option<RelayStateSproofBuilder>,
+	pub(crate) sproof_builder: Option<RelayStateSproofBuilder>,
 	_phantom: PhantomData<B>,
 }
 

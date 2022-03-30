@@ -165,9 +165,10 @@ where
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
 		let id = BlockId::Hash(at);
-		let extrinsic = self.client
-			.runtime_api()
-			.create_transaction(&id, call.clone().into(), signer.clone());
+		let extrinsic =
+			self.client
+				.runtime_api()
+				.create_transaction(&id, call.clone().into(), signer.clone());
 		let ext_bytes = if let Ok(raw_bytes) = extrinsic {
 			raw_bytes
 		} else {
@@ -225,8 +226,13 @@ where
 			if let Some(sproof_provider) = &self.parachain_inherent_provider {
 				let para_id =
 					self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
-				let builder = RelayStateSproofBuilder { para_id, ..Default::default() };
-				sproof_provider.lock().unwrap().update_sproof_builder(builder)
+				let builder =
+					if let Some(builder) = sproof_provider.lock().unwrap().sproof_builder.take() {
+						RelayStateSproofBuilder { para_id, ..builder }
+					} else {
+						RelayStateSproofBuilder { para_id, ..Default::default() }
+					};
+				sproof_provider.lock().unwrap().update_sproof_builder(builder);
 			}
 			let (sender, future_block) = oneshot::channel();
 			let future = sink.send(EngineCommand::SealNewBlock {
