@@ -15,23 +15,20 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::Codec;
-#[cfg(not(feature = "std"))]
 use sp_std::vec::Vec;
 
 sp_api::decl_runtime_apis! {
-/// Create transaction.
-/// This trait is meant to be implemented by the runtime and is responsible for constructing
-/// a transaction to be included in the block.
-	pub trait CreateTransactionApi<AccountId: Codec, Call: Codec> {
+	/// Create transaction.
+	/// This trait is meant to be implemented by the runtime and is responsible for constructing
+	/// a transaction to be included in the block.
+	pub trait CreateTransactionApi<Call, AccountId>
+		where
+			Call: Codec,
+			AccountId: Codec,
+	{
 		/// Attempt to create signed transaction
-		/// Runtime implementation is free to construct the payload to sign
-		/// in any way it wants.
-		/// Returns a scale encoded extrinsic
-		/// Should panic if signed transaction cannot be created
-		/// If signer is None, an unsigned extrinsic should be created.
-		fn create_transaction(
-			call: Call,
-			account: AccountId,
-		) -> Vec<u8>;
+		/// Runtime implementation is free to construct the payload to sign in any way it wants.
+		/// Returns a scale encoded extrinsic Should panic if signed transaction cannot be created.
+		fn create_transaction(account: AccountId, call: Call) -> Vec<u8>;
 	}
 }

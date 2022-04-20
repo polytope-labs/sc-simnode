@@ -427,7 +427,7 @@ where
 					);
 
 					let parachain_system =
-						parachain_sproof.lock().unwrap().create_inherent(timestamp.slot());
+						parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
 					Ok((timestamp, _aura, parachain_system))
 				}
 			});
