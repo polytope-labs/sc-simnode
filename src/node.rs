@@ -25,7 +25,7 @@ use futures::{
 	channel::{mpsc, oneshot},
 	FutureExt, SinkExt,
 };
-use jsonrpc_core::MetaIoHandler;
+use jsonrpsee::RpcModule;
 use manual_seal::EngineCommand;
 use polkadot_primitives::v2::UpgradeGoAhead;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
@@ -70,7 +70,7 @@ impl std::error::Error for Error {}
 /// also holds logs from the process.
 pub struct Node<T: ChainInfo> {
 	/// rpc handler for communicating with the node over rpc.
-	pub(crate) rpc_handler: Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>>,
+	pub(crate) rpc_handler: Arc<RpcModule<()>>,
 	/// handle to the running node.
 	pub(crate) task_manager: Option<TaskManager>,
 	/// client instance
@@ -111,12 +111,9 @@ where
 	/// eg
 	/// ```ignore
 	/// 	let request = r#"{"jsonrpc":"2.0","method":"engine_createBlock","params": [true, true],"id":1}"#;
-	/// 		let response = node.rpc_handler()
-	/// 		.handle_request_sync(request, Default::default());
+	/// 	let response = node.rpc_handler().raw_json_request(request);
 	/// ```
-	pub fn rpc_handler(
-		&self,
-	) -> Arc<MetaIoHandler<sc_rpc::Metadata, sc_rpc_server::RpcMiddleware>> {
+	pub fn rpc_handler(&self) -> Arc<RpcModule<()>> {
 		self.rpc_handler.clone()
 	}
 

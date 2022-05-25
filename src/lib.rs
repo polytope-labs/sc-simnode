@@ -114,9 +114,7 @@ pub trait ChainInfo: Sized {
 	type Cli: SimnodeCli;
 
 	/// Should return the json rpc Iohandler
-	fn create_rpc_io_handler<SC>(
-		deps: RpcHandlerArgs<Self, SC>,
-	) -> jsonrpc_core::MetaIoHandler<sc_rpc::Metadata>
+	fn create_rpc_io_handler<SC>(deps: RpcHandlerArgs<Self, SC>) -> jsonrpsee::RpcModule<()>
 	where
 		<<Self as ChainInfo>::RuntimeApi as ConstructRuntimeApi<
 			Self::Block,
