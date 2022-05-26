@@ -24,7 +24,7 @@ use futures::channel::mpsc;
 use manual_seal::{
 	consensus::{aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider},
 	import_queue,
-	rpc::{ManualSeal, ManualSealApi},
+	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, ConsensusDataProvider, ManualSealParams,
 };
 use parachain_inherent::ParachainInherentData;
@@ -211,7 +211,7 @@ where
 			task_manager: &mut task_manager,
 			keystore: keystore.sync_keystore(),
 			transaction_pool: pool.clone(),
-			rpc_extensions_builder: Box::new(move |deny_unsafe, subscription_executor| {
+			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
 				let mut io = <T as ChainInfo>::create_rpc_io_handler(RpcHandlerArgs {
 					client: client.clone(),
 					backend: backend.clone(),
@@ -220,7 +220,9 @@ where
 					deny_unsafe,
 					subscription_executor,
 				});
-				io.extend_with(ManualSealApi::to_delegate(ManualSeal::new(rpc_sink.clone())));
+				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
+					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
+				})?;
 				Ok(io)
 			}),
 			network,
@@ -248,7 +250,7 @@ where
 		.spawn("manual-seal", None, authorship_future);
 
 	_network_starter.start_network();
-	let rpc_handler = rpc_handlers.io_handler();
+	let rpc_handler = rpc_handlers.handle();
 
 	let node = Node::<T> {
 		rpc_handler,
