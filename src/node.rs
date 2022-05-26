@@ -111,7 +111,7 @@ where
 	/// eg
 	/// ```ignore
 	/// 	let request = r#"{"jsonrpc":"2.0","method":"engine_createBlock","params": [true, true],"id":1}"#;
-	/// 	let response = node.rpc_handler().raw_json_request(request);
+	/// 	let response = node.rpc_handler().raw_json_request(request).await;
 	/// ```
 	pub fn rpc_handler(&self) -> Arc<RpcModule<()>> {
 		self.rpc_handler.clone()
