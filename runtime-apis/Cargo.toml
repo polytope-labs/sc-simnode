@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "simnode-runtime-apis"
-authors = ["David Salami <wizdave97@gmail.com>"]
+authors = ["Polytope Labs <labs@polytope.capital>"]
 version = "0.1.0"
 publish = false
 
@@ -12,8 +12,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 codec = { package = "parity-scale-codec", default-features = false, version = "3" }
 
 # primitive deps
-sp-api = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.22"}
-sp-std = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.22"}
+sp-api = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.24"}
+sp-std = {git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.24"}
 
 
 [features]
