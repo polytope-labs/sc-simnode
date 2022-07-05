@@ -43,7 +43,7 @@ impl<B, C> ParachainInherentSproofProvider<B, C>
 where
 	B: Block,
 	C: HeaderBackend<B>,
-	<B::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+	<B::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
 	pub fn new(client: Arc<C>) -> Self {
