@@ -35,3 +35,8 @@ fn main() {
 
 
 Check out the [examples folder](./examples) to see how to set up simnode for your substrate runtime.
+
+## Tutorials
+
+[Testing parachain runtimes with Simnode | Substrate Seminar](https://www.youtube.com/watch?v=0FvcABti7yk)
+
