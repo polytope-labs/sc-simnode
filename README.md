@@ -36,7 +36,11 @@ fn main() {
 
 Check out the [examples folder](./examples) to see how to set up simnode for your substrate runtime.
 
-## Tutorials
+## Notes
 
-[Testing parachain runtimes with Simnode | Substrate Seminar](https://www.youtube.com/watch?v=0FvcABti7yk)
+Consider watching video [Testing parachain runtimes with Simnode | Substrate Seminar](https://www.youtube.com/watch?v=0FvcABti7yk) for more information.
+
+Consider running runtime built with [try-runtime](https://docs.substrate.io/reference/how-to-guides/tools/use-try-runtime/) feature enabled to execute upgrade tests.
+
+
 
