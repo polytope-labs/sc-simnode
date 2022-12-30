@@ -75,7 +75,7 @@ where
 		ParachainInherentData {
 			validation_data: PersistedValidationData {
 				parent_head: header.into(),
-				relay_parent_number: info.best_number.as_() * 100,
+				relay_parent_number: info.best_number.as_() + 100,
 				relay_parent_storage_root: state_root,
 				max_pov_size: 15 * 1024 * 1024,
 			},
