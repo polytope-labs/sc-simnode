@@ -56,7 +56,7 @@ pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
 		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
 		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
 	>,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::Call,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall,
 	MultiSignature,
 	<T as ChainInfo>::SignedExtras,
 >;

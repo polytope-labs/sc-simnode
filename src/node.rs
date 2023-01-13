@@ -89,7 +89,7 @@ pub struct Node<T: ChainInfo> {
 }
 
 type EventRecord<T> = frame_system::EventRecord<
-	<T as frame_system::Config>::Event,
+	<T as frame_system::Config>::RuntimeEvent,
 	<T as frame_system::Config>::Hash,
 >;
 
@@ -100,10 +100,10 @@ where
 		CreateTransactionApi<
 			T::Block,
 			<T::Runtime as frame_system::Config>::AccountId,
-			<T::Runtime as frame_system::Config>::Call,
+			<T::Runtime as frame_system::Config>::RuntimeCall,
 		>,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
 	<<T::Block as BlockT>::Header as Header>::Number: From<u32>,
 	<<T as ChainInfo>::Block as BlockT>::Extrinsic: From<OpaqueExtrinsic>,
 {
@@ -157,7 +157,7 @@ where
 	/// submit some extrinsic to the node. if signer is None, will submit unsigned_extrinsic.
 	pub async fn submit_extrinsic(
 		&self,
-		call: impl Into<<T::Runtime as frame_system::Config>::Call> + Clone,
+		call: impl Into<<T::Runtime as frame_system::Config>::RuntimeCall> + Clone,
 		signer: <T::Runtime as frame_system::Config>::AccountId,
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
