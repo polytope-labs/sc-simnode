@@ -130,7 +130,7 @@ where
 	}
 
 	/// Allows you read state at any given block, provided it hasn't been pruned.
-    pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R
+    pub fn with_state<R>(&self, id: Option<<T::Block as BlockT>::Hash>, closure: impl FnOnce() -> R) -> R
         where
             <TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
             std::fmt::Debug,
@@ -140,15 +140,13 @@ where
 			T::Block,
 			<TFullBackend<T::Block> as Backend<T::Block>>::State,
 		>::default();
-		let id = id.unwrap_or_else(|| BlockId::Hash(self.client.info().best_hash));
+		let id = id.unwrap_or_else(|| self.client.info().best_hash);
 		let mut extensions = self
 			.client
 			.execution_extensions()
-			.extensions(&id, ExecutionContext::BlockConstruction);
-		let state_backend = self
-			.backend
-			.state_at(self.client.info().best_hash)
-			.expect(&format!("State at block {} not found", id));
+			.extensions(&BlockId::Hash(id), ExecutionContext::BlockConstruction);
+		let state_backend =
+			self.backend.state_at(id).expect(&format!("State at block {} not found", id));
 
 		let mut ext = Ext::new(&mut overlay, &mut cache, &state_backend, Some(&mut extensions));
 		sp_externalities::set_and_run_with_externalities(&mut ext, closure)
@@ -188,7 +186,7 @@ where
 	}
 
 	/// Get the events at [`BlockId`]
-	pub fn events(&self, id: Option<BlockId<T::Block>>) -> Vec<EventRecord<T::Runtime>> {
+	pub fn events(&self, id: Option<<T::Block as BlockT>::Hash>) -> Vec<EventRecord<T::Runtime>> {
 		self.with_state(id, || frame_system::Pallet::<T::Runtime>::events())
 	}
 
