@@ -406,7 +406,8 @@ where
 {
 	let tokio_runtime = build_runtime()?;
 	// parse cli args
-	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as SubstrateCli>::from_args();
+	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli>::from_args();
+	//
 	let cli_config = <C as ChainInfo>::Cli::cli_config(&cli);
 
 	// set up logging

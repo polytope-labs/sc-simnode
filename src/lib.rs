@@ -17,8 +17,7 @@
 
 //! ### substrate-simnode
 
-use clap::Parser;
-use sc_cli::{CliConfiguration, SubstrateCli};
+use sc_cli::{clap::Parser, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sc_service::{TFullBackend, TFullClient};

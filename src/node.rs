@@ -147,7 +147,7 @@ where
 			.extensions(&id, ExecutionContext::BlockConstruction);
 		let state_backend = self
 			.backend
-			.state_at(id.clone())
+			.state_at(self.client.info().best_hash)
 			.expect(&format!("State at block {} not found", id));
 
 		let mut ext = Ext::new(&mut overlay, &mut cache, &state_backend, Some(&mut extensions));
