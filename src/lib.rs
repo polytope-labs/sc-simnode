@@ -17,8 +17,7 @@
 
 //! ### substrate-simnode
 
-use clap::Parser;
-use sc_cli::{CliConfiguration, SubstrateCli};
+use sc_cli::{clap::Parser, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sc_service::{TFullBackend, TFullClient};
@@ -56,7 +55,7 @@ pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
 		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
 		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
 	>,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::Call,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall,
 	MultiSignature,
 	<T as ChainInfo>::SignedExtras,
 >;

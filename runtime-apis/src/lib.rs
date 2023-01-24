@@ -21,14 +21,14 @@ sp_api::decl_runtime_apis! {
 	/// Create transaction.
 	/// This trait is meant to be implemented by the runtime and is responsible for constructing
 	/// a transaction to be included in the block.
-	pub trait CreateTransactionApi<Call, AccountId>
+	pub trait CreateTransactionApi<RuntimeCall, AccountId>
 		where
-			Call: Codec,
+			RuntimeCall: Codec,
 			AccountId: Codec,
 	{
 		/// Attempt to create signed transaction
 		/// Runtime implementation is free to construct the payload to sign in any way it wants.
 		/// Returns a scale encoded extrinsic Should panic if signed transaction cannot be created.
-		fn create_transaction(account: AccountId, call: Call) -> Vec<u8>;
+		fn create_transaction(account: AccountId, call: RuntimeCall) -> Vec<u8>;
 	}
 }

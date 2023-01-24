@@ -93,15 +93,15 @@ where
 			+ CreateTransactionApi<
 				T::Block,
 				<T::Runtime as frame_system::Config>::AccountId,
-				<T::Runtime as frame_system::Config>::Call,
+				<T::Runtime as frame_system::Config>::RuntimeCall,
 			>,
-	<T::Runtime as frame_system::Config>::Call: From<frame_system::Call<T::Runtime>>,
+	<T::Runtime as frame_system::Config>::RuntimeCall: From<frame_system::Call<T::Runtime>>,
 	<<T as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<T as ChainInfo>::Block as BlockT>::Header: Unpin,
 	<<<T as ChainInfo>::Block as BlockT>::Header as Header>::Number:
 		num_traits::cast::AsPrimitive<usize> + num_traits::cast::AsPrimitive<u32>,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
 	I: Fn(
 		Arc<FullClientFor<T>>,
 		sc_consensus::LongestChain<TFullBackend<T::Block>, T::Block>,
@@ -115,6 +115,7 @@ where
 					dyn ConsensusDataProvider<
 						T::Block,
 						Transaction = TransactionFor<FullClientFor<T>, T::Block>,
+						Proof = (),
 					>,
 				>,
 			>,
@@ -164,7 +165,7 @@ where
 		client.clone(),
 	);
 
-	let (network, system_rpc_tx, _network_starter) = {
+	let (network, system_rpc_tx, tx_handler_controller, _network_starter) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),
@@ -227,6 +228,7 @@ where
 			}),
 			network,
 			system_rpc_tx,
+			tx_handler_controller,
 			telemetry: None,
 		};
 		spawn_tasks(params)?
@@ -281,11 +283,11 @@ where
 			+ CreateTransactionApi<
 				C::Block,
 				<C::Runtime as frame_system::Config>::AccountId,
-				<C::Runtime as frame_system::Config>::Call,
+				<C::Runtime as frame_system::Config>::RuntimeCall,
 			>,
 	<<C as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
-	<<C as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
-	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
+	<C::Runtime as frame_system::Config>::RuntimeCall: From<frame_system::Call<C::Runtime>>,
 	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
 	<<<C as ChainInfo>::Block as BlockT>::Header as Header>::Number:
@@ -305,6 +307,7 @@ where
 					dyn ConsensusDataProvider<
 						C::Block,
 						Transaction = TransactionFor<FullClientFor<C>, C::Block>,
+						Proof = (),
 					>,
 				>,
 			>,
@@ -331,6 +334,7 @@ where
 					dyn ConsensusDataProvider<
 						C::Block,
 						Transaction = TransactionFor<FullClientFor<C>, C::Block>,
+						Proof = (),
 					>,
 				>,
 			>,
@@ -388,11 +392,11 @@ where
 			+ CreateTransactionApi<
 				C::Block,
 				<C::Runtime as frame_system::Config>::AccountId,
-				<C::Runtime as frame_system::Config>::Call,
+				<C::Runtime as frame_system::Config>::RuntimeCall,
 			>,
 	<<C as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
-	<<C as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
-	<C::Runtime as frame_system::Config>::Call: From<frame_system::Call<C::Runtime>>,
+	<<C as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
+	<C::Runtime as frame_system::Config>::RuntimeCall: From<frame_system::Call<C::Runtime>>,
 	<<C as ChainInfo>::Block as BlockT>::Hash: FromStr + Unpin,
 	<<C as ChainInfo>::Block as BlockT>::Header: Unpin,
 	<<<C as ChainInfo>::Block as BlockT>::Header as Header>::Number:
@@ -402,7 +406,8 @@ where
 {
 	let tokio_runtime = build_runtime()?;
 	// parse cli args
-	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli as SubstrateCli>::from_args();
+	let cli = <<<C as ChainInfo>::Cli as SimnodeCli>::SubstrateCli>::from_args();
+	//
 	let cli_config = <C as ChainInfo>::Cli::cli_config(&cli);
 
 	// set up logging

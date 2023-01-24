@@ -89,7 +89,7 @@ pub struct Node<T: ChainInfo> {
 }
 
 type EventRecord<T> = frame_system::EventRecord<
-	<T as frame_system::Config>::Event,
+	<T as frame_system::Config>::RuntimeEvent,
 	<T as frame_system::Config>::Hash,
 >;
 
@@ -100,10 +100,10 @@ where
 		CreateTransactionApi<
 			T::Block,
 			<T::Runtime as frame_system::Config>::AccountId,
-			<T::Runtime as frame_system::Config>::Call,
+			<T::Runtime as frame_system::Config>::RuntimeCall,
 		>,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::Call: codec::Codec,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
 	<<T::Block as BlockT>::Header as Header>::Number: From<u32>,
 	<<T as ChainInfo>::Block as BlockT>::Extrinsic: From<OpaqueExtrinsic>,
 {
@@ -130,7 +130,7 @@ where
 	}
 
 	/// Allows you read state at any given block, provided it hasn't been pruned.
-    pub fn with_state<R>(&self, id: Option<BlockId<T::Block>>, closure: impl FnOnce() -> R) -> R
+    pub fn with_state<R>(&self, id: Option<<T::Block as BlockT>::Hash>, closure: impl FnOnce() -> R) -> R
         where
             <TFullCallExecutor<T::Block, NativeElseWasmExecutor<T::ExecutorDispatch>> as CallExecutor<T::Block>>::Error:
             std::fmt::Debug,
@@ -140,15 +140,13 @@ where
 			T::Block,
 			<TFullBackend<T::Block> as Backend<T::Block>>::State,
 		>::default();
-		let id = id.unwrap_or_else(|| BlockId::Hash(self.client.info().best_hash));
+		let id = id.unwrap_or_else(|| self.client.info().best_hash);
 		let mut extensions = self
 			.client
 			.execution_extensions()
-			.extensions(&id, ExecutionContext::BlockConstruction);
-		let state_backend = self
-			.backend
-			.state_at(id.clone())
-			.expect(&format!("State at block {} not found", id));
+			.extensions(&BlockId::Hash(id), ExecutionContext::BlockConstruction);
+		let state_backend =
+			self.backend.state_at(id).expect(&format!("State at block {} not found", id));
 
 		let mut ext = Ext::new(&mut overlay, &mut cache, &state_backend, Some(&mut extensions));
 		sp_externalities::set_and_run_with_externalities(&mut ext, closure)
@@ -157,7 +155,7 @@ where
 	/// submit some extrinsic to the node. if signer is None, will submit unsigned_extrinsic.
 	pub async fn submit_extrinsic(
 		&self,
-		call: impl Into<<T::Runtime as frame_system::Config>::Call> + Clone,
+		call: impl Into<<T::Runtime as frame_system::Config>::RuntimeCall> + Clone,
 		signer: <T::Runtime as frame_system::Config>::AccountId,
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
@@ -188,7 +186,7 @@ where
 	}
 
 	/// Get the events at [`BlockId`]
-	pub fn events(&self, id: Option<BlockId<T::Block>>) -> Vec<EventRecord<T::Runtime>> {
+	pub fn events(&self, id: Option<<T::Block as BlockT>::Hash>) -> Vec<EventRecord<T::Runtime>> {
 		self.with_state(id, || frame_system::Pallet::<T::Runtime>::events())
 	}
 
