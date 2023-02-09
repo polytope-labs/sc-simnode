@@ -141,10 +141,11 @@ where
 			<TFullBackend<T::Block> as Backend<T::Block>>::State,
 		>::default();
 		let id = id.unwrap_or_else(|| self.client.info().best_hash);
+		let block_number = self.client.number(id).ok().flatten().unwrap_or_else(|| self.client.info().best_number); 
 		let mut extensions = self
 			.client
 			.execution_extensions()
-			.extensions(&BlockId::Hash(id), ExecutionContext::BlockConstruction);
+			.extensions(id, block_number, ExecutionContext::BlockConstruction);
 		let state_backend =
 			self.backend.state_at(id).expect(&format!("State at block {} not found", id));
 
