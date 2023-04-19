@@ -22,10 +22,7 @@ use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
 use polkadot_primitives::v2::PersistedValidationData;
 use sp_blockchain::HeaderBackend;
-use sp_runtime::{
-	generic::BlockId,
-	traits::{Block, Header},
-};
+use sp_runtime::traits::{Block, Header};
 use sproof_builder::RelayStateSproofBuilder;
 use std::{marker::PhantomData, sync::Arc};
 
@@ -65,7 +62,7 @@ where
 		let info = self.client.info();
 		let header = self
 			.client
-			.header(BlockId::Hash(info.best_hash))
+			.header(info.best_hash)
 			.expect("Failed to create inherent; panic!")
 			.expect("Failed to create inherent; panic!")
 			.encode();
