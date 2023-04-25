@@ -33,7 +33,7 @@ use sc_client_api::backend::Backend;
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{
 	build_network, new_full_parts, spawn_tasks, BuildNetworkParams, Configuration,
-	KeystoreContainer, SpawnTasksParams, TFullBackend,
+	KeystoreContainer, PartialComponents, SpawnTasksParams, TFullBackend,
 };
 use sc_tracing::logging::LoggerBuilder;
 use sc_transaction_pool::BasicPool;
@@ -143,11 +143,6 @@ where
 
 	let select_chain = sc_consensus::LongestChain::new(backend.clone());
 
-	let parachain_inherent_provider = if is_parachain {
-		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
-	} else {
-		None
-	};
 	let (block_import, consensus_data_provider, create_inherent_data_providers) =
 		block_import_provider(
 			client.clone(),
@@ -164,6 +159,12 @@ where
 		task_manager.spawn_essential_handle(),
 		client.clone(),
 	);
+
+	let parachain_inherent_provider = if is_parachain {
+		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
+	} else {
+		None
+	};
 
 	let (network, system_rpc_tx, tx_handler_controller, _network_starter) = {
 		let params = BuildNetworkParams {
@@ -447,4 +448,127 @@ where
 	tokio_runtime.block_on(callback(node))?;
 
 	Ok(())
+}
+
+pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
+	components: PartialComponents<C, B, S, I, P, (BI, Option<Telemetry>, U)>,
+	config: Configuration,
+) -> Result<Node<T>, anyhow::Error> {
+	let PartialComponents {
+		client,
+		backend,
+		mut task_manager,
+		keystore_container,
+		select_chain,
+		import_queue,
+		transaction_pool: pool,
+		other: (block_import, telemetry, _),
+	} = components;
+	let parachain_inherent_provider = if is_parachain {
+		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
+	} else {
+		None
+	};
+
+	let (network, system_rpc_tx, tx_handler_controller, _network_starter) = {
+		let params = BuildNetworkParams {
+			config: &config,
+			client: client.clone(),
+			transaction_pool: pool.clone(),
+			spawn_handle: task_manager.spawn_handle(),
+			import_queue,
+			block_announce_validator_builder: None,
+			warp_sync: None,
+		};
+		build_network(params)?
+	};
+
+	// offchain workers
+	sc_service::build_offchain_workers(
+		&config,
+		task_manager.spawn_handle(),
+		client.clone(),
+		network.clone(),
+	);
+
+	// Proposer object for block authorship.
+	let env = sc_basic_authorship::ProposerFactory::new(
+		task_manager.spawn_handle(),
+		client.clone(),
+		pool.clone(),
+		config.prometheus_registry(),
+		None,
+	);
+
+	// Channel for the rpc handler to communicate with the authorship task.
+	let (command_sink, commands_stream) = mpsc::channel(10);
+
+	let rpc_sink = command_sink.clone();
+
+	let rpc_handlers = {
+		let client = client.clone();
+		let backend = backend.clone();
+		let select_chain = select_chain.clone();
+		let pool = pool.clone();
+		let params = SpawnTasksParams {
+			config,
+			client: client.clone(),
+			backend: backend.clone(),
+			task_manager: &mut task_manager,
+			keystore: keystore.sync_keystore(),
+			transaction_pool: pool.clone(),
+			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
+				let mut io = <T as ChainInfo>::create_rpc_io_handler(RpcHandlerArgs {
+					client: client.clone(),
+					backend: backend.clone(),
+					pool: pool.clone(),
+					select_chain: select_chain.clone(),
+					deny_unsafe,
+					subscription_executor,
+				});
+				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
+					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
+				})?;
+				Ok(io)
+			}),
+			network,
+			system_rpc_tx,
+			tx_handler_controller,
+			telemetry,
+		};
+		spawn_tasks(params)?
+	};
+
+	// Background authorship future.
+	let authorship_future = run_manual_seal(ManualSealParams {
+		block_import,
+		env,
+		client: client.clone(),
+		pool: pool.clone(),
+		commands_stream,
+		select_chain,
+		consensus_data_provider,
+		create_inherent_data_providers,
+	});
+
+	// spawn the authorship task as an essential task.
+	task_manager
+		.spawn_essential_handle()
+		.spawn("manual-seal", None, authorship_future);
+
+	_network_starter.start_network();
+	let rpc_handler = rpc_handlers.handle();
+
+	let node = Node::<T> {
+		rpc_handler,
+		task_manager: Some(task_manager),
+		pool,
+		backend,
+		initial_block_number: client.info().best_number,
+		client,
+		manual_seal_command_sink: command_sink,
+		parachain_inherent_provider,
+	};
+
+	Ok(node)
 }
