@@ -166,11 +166,10 @@ where
 		signer: <T::Runtime as frame_system::Config>::AccountId,
 	) -> Result<<T::Block as BlockT>::Hash, Error> {
 		let at = self.client.info().best_hash;
-		let id = BlockId::Hash(at);
 		let extrinsic =
 			self.client
 				.runtime_api()
-				.create_transaction(&id, call.clone().into(), signer.clone());
+				.create_transaction(at, call.clone().into(), signer.clone());
 		let ext_bytes = if let Ok(raw_bytes) = extrinsic {
 			raw_bytes
 		} else {
