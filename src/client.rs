@@ -449,11 +449,3 @@ where
 
 	Ok(())
 }
-
-///
-pub fn simnode<T: ChainInfo>(
-	config: Configuration,
-	is_parachain: bool,
-) -> Result<Node<T>, sc_service::Error> {
-	Err(sc_service::Error::SelectChainRequired)
-}
