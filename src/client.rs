@@ -165,7 +165,7 @@ where
 		client.clone(),
 	);
 
-	let (network, system_rpc_tx, tx_handler_controller, _network_starter) = {
+	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),
@@ -173,7 +173,7 @@ where
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
-			warp_sync: None,
+			warp_sync_params: None,
 		};
 		build_network(params)?
 	};
@@ -229,6 +229,7 @@ where
 			network,
 			system_rpc_tx,
 			tx_handler_controller,
+			sync_service,
 			telemetry: None,
 		};
 		spawn_tasks(params)?
