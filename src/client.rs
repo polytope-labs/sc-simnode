@@ -29,22 +29,26 @@ use manual_seal::{
 };
 use parachain_inherent::ParachainInherentData;
 use sc_cli::{build_runtime, SubstrateCli};
-use sc_client_api::backend::Backend;
+use sc_client_api::{backend::Backend, AuxStore, BlockBackend, BlockchainEvents, ProofProvider};
+use sc_consensus::ImportQueue;
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{
 	build_network, new_full_parts, spawn_tasks, BuildNetworkParams, Configuration,
 	KeystoreContainer, PartialComponents, SpawnTasksParams, TFullBackend,
 };
+use sc_telemetry::Telemetry;
 use sc_tracing::logging::LoggerBuilder;
 use sc_transaction_pool::BasicPool;
+use sc_transaction_pool_api::MaintainedTransactionPool;
 use simnode_runtime_apis::CreateTransactionApi;
-use sp_api::{ApiExt, ConstructRuntimeApi, Core, Metadata, TransactionFor};
+use sp_api::{ApiExt, ConstructRuntimeApi, Core, Metadata, ProvideRuntimeApi, TransactionFor};
 use sp_block_builder::BlockBuilder;
-use sp_blockchain::HeaderBackend;
+use sp_blockchain::{HeaderBackend, HeaderMetadata};
+use sp_consensus::block_validation::Chain;
 use sp_consensus_aura::{sr25519::AuthorityId, AuraApi};
 use sp_inherents::CreateInherentDataProviders;
 use sp_offchain::OffchainWorkerApi;
-use sp_runtime::traits::{Block as BlockT, Header};
+use sp_runtime::traits::{Block as BlockT, BlockIdTo, Header};
 use sp_session::SessionKeys;
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use std::{
@@ -143,6 +147,12 @@ where
 
 	let select_chain = sc_consensus::LongestChain::new(backend.clone());
 
+	let parachain_inherent_provider = if is_parachain {
+		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
+	} else {
+		None
+	};
+
 	let (block_import, consensus_data_provider, create_inherent_data_providers) =
 		block_import_provider(
 			client.clone(),
@@ -160,13 +170,7 @@ where
 		client.clone(),
 	);
 
-	let parachain_inherent_provider = if is_parachain {
-		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
-	} else {
-		None
-	};
-
-	let (network, system_rpc_tx, tx_handler_controller, _network_starter) = {
+	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),
@@ -174,7 +178,7 @@ where
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
-			warp_sync: None,
+			warp_sync_params: None,
 		};
 		build_network(params)?
 	};
@@ -230,6 +234,7 @@ where
 			network,
 			system_rpc_tx,
 			tx_handler_controller,
+			sync_service,
 			telemetry: None,
 		};
 		spawn_tasks(params)?
@@ -451,9 +456,34 @@ where
 }
 
 pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
-	components: PartialComponents<C, B, S, I, P, (BI, Option<Telemetry>, U)>,
+	components: PartialComponents<C, B, S, I, P, (BI, Option<&mut Telemetry>, U)>,
 	config: Configuration,
-) -> Result<Node<T>, anyhow::Error> {
+	is_parachain: bool,
+) -> Result<Node<T>, sc_service::Error>
+where
+	B: BlockT,
+	C: ProvideRuntimeApi<B>
+		+ HeaderMetadata<B, Error = sp_blockchain::Error>
+		+ Chain<B>
+		+ ChainInfo
+		+ BlockBackend<B>
+		+ BlockIdTo<B, Error = sp_blockchain::Error>
+		+ ProofProvider<B>
+		+ HeaderBackend<B>
+		+ BlockchainEvents<B>
+		+ 'static
+		+ Send
+		+ Sync,
+	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
+		Core<C::Block> + TaggedTransactionQueue<C::Block>,
+	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B>,
+	P: MaintainedTransactionPool<Block = B, Hash = <B as BlockT>::Hash> + 'static,
+	I: ImportQueue<B> + 'static,
+	S: Clone,
+	T: ChainInfo + 'static,
+	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
+		Core<T::Block> + TaggedTransactionQueue<T::Block>,
+{
 	let PartialComponents {
 		client,
 		backend,
@@ -470,7 +500,7 @@ pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 		None
 	};
 
-	let (network, system_rpc_tx, tx_handler_controller, _network_starter) = {
+	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			client: client.clone(),
@@ -478,7 +508,7 @@ pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
-			warp_sync: None,
+			warp_sync_params: None,
 		};
 		build_network(params)?
 	};
@@ -515,7 +545,7 @@ pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 			client: client.clone(),
 			backend: backend.clone(),
 			task_manager: &mut task_manager,
-			keystore: keystore.sync_keystore(),
+			keystore: keystore_container.sync_keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
 				let mut io = <T as ChainInfo>::create_rpc_io_handler(RpcHandlerArgs {
@@ -534,6 +564,7 @@ pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 			network,
 			system_rpc_tx,
 			tx_handler_controller,
+			sync_service,
 			telemetry,
 		};
 		spawn_tasks(params)?
