@@ -73,7 +73,6 @@ where
 
 /// Simnode run
 pub fn simnode<T: ChainInfo, C, B1, B2, S, I, P, BI, U>(
-	// components: PartialComponents<C, B, S, I, P, (BI, Option<&mut Telemetry>, U)>,
 	components: PartialComponents<
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
 		TFullBackend<B2>,
@@ -104,7 +103,6 @@ where
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
 	<C as ProvideRuntimeApi<B1>>::Api: sp_offchain::OffchainWorkerApi<B1>
 		+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<B1>,
-	// P: MaintainedTransactionPool<Block = B2, Hash = B2::Hash> + 'static,
 	I: ImportQueue<B1> + 'static + sc_service::ImportQueue<<T as ChainInfo>::Block>,
 	BI: BlockImport<B1>
 		+ BlockImport<
