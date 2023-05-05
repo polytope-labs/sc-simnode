@@ -11,7 +11,7 @@ members = ["runtime-apis"]
 [dependencies]
 # client deps
 sc-executor = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
-sc-service = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sc-service = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40", features = ["test-helpers"] }
 sc-telemetry = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-informant = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
@@ -20,6 +20,7 @@ sc-basic-authorship = { git = "https://github.com/paritytech/substrate", branch 
 sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-tracing = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sc-client-db = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 grandpa = { package = "sc-consensus-grandpa", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-finality-grandpa = { package = "sp-consensus-grandpa", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
@@ -45,6 +46,7 @@ sp-inherents = { git = "https://github.com/paritytech/substrate", branch = "polk
 sp-keyring = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-externalities = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-state-machine = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sp-trie = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-wasm-interface = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-runtime-interface = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 

@@ -17,33 +17,39 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
-	ChainInfo, FullBackendFor, FullClientFor, Node, ParachainInherentSproofProvider,
-	SharedParachainInherentProvider, SimnodeCli,
+	ChainInfo, FullBackendFor, FullClientFor, NativeElseWasmExecutor, Node,
+	ParachainInherentSproofProvider,
 };
 use futures::channel::mpsc;
+use manual_seal::consensus::aura::AuraConsensusDataProvider;
+use manual_seal::consensus::timestamp::SlotTimestampProvider;
 use manual_seal::{
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, ManualSealParams,
 };
-use sc_client_api::{BlockBackend, BlockchainEvents, ProofProvider};
-use sc_consensus::ImportQueue;
+use num_traits::AsPrimitive;
+use sc_client_api::{
+	backend::BlockImportOperation as IBlockImportOperation, BlockBackend, BlockchainEvents,
+	ProofProvider,
+};
+use sc_client_db::BlockImportOperation;
+use sc_consensus::{BlockImport, ImportQueue};
+use sc_service::TFullClient;
 use sc_service::{
-	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents, SpawnTasksParams,
+	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents,
+	SpawnTasksParams, TFullBackend,
 };
 use sc_telemetry::Telemetry;
-use sc_transaction_pool_api::MaintainedTransactionPool;
-use sp_api::{ConstructRuntimeApi, Core, ProvideRuntimeApi};
+use sc_transaction_pool::FullPool;
+use sp_api::{ApiExt, ConstructRuntimeApi, Core, ProvideRuntimeApi};
+use sp_block_builder::BlockBuilder;
 use sp_blockchain::{HeaderBackend, HeaderMetadata};
 use sp_consensus::block_validation::Chain;
-
+use sp_consensus::SelectChain;
 use sp_runtime::traits::{Block as BlockT, BlockIdTo, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
-use std::{
-
-	sync::{Arc, Mutex},
-};
-use manual_seal::consensus::aura::AuraConsensusDataProvider;
-use manual_seal::consensus::timestamp::SlotTimestampProvider;
+use sp_trie::PrefixedMemoryDB;
+use std::sync::{Arc, Mutex};
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo, SC>
@@ -65,34 +71,66 @@ where
 	pub subscription_executor: sc_rpc::SubscriptionTaskExecutor,
 }
 
-pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
-	components: PartialComponents<C, B, S, I, P, (BI, Option<&mut Telemetry>, U)>,
+/// Simnode run
+pub fn simnode<T: ChainInfo, C, B1, B2, S, I, P, BI, U>(
+	// components: PartialComponents<C, B, S, I, P, (BI, Option<&mut Telemetry>, U)>,
+	components: PartialComponents<
+		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
+		TFullBackend<B2>,
+		S,
+		I,
+		FullPool<B2, FullClientFor<T>>,
+		(BI, Option<&mut Telemetry>, U),
+	>,
 	config: Configuration,
 	is_parachain: bool,
 ) -> Result<Node<T>, sc_service::Error>
 where
-	B: BlockT,
-	C: ProvideRuntimeApi<B>
-		+ HeaderMetadata<B, Error = sp_blockchain::Error>
-		+ Chain<B>
+	B1: BlockT,
+	B2: BlockT,
+	C: ProvideRuntimeApi<B1>
+		+ HeaderMetadata<B1, Error = sp_blockchain::Error>
+		+ Chain<B1>
 		+ ChainInfo
-		+ BlockBackend<B>
-		+ BlockIdTo<B, Error = sp_blockchain::Error>
-		+ ProofProvider<B>
-		+ HeaderBackend<B>
-		+ BlockchainEvents<B>
+		+ BlockBackend<B1>
+		+ BlockIdTo<B1, Error = sp_blockchain::Error>
+		+ ProofProvider<B1>
+		+ HeaderBackend<B1>
+		+ BlockchainEvents<B1>
 		+ 'static
 		+ Send
 		+ Sync,
 	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
-	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B>,
-	P: MaintainedTransactionPool<Block = B, Hash = <B as BlockT>::Hash> + 'static,
-	I: ImportQueue<B> + 'static,
-	S: Clone,
-	T: ChainInfo + 'static,
-	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
-		Core<T::Block> + TaggedTransactionQueue<T::Block>,
+	<C as ProvideRuntimeApi<B1>>::Api: sp_offchain::OffchainWorkerApi<B1>
+		+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<B1>,
+	// P: MaintainedTransactionPool<Block = B2, Hash = B2::Hash> + 'static,
+	I: ImportQueue<B1> + 'static + sc_service::ImportQueue<<T as ChainInfo>::Block>,
+	BI: BlockImport<B1>
+		+ BlockImport<
+			B2,
+			Error = sp_consensus::Error,
+			Transaction = PrefixedMemoryDB<<<B2 as BlockT>::Header as Header>::Hashing>,
+		> + Send
+		+ Sync
+		+ 'static,
+	S: Clone + SelectChain<B2> + 'static,
+	T: ChainInfo<Block = B2> + 'static,
+	<T::RuntimeApi as ConstructRuntimeApi<B2, FullClientFor<T>>>::RuntimeApi:
+		Core<B2>
+			+ TaggedTransactionQueue<B2>
+			+ sp_offchain::OffchainWorkerApi<B2>
+			+ sp_api::Metadata<B2>
+			+ sp_session::SessionKeys<B2>
+			+ ApiExt<
+				B2,
+				StateBackend = <BlockImportOperation<B2> as IBlockImportOperation<B2>>::State,
+			> + BlockBuilder<B2>
+			+ sp_consensus_aura::AuraApi<B2, sp_consensus_aura::sr25519::AuthorityId>,
+	<<B2 as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
+	<B2 as BlockT>::Hash: Unpin,
+	<B2 as BlockT>::Header: Unpin,
+	// <<<T as ChainInfo>::RuntimeApi as ConstructRuntimeApi<B2, sc_service::client::Client<sc_client_db::Backend<B2>, LocalCallExecutor<B2, sc_client_db::Backend<B2>, NativeElseWasmExecutor<<T as ChainInfo>::ExecutorDispatch>>, B2, <T as ChainInfo>::RuntimeApi>>>::RuntimeApi as ApiExt<B2>>::StateBackend = sc_client_db::record_stats_state::RecordStatsState<sc_client_db::RefTrackingState<B2>, B2>
 {
 	let PartialComponents {
 		client,
@@ -189,47 +227,47 @@ where
 		commands_stream,
 		select_chain,
 		consensus_data_provider: Some(Box::new(AuraConsensusDataProvider::new(client.clone()))),
-		create_inherent_data_providers: || {
-			let client  = client.clone();
-			async {
-				Box::new(move |_, _| {
-					let client = client.clone();
-					let parachain_sproof = parachain_inherent_provider.clone().unwrap();
-					async move {
-						let timestamp = SlotTimestampProvider::new_aura(client.clone())
-							.map_err(|err| format!("{:?}", err))?;
+		create_inherent_data_providers: |_, _| {
+			let client = client.clone();
+			let parachain_sproof = parachain_inherent_provider.clone().unwrap();
+			async move {
+				let client = client.clone();
+				let parachain_sproof = parachain_sproof.clone();
 
-						let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
-							timestamp.slot().into(),
-						);
+				let timestamp = SlotTimestampProvider::new_aura(client.clone())
+					.map_err(|err| format!("{:?}", err))?;
 
-						let parachain_system =
-							parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
-						Ok((timestamp, _aura, parachain_system))
-					}
-				})
+				let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
+					timestamp.slot().into(),
+				);
+
+				let parachain_system =
+					parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
+				Ok((timestamp, _aura, parachain_system))
 			}
 		},
 	});
 
-	// spawn the authorship task as an essential task.
-	task_manager
-		.spawn_essential_handle()
-		.spawn("manual-seal", None, authorship_future);
+	todo!()
 
-	_network_starter.start_network();
-	let rpc_handler = rpc_handlers.handle();
+	// // spawn the authorship task as an essential task.
+	// task_manager
+	// 	.spawn_essential_handle()
+	// 	.spawn("manual-seal", None, authorship_future);
 
-	let node = Node::<T> {
-		rpc_handler,
-		task_manager: Some(task_manager),
-		pool,
-		backend,
-		initial_block_number: client.info().best_number,
-		client,
-		manual_seal_command_sink: command_sink,
-		parachain_inherent_provider,
-	};
+	// _network_starter.start_network();
+	// let rpc_handler = rpc_handlers.handle();
 
-	Ok(node)
+	// let node = Node::<T> {
+	// 	rpc_handler,
+	// 	task_manager: Some(task_manager),
+	// 	pool,
+	// 	backend,
+	// 	initial_block_number: client.info().best_number,
+	// 	client,
+	// 	manual_seal_command_sink: command_sink,
+	// 	parachain_inherent_provider,
+	// };
+
+	// Ok(node)
 }
