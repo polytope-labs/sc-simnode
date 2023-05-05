@@ -130,7 +130,6 @@ where
 	<<B2 as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 	<B2 as BlockT>::Hash: Unpin,
 	<B2 as BlockT>::Header: Unpin,
-	// <<<T as ChainInfo>::RuntimeApi as ConstructRuntimeApi<B2, sc_service::client::Client<sc_client_db::Backend<B2>, LocalCallExecutor<B2, sc_client_db::Backend<B2>, NativeElseWasmExecutor<<T as ChainInfo>::ExecutorDispatch>>, B2, <T as ChainInfo>::RuntimeApi>>>::RuntimeApi as ApiExt<B2>>::StateBackend = sc_client_db::record_stats_state::RecordStatsState<sc_client_db::RefTrackingState<B2>, B2>
 {
 	let PartialComponents {
 		client,
@@ -227,47 +226,49 @@ where
 		commands_stream,
 		select_chain,
 		consensus_data_provider: Some(Box::new(AuraConsensusDataProvider::new(client.clone()))),
-		create_inherent_data_providers: |_, _| {
+		create_inherent_data_providers: {
 			let client = client.clone();
-			let parachain_sproof = parachain_inherent_provider.clone().unwrap();
-			async move {
+			let parachain_inherent_provider = parachain_inherent_provider.clone();
+			move |_, _| {
 				let client = client.clone();
-				let parachain_sproof = parachain_sproof.clone();
+				let parachain_sproof = parachain_inherent_provider.clone().unwrap();
+				async move {
+					let client = client.clone();
+					let parachain_sproof = parachain_sproof.clone();
 
-				let timestamp = SlotTimestampProvider::new_aura(client.clone())
-					.map_err(|err| format!("{:?}", err))?;
+					let timestamp = SlotTimestampProvider::new_aura(client.clone())
+						.map_err(|err| format!("{:?}", err))?;
 
-				let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
-					timestamp.slot().into(),
-				);
+					let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
+						timestamp.slot().into(),
+					);
 
-				let parachain_system =
-					parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
-				Ok((timestamp, _aura, parachain_system))
+					let parachain_system =
+						parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
+					Ok((timestamp, _aura, parachain_system))
+				}
 			}
 		},
 	});
 
-	todo!()
+	// spawn the authorship task as an essential task.
+	task_manager
+		.spawn_essential_handle()
+		.spawn("manual-seal", None, authorship_future);
 
-	// // spawn the authorship task as an essential task.
-	// task_manager
-	// 	.spawn_essential_handle()
-	// 	.spawn("manual-seal", None, authorship_future);
+	_network_starter.start_network();
+	let rpc_handler = rpc_handlers.handle();
 
-	// _network_starter.start_network();
-	// let rpc_handler = rpc_handlers.handle();
+	let node = Node::<T> {
+		rpc_handler,
+		task_manager: Some(task_manager),
+		pool,
+		backend,
+		initial_block_number: client.clone().info().best_number,
+		client: client.clone(),
+		manual_seal_command_sink: command_sink,
+		parachain_inherent_provider: parachain_inherent_provider.clone(),
+	};
 
-	// let node = Node::<T> {
-	// 	rpc_handler,
-	// 	task_manager: Some(task_manager),
-	// 	pool,
-	// 	backend,
-	// 	initial_block_number: client.info().best_number,
-	// 	client,
-	// 	manual_seal_command_sink: command_sink,
-	// 	parachain_inherent_provider,
-	// };
-
-	// Ok(node)
+	Ok(node)
 }
