@@ -16,34 +16,29 @@
 
 //! Utilities for creating the neccessary client subsystems.
 
-use crate::{
-	ChainInfo, FullBackendFor, FullClientFor, Node, ParachainInherentSproofProvider,
-	SharedParachainInherentProvider, SimnodeCli,
-};
+use crate::{ChainInfo, FullBackendFor, FullClientFor, Node, ParachainInherentSproofProvider};
 use futures::channel::mpsc;
 use manual_seal::{
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, ManualSealParams,
 };
 use sc_client_api::{BlockBackend, BlockchainEvents, ProofProvider};
-use sc_consensus::ImportQueue;
+use sc_consensus::{BlockImport, ImportQueue};
+use sc_executor::NativeExecutionDispatch;
 use sc_service::{
-	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents, SpawnTasksParams,
+	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents,
+	SpawnTasksParams,
 };
 use sc_telemetry::Telemetry;
 use sc_transaction_pool_api::MaintainedTransactionPool;
 use sp_api::{ConstructRuntimeApi, Core, ProvideRuntimeApi};
 use sp_blockchain::{HeaderBackend, HeaderMetadata};
-use sp_consensus::block_validation::Chain;
+use sp_consensus::{block_validation::Chain, SelectChain};
 
+use manual_seal::consensus::aura::AuraConsensusDataProvider;
 use sp_runtime::traits::{Block as BlockT, BlockIdTo, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
-use std::{
-
-	sync::{Arc, Mutex},
-};
-use manual_seal::consensus::aura::AuraConsensusDataProvider;
-use manual_seal::consensus::timestamp::SlotTimestampProvider;
+use std::sync::{Arc, Mutex};
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo, SC>
@@ -71,7 +66,8 @@ pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 	is_parachain: bool,
 ) -> Result<Node<T>, sc_service::Error>
 where
-	B: BlockT,
+	B: BlockT + 'static + Send + Sync,
+	<<B as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 	C: ProvideRuntimeApi<B>
 		+ HeaderMetadata<B, Error = sp_blockchain::Error>
 		+ Chain<B>
@@ -83,16 +79,15 @@ where
 		+ BlockchainEvents<B>
 		+ 'static
 		+ Send
-		+ Sync,
-	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
-		Core<C::Block> + TaggedTransactionQueue<C::Block>,
-	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B>,
+		+ Sync + sc_client_api::Backend<B>,
+	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B> + NativeExecutionDispatch,
 	P: MaintainedTransactionPool<Block = B, Hash = <B as BlockT>::Hash> + 'static,
 	I: ImportQueue<B> + 'static,
-	S: Clone,
-	T: ChainInfo + 'static,
+	S: SelectChain<B> + 'static,
 	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
 		Core<T::Block> + TaggedTransactionQueue<T::Block>,
+	BI: BlockImport<B, Error = sp_consensus::Error> + 'static + Send + Sync,
+	// U: sc_consensus::import_queue::ImportQueueUpdate<B> + 'static + Send + Sync,
 {
 	let PartialComponents {
 		client,
@@ -104,8 +99,9 @@ where
 		transaction_pool: pool,
 		other: (block_import, telemetry, _),
 	} = components;
+
 	let parachain_inherent_provider = if is_parachain {
-		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
+		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::<B, C>::new(client.clone()))))
 	} else {
 		None
 	};
@@ -189,8 +185,8 @@ where
 		commands_stream,
 		select_chain,
 		consensus_data_provider: Some(Box::new(AuraConsensusDataProvider::new(client.clone()))),
-		create_inherent_data_providers: || {
-			let client  = client.clone();
+		create_inherent_data_providers: |_, _|, _| {
+			let client = client.clone();
 			async {
 				Box::new(move |_, _| {
 					let client = client.clone();
@@ -203,8 +199,10 @@ where
 							timestamp.slot().into(),
 						);
 
-						let parachain_system =
-							parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
+						let parachain_system = parachain_sproof
+							.lock()
+							.unwrap()
+							.create_inherent(timestamp.slot().into());
 						Ok((timestamp, _aura, parachain_system))
 					}
 				})
