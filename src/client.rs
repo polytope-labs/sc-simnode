@@ -21,9 +21,8 @@ use crate::{
 	ParachainInherentSproofProvider,
 };
 use futures::channel::mpsc;
-use manual_seal::consensus::aura::AuraConsensusDataProvider;
-use manual_seal::consensus::timestamp::SlotTimestampProvider;
 use manual_seal::{
+	consensus::{aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider},
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, ManualSealParams,
 };
@@ -34,18 +33,16 @@ use sc_client_api::{
 };
 use sc_client_db::BlockImportOperation;
 use sc_consensus::{BlockImport, ImportQueue};
-use sc_service::TFullClient;
 use sc_service::{
 	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents,
-	SpawnTasksParams, TFullBackend,
+	SpawnTasksParams, TFullBackend, TFullClient,
 };
 use sc_telemetry::Telemetry;
 use sc_transaction_pool::FullPool;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core, ProvideRuntimeApi};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::{HeaderBackend, HeaderMetadata};
-use sp_consensus::block_validation::Chain;
-use sp_consensus::SelectChain;
+use sp_consensus::{block_validation::Chain, SelectChain};
 use sp_runtime::traits::{Block as BlockT, BlockIdTo, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
