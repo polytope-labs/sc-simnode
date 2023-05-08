@@ -72,62 +72,60 @@ where
 }
 
 /// Simnode run
-pub fn simnode<T: ChainInfo, C, B1, B2, S, I, P, BI, U>(
+pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 	components: PartialComponents<
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
-		TFullBackend<B2>,
+		TFullBackend<B>,
 		S,
 		I,
-		FullPool<B2, FullClientFor<T>>,
+		FullPool<B, FullClientFor<T>>,
 		(BI, Option<&mut Telemetry>, U),
 	>,
 	config: Configuration,
 	is_parachain: bool,
 ) -> Result<Node<T>, sc_service::Error>
 where
-	B1: BlockT,
-	B2: BlockT,
-	C: ProvideRuntimeApi<B1>
-		+ HeaderMetadata<B1, Error = sp_blockchain::Error>
-		+ Chain<B1>
+	B: BlockT,
+	B: BlockT,
+	C: ProvideRuntimeApi<B>
+		+ HeaderMetadata<B, Error = sp_blockchain::Error>
+		+ Chain<B>
 		+ ChainInfo
-		+ BlockBackend<B1>
-		+ BlockIdTo<B1, Error = sp_blockchain::Error>
-		+ ProofProvider<B1>
-		+ HeaderBackend<B1>
-		+ BlockchainEvents<B1>
+		+ BlockBackend<B>
+		+ BlockIdTo<B, Error = sp_blockchain::Error>
+		+ ProofProvider<B>
+		+ HeaderBackend<B>
+		+ BlockchainEvents<B>
 		+ 'static
 		+ Send
 		+ Sync,
 	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
-	<C as ProvideRuntimeApi<B1>>::Api: sp_offchain::OffchainWorkerApi<B1>
-		+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<B1>,
-	I: ImportQueue<B1> + 'static + sc_service::ImportQueue<<T as ChainInfo>::Block>,
-	BI: BlockImport<B1>
+	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B>
+		+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<B>,
+	I: ImportQueue<B> + 'static + sc_service::ImportQueue<<T as ChainInfo>::Block>,
+	BI: BlockImport<B>
 		+ BlockImport<
-			B2,
+			B,
 			Error = sp_consensus::Error,
-			Transaction = PrefixedMemoryDB<<<B2 as BlockT>::Header as Header>::Hashing>,
+			Transaction = PrefixedMemoryDB<<<B as BlockT>::Header as Header>::Hashing>,
 		> + Send
 		+ Sync
 		+ 'static,
-	S: Clone + SelectChain<B2> + 'static,
-	T: ChainInfo<Block = B2> + 'static,
-	<T::RuntimeApi as ConstructRuntimeApi<B2, FullClientFor<T>>>::RuntimeApi:
-		Core<B2>
-			+ TaggedTransactionQueue<B2>
-			+ sp_offchain::OffchainWorkerApi<B2>
-			+ sp_api::Metadata<B2>
-			+ sp_session::SessionKeys<B2>
-			+ ApiExt<
-				B2,
-				StateBackend = <BlockImportOperation<B2> as IBlockImportOperation<B2>>::State,
-			> + BlockBuilder<B2>
-			+ sp_consensus_aura::AuraApi<B2, sp_consensus_aura::sr25519::AuthorityId>,
-	<<B2 as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
-	<B2 as BlockT>::Hash: Unpin,
-	<B2 as BlockT>::Header: Unpin,
+	S: Clone + SelectChain<B> + 'static,
+	T: ChainInfo<Block = B> + 'static,
+	<T::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<T>>>::RuntimeApi:
+		Core<B>
+			+ TaggedTransactionQueue<B>
+			+ sp_offchain::OffchainWorkerApi<B>
+			+ sp_api::Metadata<B>
+			+ sp_session::SessionKeys<B>
+			+ ApiExt<B, StateBackend = <BlockImportOperation<B> as IBlockImportOperation<B>>::State>
+			+ BlockBuilder<B>
+			+ sp_consensus_aura::AuraApi<B, sp_consensus_aura::sr25519::AuthorityId>,
+	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
+	<B as BlockT>::Hash: Unpin,
+	<B as BlockT>::Header: Unpin,
 {
 	let PartialComponents {
 		client,
