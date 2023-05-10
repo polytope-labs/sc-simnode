@@ -83,7 +83,6 @@ pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 ) -> Result<Node<T>, sc_service::Error>
 where
 	B: BlockT,
-	B: BlockT,
 	C: ProvideRuntimeApi<B>
 		+ HeaderMetadata<B, Error = sp_blockchain::Error>
 		+ Chain<B>
