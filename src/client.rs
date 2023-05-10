@@ -68,8 +68,8 @@ where
 	pub subscription_executor: sc_rpc::SubscriptionTaskExecutor,
 }
 
-/// Simnode run
-pub fn simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
+/// Set up and run simnode for a standalone or parachain runtime.
+pub fn start_simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
 	components: PartialComponents<
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
 		TFullBackend<B>,
