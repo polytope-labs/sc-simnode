@@ -70,7 +70,7 @@ where
 
 /// Set up and run simnode for a standalone or parachain runtime.
 pub fn start_simnode<T, C, B, S, I, BI>(
-	components: PartialComponents<  
+	components: PartialComponents<
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
 		TFullBackend<B>,
 		S,
