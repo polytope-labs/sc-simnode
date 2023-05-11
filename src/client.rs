@@ -69,14 +69,14 @@ where
 }
 
 /// Set up and run simnode for a standalone or parachain runtime.
-pub fn start_simnode<T: ChainInfo, C, B, S, I, P, BI, U>(
-	components: PartialComponents<
+pub fn start_simnode<T, C, B, S, I, BI>(
+	components: PartialComponents<  
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
 		TFullBackend<B>,
 		S,
 		I,
 		FullPool<B, FullClientFor<T>>,
-		(BI, Option<&mut Telemetry>, U),
+		(BI, Option<&mut Telemetry>),
 	>,
 	config: Configuration,
 	is_parachain: bool,
@@ -86,7 +86,7 @@ where
 	C: ProvideRuntimeApi<B>
 		+ HeaderMetadata<B, Error = sp_blockchain::Error>
 		+ Chain<B>
-		+ ChainInfo
+		+ ChainInfo<Block = B>
 		+ BlockBackend<B>
 		+ BlockIdTo<B, Error = sp_blockchain::Error>
 		+ ProofProvider<B>
@@ -99,12 +99,11 @@ where
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
 	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B>
 		+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<B>,
-	I: ImportQueue<B> + 'static + sc_service::ImportQueue<<T as ChainInfo>::Block>,
-	BI: BlockImport<B>
-		+ BlockImport<
+	I: ImportQueue<B> + 'static,
+	BI: BlockImport<
 			B,
 			Error = sp_consensus::Error,
-			Transaction = PrefixedMemoryDB<<<B as BlockT>::Header as Header>::Hashing>,
+			Transaction = PrefixedMemoryDB<<B::Header as Header>::Hashing>,
 		> + Send
 		+ Sync
 		+ 'static,
@@ -131,7 +130,7 @@ where
 		select_chain,
 		import_queue,
 		transaction_pool: pool,
-		other: (block_import, telemetry, _),
+		other: (block_import, telemetry),
 	} = components;
 	let parachain_inherent_provider = if is_parachain {
 		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
