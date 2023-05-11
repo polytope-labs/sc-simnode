@@ -69,14 +69,14 @@ where
 }
 
 /// Set up and run simnode for a standalone or parachain runtime.
-pub fn start_simnode<T, C, B, S, I, BI>(
+pub fn start_simnode<T, C, B, S, I, BI, U>(
 	components: PartialComponents<
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
 		TFullBackend<B>,
 		S,
 		I,
 		FullPool<B, FullClientFor<T>>,
-		(BI, Option<&mut Telemetry>),
+		(BI, Option<&mut Telemetry>, U),
 	>,
 	config: Configuration,
 	is_parachain: bool,
@@ -130,7 +130,7 @@ where
 		select_chain,
 		import_queue,
 		transaction_pool: pool,
-		other: (block_import, telemetry),
+		other: (block_import, telemetry, _),
 	} = components;
 	let parachain_inherent_provider = if is_parachain {
 		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
