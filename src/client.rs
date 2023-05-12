@@ -27,10 +27,7 @@ use manual_seal::{
 	run_manual_seal, ManualSealParams,
 };
 use num_traits::AsPrimitive;
-use sc_client_api::{
-	backend::BlockImportOperation as IBlockImportOperation, BlockBackend, BlockchainEvents,
-	ProofProvider,
-};
+use sc_client_api::backend::BlockImportOperation as IBlockImportOperation;
 use sc_client_db::BlockImportOperation;
 use sc_consensus::{BlockImport, ImportQueue};
 use sc_service::{
@@ -39,11 +36,11 @@ use sc_service::{
 };
 use sc_telemetry::Telemetry;
 use sc_transaction_pool::FullPool;
-use sp_api::{ApiExt, ConstructRuntimeApi, Core, ProvideRuntimeApi};
+use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
-use sp_blockchain::{HeaderBackend, HeaderMetadata};
-use sp_consensus::{block_validation::Chain, SelectChain};
-use sp_runtime::traits::{Block as BlockT, BlockIdTo, Header};
+use sp_blockchain::HeaderBackend;
+use sp_consensus::SelectChain;
+use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::{Arc, Mutex};
@@ -83,22 +80,9 @@ pub fn start_simnode<T, C, B, S, I, BI, U>(
 ) -> Result<Node<T>, sc_service::Error>
 where
 	B: BlockT,
-	C: ProvideRuntimeApi<B>
-		+ HeaderMetadata<B, Error = sp_blockchain::Error>
-		+ Chain<B>
-		+ ChainInfo<Block = B>
-		+ BlockBackend<B>
-		+ BlockIdTo<B, Error = sp_blockchain::Error>
-		+ ProofProvider<B>
-		+ HeaderBackend<B>
-		+ BlockchainEvents<B>
-		+ 'static
-		+ Send
-		+ Sync,
+	C: ChainInfo<Block = B> + 'static + Send + Sync,
 	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
-	<C as ProvideRuntimeApi<B>>::Api: sp_offchain::OffchainWorkerApi<B>
-		+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<B>,
 	I: ImportQueue<B> + 'static,
 	BI: BlockImport<
 			B,
