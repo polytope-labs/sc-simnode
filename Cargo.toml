@@ -71,7 +71,7 @@ clap = { version = "4.0.9", features = ["derive"] }
 # Calling RPC
 jsonrpsee = { version = "0.16.2", features = ["server"] }
 num-traits = "0.2.14"
-
+async-trait = "0.1.57"
 # local deps
 simnode-runtime-api = { path = "runtime-api" }
 

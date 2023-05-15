@@ -132,8 +132,8 @@ where
 	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
 		CreateTransactionApi<
 			T::Block,
-			<T::Runtime as frame_system::Config>::AccountId,
 			<T::Runtime as frame_system::Config>::RuntimeCall,
+			<T::Runtime as frame_system::Config>::AccountId,
 		>,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
@@ -202,7 +202,7 @@ where
 		let extrinsic =
 			self.client
 				.runtime_api()
-				.create_transaction(at, call.clone().into(), signer.clone());
+				.create_transaction(at, signer.clone(), call.clone().into());
 		let ext_bytes = if let Ok(raw_bytes) = extrinsic {
 			raw_bytes
 		} else {

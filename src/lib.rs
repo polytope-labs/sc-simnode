@@ -17,19 +17,18 @@
 
 //! ### substrate-simnode
 
+use crate::{client::RpcHandlerArgs, node::FullClientFor};
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
-use crate::client::RpcHandlerArgs;
-use crate::node::FullClientFor;
 
+pub mod cli;
 pub mod client;
 pub mod host_functions;
 pub mod node;
+pub mod parachain;
 pub mod rpc;
 pub mod sproof;
-pub mod cli;
-
 
 /// Wrapper trait for concrete type required by this testing framework.
 pub trait ChainInfo: Sized {

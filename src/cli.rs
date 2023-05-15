@@ -23,14 +23,13 @@ use sc_cli::{CliConfiguration, SharedParams};
 /// See [`Command`] for more info.
 #[derive(Debug, Clone, clap::Parser)]
 pub struct Simnode {
-    /// Shared params need by substrate
-    #[clap(flatten)]
-    shared: SharedParams,
+	/// Shared params need by substrate
+	#[clap(flatten)]
+	shared: SharedParams,
 }
 
-
 impl CliConfiguration for Simnode {
-    fn shared_params(&self) -> &SharedParams {
-        &self.shared
-    }
+	fn shared_params(&self) -> &SharedParams {
+		&self.shared
+	}
 }

@@ -17,7 +17,9 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
+	node::{FullBackendFor, Node},
 	rpc::{SimnodeApiServer, SimnodeRpcHandler},
+	sproof::ParachainInherentSproofProvider,
 	ChainInfo, FullClientFor, NativeElseWasmExecutor,
 };
 use futures::channel::mpsc;
@@ -45,8 +47,7 @@ use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::{Arc, Mutex};
-use crate::node::{FullBackendFor, Node};
-use crate::sproof::ParachainInherentSproofProvider;
+use sp_core::crypto::AccountId32;
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo>
@@ -110,7 +111,7 @@ where
 	<B as BlockT>::Hash: Unpin,
 	<B as BlockT>::Header: Unpin,
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
-	<C::Runtime as frame_system::Config>::AccountId: Send + Sync,
+	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
 	let PartialComponents {
 		client,
