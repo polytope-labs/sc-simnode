@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [workspace]
-members = ["runtime-apis"]
+members = ["runtime-api"]
 
 [dependencies]
 # client deps
@@ -73,7 +73,7 @@ jsonrpsee = { version = "0.16.2", features = ["server"] }
 num-traits = "0.2.14"
 
 # local deps
-simnode-runtime-apis = { path = "./runtime-apis" }
+simnode-runtime-api = { path = "runtime-api" }
 
 
 [features]

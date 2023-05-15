@@ -31,7 +31,7 @@ use polkadot_primitives::v2::UpgradeGoAhead;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
-use simnode_runtime_apis::CreateTransactionApi;
+use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ConstructRuntimeApi, OverlayedChanges, ProvideRuntimeApi, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
@@ -257,7 +257,7 @@ where
 		}
 	}
 
-	/// so you've decided to run the test runner as a binary, use this to shutdown gracefully.
+	/// so you've decided to run simnode as a binary, use this to shutdown gracefully.
 	pub async fn until_shutdown(mut self) {
 		let manager = self.task_manager.take();
 		if let Some(mut task_manager) = manager {

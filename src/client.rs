@@ -17,6 +17,7 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
+	rpc::{SimnodeApiServer, SimnodeRpcHandler},
 	ChainInfo, FullBackendFor, FullClientFor, NativeElseWasmExecutor, Node,
 	ParachainInherentSproofProvider,
 };
@@ -36,6 +37,7 @@ use sc_service::{
 };
 use sc_telemetry::Telemetry;
 use sc_transaction_pool::FullPool;
+use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
@@ -66,23 +68,21 @@ where
 }
 
 /// Set up and run simnode for a standalone or parachain runtime.
-pub fn start_simnode<T, C, B, S, I, BI, U>(
+pub fn setup_simnode<C, B, S, I, BI, U>(
 	components: PartialComponents<
-		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
+		TFullClient<C::Block, C::RuntimeApi, NativeElseWasmExecutor<C::ExecutorDispatch>>,
 		TFullBackend<B>,
 		S,
 		I,
-		FullPool<B, FullClientFor<T>>,
+		FullPool<B, FullClientFor<C>>,
 		(BI, Option<&mut Telemetry>, U),
 	>,
 	config: Configuration,
 	is_parachain: bool,
-) -> Result<Node<T>, sc_service::Error>
+) -> Result<Node<C>, sc_service::Error>
 where
 	B: BlockT,
 	C: ChainInfo<Block = B> + 'static + Send + Sync,
-	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
-		Core<C::Block> + TaggedTransactionQueue<C::Block>,
 	I: ImportQueue<B> + 'static,
 	BI: BlockImport<
 			B,
@@ -92,8 +92,7 @@ where
 		+ Sync
 		+ 'static,
 	S: Clone + SelectChain<B> + 'static,
-	T: ChainInfo<Block = B> + 'static,
-	<T::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<T>>>::RuntimeApi:
+	<C::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<C>>>::RuntimeApi:
 		Core<B>
 			+ TaggedTransactionQueue<B>
 			+ sp_offchain::OffchainWorkerApi<B>
@@ -101,10 +100,16 @@ where
 			+ sp_session::SessionKeys<B>
 			+ ApiExt<B, StateBackend = <BlockImportOperation<B> as IBlockImportOperation<B>>::State>
 			+ BlockBuilder<B>
-			+ sp_consensus_aura::AuraApi<B, sp_consensus_aura::sr25519::AuthorityId>,
-	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
+			+ sp_consensus_aura::AuraApi<B, sp_consensus_aura::sr25519::AuthorityId>
+			+ CreateTransactionApi<
+				C::Block,
+				<C::Runtime as frame_system::Config>::RuntimeCall,
+				<C::Runtime as frame_system::Config>::AccountId,
+			>,
+	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32> + Unpin,
 	<B as BlockT>::Hash: Unpin,
-	<B as BlockT>::Header: Unpin,
+	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
+	<C::Runtime as frame_system::Config>::AccountId: Send + Sync,
 {
 	let PartialComponents {
 		client,
@@ -170,7 +175,7 @@ where
 			keystore: keystore_container.sync_keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-				let mut io = <T as ChainInfo>::create_rpc_io_handler(RpcHandlerArgs {
+				let mut io = <C as ChainInfo>::rpc_handler(RpcHandlerArgs {
 					client: client.clone(),
 					backend: backend.clone(),
 					pool: pool.clone(),
@@ -178,6 +183,9 @@ where
 					deny_unsafe,
 					subscription_executor,
 				});
+				io.merge(SimnodeRpcHandler::<C>::new(client.clone()).into_rpc()).map_err(|_| {
+					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
+				})?;
 				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
 					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
 				})?;
@@ -234,7 +242,7 @@ where
 	_network_starter.start_network();
 	let rpc_handler = rpc_handlers.handle();
 
-	let node = Node::<T> {
+	let node = Node::<C> {
 		rpc_handler,
 		task_manager: Some(task_manager),
 		pool,

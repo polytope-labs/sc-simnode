@@ -35,6 +35,7 @@ use std::sync::Arc;
 mod client;
 mod host_functions;
 mod node;
+mod rpc;
 mod sproof;
 
 pub use client::*;
@@ -113,7 +114,7 @@ pub trait ChainInfo: Sized {
 	type Cli: SimnodeCli;
 
 	/// Should return the json rpc Iohandler
-	fn create_rpc_io_handler<SC>(deps: RpcHandlerArgs<Self, SC>) -> jsonrpsee::RpcModule<()>
+	fn rpc_handler<SC>(deps: RpcHandlerArgs<Self, SC>) -> jsonrpsee::RpcModule<()>
 	where
 		<<Self as ChainInfo>::RuntimeApi as ConstructRuntimeApi<
 			Self::Block,
@@ -121,8 +122,8 @@ pub trait ChainInfo: Sized {
 		>>::RuntimeApi: sp_api::Core<Self::Block>
 			+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
 
-	/// This for cases you don't yet have the simnode runtime api implemented.
-	/// this function is caled in an externalities provided environment.
+	/// This is for cases you don't yet have the simnode runtime api implemented.
+	/// this function is caled in an externalities provided environment, so feel free to read state.
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras;
