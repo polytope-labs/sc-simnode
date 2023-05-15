@@ -75,7 +75,7 @@ pub fn setup_simnode<C, B, S, I, BI, U>(
 		S,
 		I,
 		FullPool<B, FullClientFor<C>>,
-		(BI, Option<&mut Telemetry>, U),
+		(BI, Option<Telemetry>, U),
 	>,
 	config: Configuration,
 	is_parachain: bool,
@@ -120,7 +120,7 @@ where
 		select_chain,
 		import_queue,
 		transaction_pool: pool,
-		other: (block_import, telemetry, _),
+		other: (block_import, mut telemetry, _),
 	} = components;
 	let parachain_inherent_provider = if is_parachain {
 		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
@@ -194,7 +194,7 @@ where
 			system_rpc_tx,
 			tx_handler_controller,
 			sync_service,
-			telemetry,
+			telemetry: telemetry.as_mut(),
 		};
 		spawn_tasks(params)?
 	};
