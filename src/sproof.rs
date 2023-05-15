@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Polytope Capital (Caymans) Ltd.
+// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify

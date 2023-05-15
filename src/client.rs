@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Polytope Capital (Caymans) Ltd.
+// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -18,8 +18,7 @@
 
 use crate::{
 	rpc::{SimnodeApiServer, SimnodeRpcHandler},
-	ChainInfo, FullBackendFor, FullClientFor, NativeElseWasmExecutor, Node,
-	ParachainInherentSproofProvider,
+	ChainInfo, FullClientFor, NativeElseWasmExecutor,
 };
 use futures::channel::mpsc;
 use manual_seal::{
@@ -46,9 +45,11 @@ use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::{Arc, Mutex};
+use crate::node::{FullBackendFor, Node};
+use crate::sproof::ParachainInherentSproofProvider;
 
 /// Arguments to pass to the `create_rpc_io_handler`
-pub struct RpcHandlerArgs<C: ChainInfo, SC>
+pub struct RpcHandlerArgs<C: ChainInfo>
 where
 	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
@@ -58,9 +59,8 @@ where
 	/// Client Backend
 	pub backend: Arc<FullBackendFor<C>>,
 	/// Transaction pool
-	pub pool: Arc<sc_transaction_pool::FullPool<C::Block, FullClientFor<C>>>,
+	pub pool: Arc<FullPool<C::Block, FullClientFor<C>>>,
 	/// Select chain implementation
-	pub select_chain: SC,
 	/// Signifies whether a potentially unsafe RPC should be denied.
 	pub deny_unsafe: sc_rpc::DenyUnsafe,
 	/// Subscription task executor
@@ -106,8 +106,9 @@ where
 				<C::Runtime as frame_system::Config>::RuntimeCall,
 				<C::Runtime as frame_system::Config>::AccountId,
 			>,
-	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32> + Unpin,
+	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 	<B as BlockT>::Hash: Unpin,
+	<B as BlockT>::Header: Unpin,
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync,
 {
@@ -165,7 +166,6 @@ where
 	let rpc_handlers = {
 		let client = client.clone();
 		let backend = backend.clone();
-		let select_chain = select_chain.clone();
 		let pool = pool.clone();
 		let params = SpawnTasksParams {
 			config,
@@ -179,7 +179,6 @@ where
 					client: client.clone(),
 					backend: backend.clone(),
 					pool: pool.clone(),
-					select_chain: select_chain.clone(),
 					deny_unsafe,
 					subscription_executor,
 				});

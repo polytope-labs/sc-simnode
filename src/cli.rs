@@ -10,25 +10,27 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
+
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-#![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::Codec;
-use sp_std::vec::Vec;
+//! Simnode Cli Utilities
 
-sp_api::decl_runtime_apis! {
-	/// Create transaction.
-	/// This trait is meant to be implemented by the runtime and is responsible for constructing
-	/// a transaction to be included in the block.
-	pub trait CreateTransactionApi<RuntimeCall, AccountId>
-		where
-			RuntimeCall: Codec,
-			AccountId: Codec,
-	{
-		/// Attempt to create signed transaction
-		/// Runtime implementation is free to construct the payload to sign in any way it wants.
-		/// Returns a scale encoded extrinsic Should panic if signed transaction cannot be created.
-		fn create_transaction(account: AccountId, call: RuntimeCall) -> Vec<u8>;
-	}
+use sc_cli::{CliConfiguration, SharedParams};
+
+/// The `simnode` sub-command.
+///
+/// See [`Command`] for more info.
+#[derive(Debug, Clone, clap::Parser)]
+pub struct Simnode {
+    /// Shared params need by substrate
+    #[clap(flatten)]
+    shared: SharedParams,
+}
+
+
+impl CliConfiguration for Simnode {
+    fn shared_params(&self) -> &SharedParams {
+        &self.shared
+    }
 }
