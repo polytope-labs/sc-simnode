@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Polytope Capital (Caymans) Ltd.
+// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+//! Host function overrides for signature verification.
 
 use sp_core::{ecdsa, ed25519, sr25519};
 use sp_runtime_interface::runtime_interface;

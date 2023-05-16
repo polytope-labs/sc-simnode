@@ -25,9 +25,9 @@ jobs:
           sudo apt install protobuf-compiler
 
       - name: Run cargo check
-        run: cargo check
+        run: cargo check --workspace --all-targets --all-features --verbose
 
-  build_and_test:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -48,10 +48,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt install protobuf-compiler
-
-      - name: Build
-        run: |
-          cargo check --workspace --all-targets --all-features --verbose
 
       - name: Run tests
         run: |

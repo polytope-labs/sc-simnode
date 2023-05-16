@@ -1,12 +1,12 @@
 [package]
-name = "substrate-simnode"
+name = "sc-simnode"
 version = "0.1.0"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 edition = "2021"
 publish = false
 
 [workspace]
-members = ["runtime-apis"]
+members = ["runtime-api"]
 
 [dependencies]
 # client deps
@@ -67,13 +67,13 @@ codec = { package = "parity-scale-codec", version = "3" }
 log = "0.4.8"
 futures = "0.3.16"
 tokio = { version = "1.13", features = ["signal"] }
-clap = { version = "3.0", features = ["derive"] }
+clap = { version = "4.0.9", features = ["derive"] }
 # Calling RPC
 jsonrpsee = { version = "0.16.2", features = ["server"] }
 num-traits = "0.2.14"
-
+async-trait = "0.1.57"
 # local deps
-simnode-runtime-apis = { path = "./runtime-apis" }
+simnode-runtime-api = { path = "runtime-api" }
 
 
 [features]

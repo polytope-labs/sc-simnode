@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Polytope Capital (Caymans) Ltd.
+// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -17,77 +17,17 @@
 
 //! ### sc-simnode
 
-<<<<<<< Updated upstream
-use sc_cli::{clap::Parser, CliConfiguration, SubstrateCli};
-use sc_consensus::BlockImport;
-=======
-use crate::client::{FullClientFor, RpcHandlerArgs};
->>>>>>> Stashed changes
+use crate::client::RpcHandlerArgs;
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
-use sc_service::{TFullBackend, TFullClient};
-use sc_transaction_pool_api::TransactionPool;
-use sp_api::{ConstructRuntimeApi, TransactionFor};
-use sp_consensus::SelectChain;
-use sp_inherents::InherentDataProvider;
-use sp_runtime::{
-	generic::UncheckedExtrinsic,
-	traits::{Block as BlockT, SignedExtension},
-	MultiAddress, MultiSignature,
-};
-use std::sync::Arc;
+use sp_api::ConstructRuntimeApi;
+use sp_runtime::traits::{Block as BlockT, SignedExtension};
 
-<<<<<<< Updated upstream
-mod client;
-mod host_functions;
-mod node;
-mod sproof;
-
-pub use client::*;
-pub use host_functions::*;
-pub use node::*;
-pub use sproof::*;
-
-/// Type alias for [`sc_service::TFullClient`]
-pub type FullClientFor<C> = TFullClient<
-	<C as ChainInfo>::Block,
-	<C as ChainInfo>::RuntimeApi,
-	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
->;
-
-/// UncheckedExtrinsic type for Simnode
-pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
-	MultiAddress<
-		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
-		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
-	>,
-	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall,
-	MultiSignature,
-	<T as ChainInfo>::SignedExtras,
->;
-
-/// Type alias for [`sc_service::TFullBackend`]
-pub type FullBackendFor<C> = TFullBackend<<C as ChainInfo>::Block>;
-
-/// Type alias for [`sc_transaction_pool_api::TransactionPool`]
-type TransactionPoolFor<T> = Arc<
-	dyn TransactionPool<
-		Block = <T as ChainInfo>::Block,
-		Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
-		Error = sc_transaction_pool::error::Error,
-		InPoolTransaction = sc_transaction_pool::Transaction<
-			<<T as ChainInfo>::Block as BlockT>::Hash,
-			<<T as ChainInfo>::Block as BlockT>::Extrinsic,
-		>,
-	>,
->;
-=======
 pub mod cli;
 pub mod client;
 pub mod host_functions;
 pub mod parachain;
 pub mod rpc;
 pub mod sproof;
->>>>>>> Stashed changes
 
 pub use cli::*;
 pub use client::*;
@@ -110,55 +50,19 @@ pub trait ChainInfo: Sized {
 	/// RuntimeApi
 	type RuntimeApi: Send + Sync + 'static + ConstructRuntimeApi<Self::Block, FullClientFor<Self>>;
 
-	/// select chain type.
-	type SelectChain: SelectChain<Self::Block> + 'static;
-
-	/// Block import type.
-	type BlockImport: Send
-		+ Sync
-		+ Clone
-		+ BlockImport<
-			Self::Block,
-			Error = sp_consensus::Error,
-			Transaction = TransactionFor<FullClientFor<Self>, Self::Block>,
-		> + 'static;
-
-	/// The inherent data providers.
-	type InherentDataProviders: InherentDataProvider + 'static;
-
 	/// The signed extras required by the runtime
 	type SignedExtras: SignedExtension;
 
-	/// Cli utilities
-	type Cli: SimnodeCli;
-
 	/// Should return the json rpc Iohandler
-	fn create_rpc_io_handler<SC>(deps: RpcHandlerArgs<Self, SC>) -> jsonrpsee::RpcModule<()>
+	fn rpc_handler(deps: RpcHandlerArgs<Self>) -> jsonrpsee::RpcModule<()>
 	where
-		<<Self as ChainInfo>::RuntimeApi as ConstructRuntimeApi<
-			Self::Block,
-			FullClientFor<Self>,
-		>>::RuntimeApi: sp_api::Core<Self::Block>
-			+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
+		<Self::RuntimeApi as ConstructRuntimeApi<Self::Block, FullClientFor<Self>>>::RuntimeApi:
+			sp_api::Core<Self::Block>
+				+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
 
-	/// This for cases you don't yet have the simnode runtime api implemented.
-	/// this function is caled in an externalities provided environment.
+	/// This is for cases you don't yet have the simnode runtime api implemented.
+	/// this function is caled in an externalities provided environment, so feel free to read state.
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras;
-}
-
-/// Cli Extension trait for simnode
-pub trait SimnodeCli {
-	/// type that implements [`CliConfiguration`]
-	type CliConfig: CliConfiguration;
-
-	/// type that implements [`SubstrateCli`]
-	type SubstrateCli: Parser + SubstrateCli + Sized;
-
-	/// get a reference to [`CliConfiguration`]
-	fn cli_config(cli: &Self::SubstrateCli) -> &Self::CliConfig;
-
-	/// get logging filters
-	fn log_filters(cli_config: &Self::CliConfig) -> Result<String, sc_cli::Error>;
 }
