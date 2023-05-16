@@ -16,7 +16,10 @@
 
 //! Utilities for creating the neccessary client subsystems.
 
-use crate::{ChainInfo, ParachainSproofInherentProvider, SignatureVerificationOverride, SimnodeApiServer, SimnodeRpcHandler};
+use crate::{
+	ChainInfo, ParachainSproofInherentProvider, SignatureVerificationOverride, SimnodeApiServer,
+	SimnodeRpcHandler,
+};
 use futures::channel::mpsc;
 use manual_seal::{
 	consensus::{aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider},
@@ -27,6 +30,7 @@ use num_traits::AsPrimitive;
 use sc_client_api::backend::BlockImportOperation as IBlockImportOperation;
 use sc_client_db::BlockImportOperation;
 use sc_consensus::{BlockImport, ImportQueue};
+use sc_executor::WasmExecutor;
 use sc_service::{
 	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents,
 	SpawnTasksParams, TFullBackend, TFullClient, TaskManager,
@@ -45,23 +49,22 @@ use sp_runtime::{
 };
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
-use std::sync::{Arc, Mutex};
-use sc_executor::WasmExecutor;
 use sp_wasm_interface::ExtendedHostFunctions;
+use std::sync::{Arc, Mutex};
 
 /// Shared instance of [`ParachainSproofInherentProvider`]
 pub type SharedParachainInherentProvider<T> = Arc<Mutex<ParachainSproofInherentProvider<T>>>;
 
 /// The simnode executor type, we use the wasm executor to force the runtime use host functions
-/// instead of native code for signature verification, this in turn uses our signature verification overrides.
-pub type Executor = WasmExecutor<ExtendedHostFunctions<sp_io::SubstrateHostFunctions, SignatureVerificationOverride>>;
+/// instead of native code for signature verification, this in turn uses our signature verification
+/// overrides.
+pub type Executor = WasmExecutor<
+	ExtendedHostFunctions<sp_io::SubstrateHostFunctions, SignatureVerificationOverride>,
+>;
 
 /// Type alias for [`sc_service::TFullClient`]
-pub type FullClientFor<C> = TFullClient<
-	<C as ChainInfo>::Block,
-	<C as ChainInfo>::RuntimeApi,
-	Executor,
->;
+pub type FullClientFor<C> =
+	TFullClient<<C as ChainInfo>::Block, <C as ChainInfo>::RuntimeApi, Executor>;
 
 /// UncheckedExtrinsic type for Simnode
 pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
