@@ -16,8 +16,6 @@
 #![deny(missing_docs, unused_extern_crates)]
 
 //! ### sc-simnode
-
-use crate::client::RpcHandlerArgs;
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
 
@@ -48,13 +46,6 @@ pub trait ChainInfo: Sized {
 
 	/// The signed extras required by the runtime
 	type SignedExtras: SignedExtension;
-
-	/// Should return the json rpc Iohandler
-	fn rpc_handler(deps: RpcHandlerArgs<Self>) -> jsonrpsee::RpcModule<()>
-	where
-		<Self::RuntimeApi as ConstructRuntimeApi<Self::Block, FullClientFor<Self>>>::RuntimeApi:
-			sp_api::Core<Self::Block>
-				+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
 
 	/// This is for cases you don't yet have the simnode runtime api implemented.
 	/// this function is caled in an externalities provided environment, so feel free to read state.

@@ -52,6 +52,8 @@ use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use sp_wasm_interface::ExtendedHostFunctions;
 use std::sync::{Arc, Mutex};
+use jsonrpsee::RpcModule;
+use sc_rpc::{DenyUnsafe, SubscriptionTaskExecutor};
 
 /// Shared instance of [`ParachainSproofInherentProvider`]
 pub type SharedParachainInherentProvider<T> = Arc<Mutex<ParachainSproofInherentProvider<T>>>;
@@ -115,6 +117,9 @@ pub struct SimnodeParams<Client, Backend, SelectChain, Pool, ImportQueue, BlockI
 	pub config: Configuration,
 	/// Use instant sealing for block production? if not uses manual seal.
 	pub instant: bool,
+	/// rpc builder.
+	pub rpc_builder:
+	Box<dyn Fn(DenyUnsafe, SubscriptionTaskExecutor) -> Result<RpcModule<()>, sc_service::Error>>,
 }
 
 #[cfg(feature = "parachain")]
@@ -163,7 +168,7 @@ where
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
-	let SimnodeParams { components, config, instant } = params;
+	let SimnodeParams { components, config, instant, rpc_builder } = params;
 	let PartialComponents {
 		client,
 		backend,
@@ -227,13 +232,8 @@ where
 			keystore: keystore_container.sync_keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-				let mut io = <C as ChainInfo>::rpc_handler(RpcHandlerArgs {
-					client: client.clone(),
-					backend: backend.clone(),
-					pool: pool.clone(),
-					deny_unsafe,
-					subscription_executor,
-				});
+				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
+
 				io.merge(
 					SimnodeRpcHandler::<C>::new(
 						client.clone(),
@@ -361,7 +361,7 @@ where
 	use sp_consensus_babe::AuthorityId;
 	use sp_keyring::Sr25519Keyring::Alice;
 
-	let SimnodeParams { components, config, instant } = params;
+	let SimnodeParams { components, config, instant, rpc_builder } = params;
 	let PartialComponents {
 		client,
 		backend,
@@ -420,13 +420,7 @@ where
 			keystore: keystore_container.sync_keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-				let mut io = <C as ChainInfo>::rpc_handler(RpcHandlerArgs {
-					client: client.clone(),
-					backend: backend.clone(),
-					pool: pool.clone(),
-					deny_unsafe,
-					subscription_executor,
-				});
+				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
 				io.merge(SimnodeRpcHandler::<C>::new(client.clone()).into_rpc()).map_err(|_| {
 					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
 				})?;
