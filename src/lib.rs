@@ -18,7 +18,6 @@
 //! ### sc-simnode
 
 use crate::client::RpcHandlerArgs;
-use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
 
@@ -40,9 +39,6 @@ pub use sproof::*;
 pub trait ChainInfo: Sized {
 	/// Opaque block type
 	type Block: BlockT;
-
-	/// ExecutorDispatch dispatch type
-	type ExecutorDispatch: NativeExecutionDispatch + 'static;
 
 	/// Runtime
 	type Runtime: frame_system::Config;

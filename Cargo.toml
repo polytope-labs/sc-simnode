@@ -21,7 +21,6 @@ sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v
 sc-tracing = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-client-db = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
-grandpa = { package = "sc-consensus-grandpa", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-finality-grandpa = { package = "sp-consensus-grandpa", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-consensus-aura = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
@@ -37,6 +36,7 @@ sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-
 sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-block-builder = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sp-io = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-consensus = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
@@ -55,7 +55,6 @@ frame-system = { git = "https://github.com/paritytech/substrate", branch = "polk
 
 # parachain stuff
 parachain-inherent = { package = "cumulus-primitives-parachain-inherent", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.40" }
-parachain-system = { package = "cumulus-pallet-parachain-system", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.40" }
 sproof-builder = { package = "cumulus-test-relay-sproof-builder", git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.40" }
 parachain-info = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.40" }
 
