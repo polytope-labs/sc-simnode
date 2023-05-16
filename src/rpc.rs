@@ -47,9 +47,15 @@ use std::sync::Arc;
 /// Simnode RPC methods.
 #[rpc(client, server)]
 pub trait SimnodeApi {
-	/// Constructs an extrinsic using simnode's runtime api.
+	/// Constructs an extrinsic with an empty signature and the given AccountId as the Signer using
+	/// simnode's runtime api.
 	#[method(name = "simnode_authorExtrinsic")]
 	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes>;
+
+	/// Insert the [`UpgradeGoAhead`] command into the inherents as if it came from the relay chain.
+	/// This greenlights/aborts a pending runtime upgrade.
+	#[method(name = "simnode_upgradeSignal")]
+	fn upgrade_signal(&self, go_ahead: bool) -> Result<()>;
 }
 
 /// Handler implementation for Simnode RPC API.
@@ -169,5 +175,16 @@ where
 		};
 
 		Ok(extrinsic.into())
+	}
+
+	fn upgrade_signal(&self, go_ahead: bool) -> Result<()> {
+		let signal = match go_ahead {
+			true => UpgradeGoAhead::GoAhead,
+			false => UpgradeGoAhead::Abort,
+		};
+		// insert the upgrade signal into the sproof provider, it'll be included in the next block.
+		self.give_upgrade_signal(signal);
+
+		Ok(())
 	}
 }
