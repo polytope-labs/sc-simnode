@@ -112,9 +112,9 @@ pub struct SimnodeParams<Client, Backend, SelectChain, Pool, ImportQueue, BlockI
 		(BlockImport, Option<Telemetry>, U),
 	>,
 	/// Config needed for simnode's own subsystems.
-	config: Configuration,
+	pub config: Configuration,
 	/// Use instant sealing for block production? if not uses manual seal.
-	instant: bool,
+	pub instant: bool,
 }
 
 #[cfg(feature = "parachain")]
@@ -464,9 +464,7 @@ where
 			let tx_notifications =
 				pool.import_notification_stream().map(move |_| EngineCommand::SealNewBlock {
 					create_empty: false,
-					// parachains need their blocks finalized instantly to be part of the main
-					// chain.
-					finalize: true,
+					finalize: false,
 					parent_hash: None,
 					sender: None,
 				});
