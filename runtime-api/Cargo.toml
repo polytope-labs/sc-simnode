@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "simnode-runtime-apis"
+name = "simnode-runtime-api"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 version = "0.1.0"
 publish = false

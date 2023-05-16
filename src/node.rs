@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Polytope Capital (Caymans) Ltd.
+// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//! simnode subsystems manager
+
 use codec::Encode;
 use std::sync::{Arc, Mutex};
 
-use crate::{
-	sproof::ParachainInherentSproofProvider, ChainInfo, FullClientFor, TransactionPoolFor,
-	UncheckedExtrinsicFor,
-};
+use crate::{sproof::ParachainInherentSproofProvider, ChainInfo};
 use futures::{
 	channel::{mpsc, oneshot},
 	FutureExt, SinkExt,
@@ -31,15 +30,16 @@ use polkadot_primitives::v2::UpgradeGoAhead;
 use sc_client_api::{backend::Backend, CallExecutor, ExecutorProvider};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::{TFullBackend, TFullCallExecutor, TFullClient, TaskManager};
-use simnode_runtime_apis::CreateTransactionApi;
+use sc_transaction_pool_api::TransactionPool;
+use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ConstructRuntimeApi, OverlayedChanges, ProvideRuntimeApi, StorageTransactionCache};
 use sp_blockchain::HeaderBackend;
 use sp_core::ExecutionContext;
 use sp_runtime::{
-	generic::BlockId,
+	generic::{BlockId, UncheckedExtrinsic},
 	traits::{Block as BlockT, Header, NumberFor},
 	transaction_validity::TransactionSource,
-	MultiSignature, OpaqueExtrinsic,
+	MultiAddress, MultiSignature, OpaqueExtrinsic,
 };
 use sp_state_machine::Ext;
 use sproof_builder::RelayStateSproofBuilder;
@@ -48,6 +48,39 @@ use sproof_builder::RelayStateSproofBuilder;
 pub type SharedParachainInherentProvider<T> =
 	Arc<Mutex<ParachainInherentSproofProvider<<T as ChainInfo>::Block, FullClientFor<T>>>>;
 
+/// Type alias for [`sc_service::TFullClient`]
+pub type FullClientFor<C> = TFullClient<
+	<C as ChainInfo>::Block,
+	<C as ChainInfo>::RuntimeApi,
+	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
+>;
+
+/// UncheckedExtrinsic type for Simnode
+pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
+	MultiAddress<
+		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
+		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
+	>,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall,
+	MultiSignature,
+	<T as ChainInfo>::SignedExtras,
+>;
+
+/// Type alias for [`sc_service::TFullBackend`]
+pub type FullBackendFor<C> = TFullBackend<<C as ChainInfo>::Block>;
+
+/// Type alias for [`sc_transaction_pool_api::TransactionPool`]
+type TransactionPoolFor<T> = Arc<
+	dyn TransactionPool<
+		Block = <T as ChainInfo>::Block,
+		Hash = <<T as ChainInfo>::Block as BlockT>::Hash,
+		Error = sc_transaction_pool::error::Error,
+		InPoolTransaction = sc_transaction_pool::Transaction<
+			<<T as ChainInfo>::Block as BlockT>::Hash,
+			<<T as ChainInfo>::Block as BlockT>::Extrinsic,
+		>,
+	>,
+>;
 /// Node Error type
 #[derive(Debug)]
 pub enum Error {
@@ -99,8 +132,8 @@ where
 	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
 		CreateTransactionApi<
 			T::Block,
-			<T::Runtime as frame_system::Config>::AccountId,
 			<T::Runtime as frame_system::Config>::RuntimeCall,
+			<T::Runtime as frame_system::Config>::AccountId,
 		>,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId: codec::Codec,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall: codec::Codec,
@@ -169,7 +202,7 @@ where
 		let extrinsic =
 			self.client
 				.runtime_api()
-				.create_transaction(at, call.clone().into(), signer.clone());
+				.create_transaction(at, signer.clone(), call.clone().into());
 		let ext_bytes = if let Ok(raw_bytes) = extrinsic {
 			raw_bytes
 		} else {
@@ -257,7 +290,7 @@ where
 		}
 	}
 
-	/// so you've decided to run the test runner as a binary, use this to shutdown gracefully.
+	/// so you've decided to run simnode as a binary, use this to shutdown gracefully.
 	pub async fn until_shutdown(mut self) {
 		let manager = self.task_manager.take();
 		if let Some(mut task_manager) = manager {

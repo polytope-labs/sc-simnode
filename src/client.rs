@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Polytope Capital (Caymans) Ltd.
+// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,10 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
-	ChainInfo, FullBackendFor, FullClientFor, NativeElseWasmExecutor, Node,
-	ParachainInherentSproofProvider,
+	node::{FullBackendFor, Node},
+	rpc::{SimnodeApiServer, SimnodeRpcHandler},
+	sproof::ParachainInherentSproofProvider,
+	ChainInfo, FullClientFor, NativeElseWasmExecutor,
 };
 use futures::channel::mpsc;
 use manual_seal::{
@@ -36,17 +38,19 @@ use sc_service::{
 };
 use sc_telemetry::Telemetry;
 use sc_transaction_pool::FullPool;
+use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
 use sp_consensus::SelectChain;
+use sp_core::crypto::AccountId32;
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::{Arc, Mutex};
 
 /// Arguments to pass to the `create_rpc_io_handler`
-pub struct RpcHandlerArgs<C: ChainInfo, SC>
+pub struct RpcHandlerArgs<C: ChainInfo>
 where
 	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
 		Core<C::Block> + TaggedTransactionQueue<C::Block>,
@@ -56,9 +60,8 @@ where
 	/// Client Backend
 	pub backend: Arc<FullBackendFor<C>>,
 	/// Transaction pool
-	pub pool: Arc<sc_transaction_pool::FullPool<C::Block, FullClientFor<C>>>,
+	pub pool: Arc<FullPool<C::Block, FullClientFor<C>>>,
 	/// Select chain implementation
-	pub select_chain: SC,
 	/// Signifies whether a potentially unsafe RPC should be denied.
 	pub deny_unsafe: sc_rpc::DenyUnsafe,
 	/// Subscription task executor
@@ -66,23 +69,21 @@ where
 }
 
 /// Set up and run simnode for a standalone or parachain runtime.
-pub fn start_simnode<T, C, B, S, I, BI, U>(
+pub fn setup_simnode<C, B, S, I, BI, U>(
 	components: PartialComponents<
-		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
+		TFullClient<C::Block, C::RuntimeApi, NativeElseWasmExecutor<C::ExecutorDispatch>>,
 		TFullBackend<B>,
 		S,
 		I,
-		FullPool<B, FullClientFor<T>>,
-		(BI, Option<&mut Telemetry>, U),
+		FullPool<B, FullClientFor<C>>,
+		(BI, Option<Telemetry>, U),
 	>,
 	config: Configuration,
 	is_parachain: bool,
-) -> Result<Node<T>, sc_service::Error>
+) -> Result<Node<C>, sc_service::Error>
 where
 	B: BlockT,
 	C: ChainInfo<Block = B> + 'static + Send + Sync,
-	<C::RuntimeApi as ConstructRuntimeApi<C::Block, FullClientFor<C>>>::RuntimeApi:
-		Core<C::Block> + TaggedTransactionQueue<C::Block>,
 	I: ImportQueue<B> + 'static,
 	BI: BlockImport<
 			B,
@@ -92,8 +93,7 @@ where
 		+ Sync
 		+ 'static,
 	S: Clone + SelectChain<B> + 'static,
-	T: ChainInfo<Block = B> + 'static,
-	<T::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<T>>>::RuntimeApi:
+	<C::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<C>>>::RuntimeApi:
 		Core<B>
 			+ TaggedTransactionQueue<B>
 			+ sp_offchain::OffchainWorkerApi<B>
@@ -101,10 +101,17 @@ where
 			+ sp_session::SessionKeys<B>
 			+ ApiExt<B, StateBackend = <BlockImportOperation<B> as IBlockImportOperation<B>>::State>
 			+ BlockBuilder<B>
-			+ sp_consensus_aura::AuraApi<B, sp_consensus_aura::sr25519::AuthorityId>,
+			+ sp_consensus_aura::AuraApi<B, sp_consensus_aura::sr25519::AuthorityId>
+			+ CreateTransactionApi<
+				C::Block,
+				<C::Runtime as frame_system::Config>::RuntimeCall,
+				<C::Runtime as frame_system::Config>::AccountId,
+			>,
 	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 	<B as BlockT>::Hash: Unpin,
 	<B as BlockT>::Header: Unpin,
+	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
+	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
 	let PartialComponents {
 		client,
@@ -114,7 +121,7 @@ where
 		select_chain,
 		import_queue,
 		transaction_pool: pool,
-		other: (block_import, telemetry, _),
+		other: (block_import, mut telemetry, _),
 	} = components;
 	let parachain_inherent_provider = if is_parachain {
 		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
@@ -160,7 +167,6 @@ where
 	let rpc_handlers = {
 		let client = client.clone();
 		let backend = backend.clone();
-		let select_chain = select_chain.clone();
 		let pool = pool.clone();
 		let params = SpawnTasksParams {
 			config,
@@ -170,14 +176,16 @@ where
 			keystore: keystore_container.sync_keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-				let mut io = <T as ChainInfo>::create_rpc_io_handler(RpcHandlerArgs {
+				let mut io = <C as ChainInfo>::rpc_handler(RpcHandlerArgs {
 					client: client.clone(),
 					backend: backend.clone(),
 					pool: pool.clone(),
-					select_chain: select_chain.clone(),
 					deny_unsafe,
 					subscription_executor,
 				});
+				io.merge(SimnodeRpcHandler::<C>::new(client.clone()).into_rpc()).map_err(|_| {
+					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
+				})?;
 				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
 					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
 				})?;
@@ -187,7 +195,7 @@ where
 			system_rpc_tx,
 			tx_handler_controller,
 			sync_service,
-			telemetry,
+			telemetry: telemetry.as_mut(),
 		};
 		spawn_tasks(params)?
 	};
@@ -234,7 +242,7 @@ where
 	_network_starter.start_network();
 	let rpc_handler = rpc_handlers.handle();
 
-	let node = Node::<T> {
+	let node = Node::<C> {
 		rpc_handler,
 		task_manager: Some(task_manager),
 		pool,
