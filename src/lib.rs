@@ -15,10 +15,14 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 #![deny(missing_docs, unused_extern_crates)]
 
-//! ### substrate-simnode
+//! ### sc-simnode
 
+<<<<<<< Updated upstream
 use sc_cli::{clap::Parser, CliConfiguration, SubstrateCli};
 use sc_consensus::BlockImport;
+=======
+use crate::client::{FullClientFor, RpcHandlerArgs};
+>>>>>>> Stashed changes
 use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
 use sc_service::{TFullBackend, TFullClient};
 use sc_transaction_pool_api::TransactionPool;
@@ -32,6 +36,7 @@ use sp_runtime::{
 };
 use std::sync::Arc;
 
+<<<<<<< Updated upstream
 mod client;
 mod host_functions;
 mod node;
@@ -75,6 +80,21 @@ type TransactionPoolFor<T> = Arc<
 		>,
 	>,
 >;
+=======
+pub mod cli;
+pub mod client;
+pub mod host_functions;
+pub mod parachain;
+pub mod rpc;
+pub mod sproof;
+>>>>>>> Stashed changes
+
+pub use cli::*;
+pub use client::*;
+pub use host_functions::*;
+pub use parachain::*;
+pub use rpc::*;
+pub use sproof::*;
 
 /// Wrapper trait for concrete type required by this testing framework.
 pub trait ChainInfo: Sized {

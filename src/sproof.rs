@@ -17,34 +17,42 @@
 //! Parachain inherent data provider, useful for signalling relay chain authorizations to
 //! parachain simnodes.
 
+use crate::{client::FullClientFor, ChainInfo};
 use codec::Encode;
 use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
 use polkadot_primitives::v2::PersistedValidationData;
+use sp_api::BlockT;
 use sp_blockchain::HeaderBackend;
-use sp_runtime::traits::{Block, Header};
+use sp_runtime::traits::Header;
 use sproof_builder::RelayStateSproofBuilder;
-use std::{marker::PhantomData, sync::Arc};
+use std::{
+	marker::PhantomData,
+	sync::{Arc, Mutex},
+};
 
 /// Provides the inherent for parachain runtimes. Can also be manipulated to send relay chain
 /// signals to simulated node runtime.
-pub struct ParachainInherentSproofProvider<B, C> {
+pub struct ParachainSproofInherentProvider<T: ChainInfo> {
 	// client type
-	client: Arc<C>,
+	client: Arc<FullClientFor<T>>,
 	// sproof builder
-	pub(crate) sproof_builder: Option<RelayStateSproofBuilder>,
-	_phantom: PhantomData<B>,
+	sproof_builder: Option<RelayStateSproofBuilder>,
+	// phantom type
+	_phantom: PhantomData<T>,
 }
 
-impl<B, C> ParachainInherentSproofProvider<B, C>
+/// A thread safe parachain sproof inherent provider
+pub type SharedParachainSproofInherentProvider<T> = Arc<Mutex<ParachainSproofInherentProvider<T>>>;
+
+impl<T> ParachainSproofInherentProvider<T>
 where
-	B: Block,
-	C: HeaderBackend<B>,
-	<B::Header as Header>::Number: AsPrimitive<u32>,
+	T: ChainInfo,
+	<<T::Block as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
-	pub fn new(client: Arc<C>) -> Self {
-		ParachainInherentSproofProvider { client, sproof_builder: None, _phantom: PhantomData }
+	pub fn new(client: Arc<FullClientFor<T>>) -> Self {
+		ParachainSproofInherentProvider { client, sproof_builder: None, _phantom: PhantomData }
 	}
 
 	/// updates the sproof to a new state

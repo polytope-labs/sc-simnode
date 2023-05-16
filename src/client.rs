@@ -17,8 +17,14 @@
 //! Utilities for creating the neccessary client subsystems.
 
 use crate::{
+<<<<<<< Updated upstream
 	ChainInfo, FullBackendFor, FullClientFor, NativeElseWasmExecutor, Node,
 	ParachainInherentSproofProvider,
+=======
+	rpc::{SimnodeApiServer, SimnodeRpcHandler},
+	sproof::ParachainSproofInherentProvider,
+	ChainInfo, NativeElseWasmExecutor,
+>>>>>>> Stashed changes
 };
 use futures::channel::mpsc;
 use manual_seal::{
@@ -30,20 +36,48 @@ use num_traits::AsPrimitive;
 use sc_client_api::backend::BlockImportOperation as IBlockImportOperation;
 use sc_client_db::BlockImportOperation;
 use sc_consensus::{BlockImport, ImportQueue};
-use sc_service::{
-	build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents,
-	SpawnTasksParams, TFullBackend, TFullClient,
-};
+use sc_service::{build_network, spawn_tasks, BuildNetworkParams, Configuration, PartialComponents, SpawnTasksParams, TFullBackend, TFullClient, TaskManager};
 use sc_telemetry::Telemetry;
 use sc_transaction_pool::FullPool;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
-use sp_blockchain::HeaderBackend;
 use sp_consensus::SelectChain;
-use sp_runtime::traits::{Block as BlockT, Header};
+use sp_core::crypto::AccountId32;
+use sp_runtime::{
+	generic::UncheckedExtrinsic,
+	traits::{Block as BlockT, Header},
+	MultiAddress, MultiSignature,
+};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::{Arc, Mutex};
+<<<<<<< Updated upstream
+=======
+
+/// Shared instance of [`ParachainSproofInherentProvider`]
+pub type SharedParachainInherentProvider<T> = Arc<Mutex<ParachainSproofInherentProvider<T>>>;
+
+/// Type alias for [`sc_service::TFullClient`]
+pub type FullClientFor<C> = TFullClient<
+	<C as ChainInfo>::Block,
+	<C as ChainInfo>::RuntimeApi,
+	NativeElseWasmExecutor<<C as ChainInfo>::ExecutorDispatch>,
+>;
+
+/// UncheckedExtrinsic type for Simnode
+pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
+	MultiAddress<
+		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
+		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
+	>,
+	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall,
+	MultiSignature,
+	<T as ChainInfo>::SignedExtras,
+>;
+
+/// Type alias for [`sc_service::TFullBackend`]
+pub type FullBackendFor<C> = TFullBackend<<C as ChainInfo>::Block>;
+>>>>>>> Stashed changes
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo, SC>
@@ -66,7 +100,11 @@ where
 }
 
 /// Set up and run simnode for a standalone or parachain runtime.
+<<<<<<< Updated upstream
 pub fn start_simnode<T, C, B, S, I, BI, U>(
+=======
+pub async fn start_simnode<C, B, S, I, BI, U>(
+>>>>>>> Stashed changes
 	components: PartialComponents<
 		TFullClient<T::Block, T::RuntimeApi, NativeElseWasmExecutor<T::ExecutorDispatch>>,
 		TFullBackend<B>,
@@ -77,7 +115,11 @@ pub fn start_simnode<T, C, B, S, I, BI, U>(
 	>,
 	config: Configuration,
 	is_parachain: bool,
+<<<<<<< Updated upstream
 ) -> Result<Node<T>, sc_service::Error>
+=======
+) -> Result<TaskManager, sc_service::Error>
+>>>>>>> Stashed changes
 where
 	B: BlockT,
 	C: ChainInfo<Block = B> + 'static + Send + Sync,
@@ -91,9 +133,14 @@ where
 		> + Send
 		+ Sync
 		+ 'static,
+<<<<<<< Updated upstream
 	S: Clone + SelectChain<B> + 'static,
 	T: ChainInfo<Block = B> + 'static,
 	<T::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<T>>>::RuntimeApi:
+=======
+	S: SelectChain<B> + 'static,
+	<C::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<C>>>::RuntimeApi:
+>>>>>>> Stashed changes
 		Core<B>
 			+ TaggedTransactionQueue<B>
 			+ sp_offchain::OffchainWorkerApi<B>
@@ -117,7 +164,7 @@ where
 		other: (block_import, telemetry, _),
 	} = components;
 	let parachain_inherent_provider = if is_parachain {
-		Some(Arc::new(Mutex::new(ParachainInherentSproofProvider::new(client.clone()))))
+		Some(Arc::new(Mutex::new(ParachainSproofInherentProvider::new(client.clone()))))
 	} else {
 		None
 	};
@@ -157,6 +204,7 @@ where
 
 	let rpc_sink = command_sink.clone();
 
+	let parachain_inherent_provider_clone = parachain_inherent_provider.clone();
 	let rpc_handlers = {
 		let client = client.clone();
 		let backend = backend.clone();
@@ -178,6 +226,19 @@ where
 					deny_unsafe,
 					subscription_executor,
 				});
+<<<<<<< Updated upstream
+=======
+				io.merge(
+					SimnodeRpcHandler::<C>::new(
+						client.clone(),
+						parachain_inherent_provider_clone.clone(),
+					)
+					.into_rpc(),
+				)
+				.map_err(|_| {
+					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
+				})?;
+>>>>>>> Stashed changes
 				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
 					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
 				})?;
@@ -192,8 +253,10 @@ where
 		spawn_tasks(params)?
 	};
 
-	// Background authorship future.
-	let authorship_future = run_manual_seal(ManualSealParams {
+	_network_starter.start_network();
+	let _rpc_handler = rpc_handlers.handle();
+
+	run_manual_seal(ManualSealParams {
 		block_import,
 		env,
 		client: client.clone(),
@@ -204,6 +267,7 @@ where
 		create_inherent_data_providers: {
 			let client = client.clone();
 			let parachain_inherent_provider = parachain_inherent_provider.clone();
+			// todo:
 			move |_, _| {
 				let client = client.clone();
 				let parachain_sproof = parachain_inherent_provider.clone().unwrap();
@@ -224,8 +288,10 @@ where
 				}
 			}
 		},
-	});
+	})
+	.await;
 
+<<<<<<< Updated upstream
 	// spawn the authorship task as an essential task.
 	task_manager
 		.spawn_essential_handle()
@@ -246,4 +312,7 @@ where
 	};
 
 	Ok(node)
+=======
+	Ok(task_manager)
+>>>>>>> Stashed changes
 }
