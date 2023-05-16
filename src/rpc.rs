@@ -18,7 +18,6 @@
 
 use crate::{
 	client::{FullClientFor, UncheckedExtrinsicFor},
-	sproof::SharedParachainSproofInherentProvider,
 	ChainInfo,
 };
 use codec::Encode;
@@ -26,7 +25,6 @@ use jsonrpsee::{
 	core::{Error as RpcError, RpcResult as Result},
 	proc_macros::rpc,
 };
-use polkadot_primitives::UpgradeGoAhead;
 use sc_client_api::{Backend, ExecutorProvider};
 use sc_service::TFullBackend;
 use simnode_runtime_api::CreateTransactionApi;
@@ -41,8 +39,16 @@ use sp_runtime::{
 	MultiAddress, MultiSignature,
 };
 use sp_state_machine::{Ext, OverlayedChanges};
-use sproof_builder::RelayStateSproofBuilder;
 use std::sync::Arc;
+
+#[cfg(feature = "parachain")]
+mod imports {
+	pub use crate::sproof::SharedParachainSproofInherentProvider;
+	pub use polkadot_primitives::UpgradeGoAhead;
+	pub use sproof_builder::RelayStateSproofBuilder;
+}
+#[cfg(feature = "parachain")]
+pub use imports::*;
 
 /// Simnode RPC methods.
 #[rpc(client, server)]
@@ -62,16 +68,74 @@ pub trait SimnodeApi {
 pub struct SimnodeRpcHandler<T: ChainInfo> {
 	client: Arc<FullClientFor<T>>,
 	/// backend type.
-	parachain_inherent_provider: Option<SharedParachainSproofInherentProvider<T>>,
+	#[cfg(feature = "parachain")]
+	parachain_inherent_provider: SharedParachainSproofInherentProvider<T>,
 }
 
-impl<T: ChainInfo> SimnodeRpcHandler<T> {
+impl<T> SimnodeRpcHandler<T>
+where
+	T: ChainInfo,
+	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
+		CreateTransactionApi<
+			T::Block,
+			<T::Runtime as frame_system::Config>::RuntimeCall,
+			<T::Runtime as frame_system::Config>::AccountId,
+		>,
+	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
+{
 	/// Creates a new instance of simnode's RPC handler.
 	pub fn new(
 		client: Arc<FullClientFor<T>>,
-		parachain_inherent_provider: Option<SharedParachainSproofInherentProvider<T>>,
+		#[cfg(feature = "parachain")]
+		parachain_inherent_provider: SharedParachainSproofInherentProvider<T>,
 	) -> Self {
-		Self { client, parachain_inherent_provider }
+		Self {
+			client,
+			#[cfg(feature = "parachain")]
+			parachain_inherent_provider,
+		}
+	}
+
+	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Vec<u8>> {
+		let at = self.client.info().best_hash;
+
+		let has_api = self
+			.client
+			.runtime_api()
+			.has_api::<dyn CreateTransactionApi<
+				T::Block,
+				<T::Runtime as frame_system::Config>::RuntimeCall,
+				<T::Runtime as frame_system::Config>::AccountId,
+			>>(at)
+			.map_err(|e| RpcError::Custom(format!("failed read runtime api: {e:?}")))?;
+
+		let ext = match has_api {
+			true => {
+				let call = codec::Decode::decode(&mut &call.0[..])
+					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
+				let account = AccountId32::from_string(&account)
+					.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
+				self.client.runtime_api().create_transaction(at, account.into(), call).map_err(
+					|e| RpcError::Custom(format!("CreateTransactionApi is unimplemented: {e:?}")),
+				)?
+			},
+			false => {
+				let call = codec::Decode::decode(&mut &call.0[..])
+					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
+				let account = AccountId32::from_string(&account)
+					.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
+				let extra = self.with_state(None, || T::signed_extras(account.clone().into()));
+				let ext = UncheckedExtrinsicFor::<T>::new_signed(
+					call,
+					MultiAddress::Id(account.into()),
+					MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
+					extra,
+				);
+				ext.encode()
+			},
+		};
+
+		Ok(ext)
 	}
 
 	/// Runs the given closure in an externalities provided environment, over the blockchain state
@@ -104,6 +168,7 @@ impl<T: ChainInfo> SimnodeRpcHandler<T> {
 		sp_externalities::set_and_run_with_externalities(&mut ext, closure)
 	}
 
+	#[cfg(feature = "parachain")]
 	/// If this is a parachain node, it will allow you to signal runtime upgrades to your
 	/// parachain runtime.
 	pub fn give_upgrade_signal(&self, signal: UpgradeGoAhead)
@@ -111,19 +176,18 @@ impl<T: ChainInfo> SimnodeRpcHandler<T> {
 		<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 		T::Runtime: parachain_info::Config,
 	{
-		if let Some(sproof_provider) = &self.parachain_inherent_provider {
-			let para_id =
-				self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
-			let builder = RelayStateSproofBuilder {
-				para_id,
-				upgrade_go_ahead: Some(signal),
-				..Default::default()
-			};
-			sproof_provider.lock().unwrap().update_sproof_builder(builder)
-		}
+		let para_id =
+			self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
+		let builder = RelayStateSproofBuilder {
+			para_id,
+			upgrade_go_ahead: Some(signal),
+			..Default::default()
+		};
+		self.parachain_inherent_provider.lock().unwrap().update_sproof_builder(builder)
 	}
 }
 
+#[cfg(feature = "parachain")]
 impl<T> SimnodeApiServer for SimnodeRpcHandler<T>
 where
 	T: ChainInfo + Send + Sync + 'static,
@@ -134,47 +198,11 @@ where
 			<T::Runtime as frame_system::Config>::AccountId,
 		>,
 	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
+	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+	T::Runtime: parachain_info::Config,
 {
 	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes> {
-		let at = self.client.info().best_hash;
-
-		let has_api = self
-			.client
-			.runtime_api()
-			.has_api::<dyn CreateTransactionApi<
-				T::Block,
-				<T::Runtime as frame_system::Config>::RuntimeCall,
-				<T::Runtime as frame_system::Config>::AccountId,
-			>>(at)
-			.map_err(|e| RpcError::Custom(format!("failed read runtime api: {e:?}")))?;
-
-		let extrinsic = match has_api {
-			true => {
-				let call = codec::Decode::decode(&mut &call.0[..])
-					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
-				let account = AccountId32::from_string(&account)
-					.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
-				self.client.runtime_api().create_transaction(at, account.into(), call).map_err(
-					|e| RpcError::Custom(format!("CreateTransactionApi is unimplemented: {e:?}")),
-				)?
-			},
-			false => {
-				let call = codec::Decode::decode(&mut &call.0[..])
-					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
-				let account = AccountId32::from_string(&account)
-					.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
-				let extra = self.with_state(None, || T::signed_extras(account.clone().into()));
-				let ext = UncheckedExtrinsicFor::<T>::new_signed(
-					call,
-					MultiAddress::Id(account.into()),
-					MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
-					extra,
-				);
-				ext.encode()
-			},
-		};
-
-		Ok(extrinsic.into())
+		Ok(self.author_extrinsic(call, account)?.into())
 	}
 
 	fn upgrade_signal(&self, go_ahead: bool) -> Result<()> {
@@ -186,5 +214,29 @@ where
 		self.give_upgrade_signal(signal);
 
 		Ok(())
+	}
+}
+
+#[cfg(feature = "standalone")]
+impl<T> SimnodeApiServer for SimnodeRpcHandler<T>
+where
+	T: ChainInfo + Send + Sync + 'static,
+	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
+		CreateTransactionApi<
+			T::Block,
+			<T::Runtime as frame_system::Config>::RuntimeCall,
+			<T::Runtime as frame_system::Config>::AccountId,
+		>,
+	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
+	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+{
+	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes> {
+		Ok(self.author_extrinsic(call, account)?.into())
+	}
+
+	fn upgrade_signal(&self, _go_ahead: bool) -> Result<()> {
+		use jsonrpsee::core::Error;
+
+		Err(Error::Custom(format!("Standalone runtimes don't need upgrade signals")))
 	}
 }

@@ -20,11 +20,11 @@ use crate::{
 	ChainInfo, ParachainSproofInherentProvider, SignatureVerificationOverride, SimnodeApiServer,
 	SimnodeRpcHandler,
 };
-use futures::channel::mpsc;
+use futures::{channel::mpsc, future::Either, StreamExt};
 use manual_seal::{
-	consensus::{aura::AuraConsensusDataProvider, timestamp::SlotTimestampProvider},
+	consensus::timestamp::SlotTimestampProvider,
 	rpc::{ManualSeal, ManualSealApiServer},
-	run_manual_seal, ManualSealParams,
+	run_manual_seal, EngineCommand, ManualSealParams,
 };
 use num_traits::AsPrimitive;
 use sc_client_api::backend::BlockImportOperation as IBlockImportOperation;
@@ -37,6 +37,7 @@ use sc_service::{
 };
 use sc_telemetry::Telemetry;
 use sc_transaction_pool::FullPool;
+use sc_transaction_pool_api::TransactionPool;
 use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
@@ -99,18 +100,35 @@ where
 	pub subscription_executor: sc_rpc::SubscriptionTaskExecutor,
 }
 
+/// Params needed to initialize simnode's subsystems.
+pub struct SimnodeParams<Client, Backend, SelectChain, Pool, ImportQueue, BlockImport, U> {
+	/// The necessary subsystems to run simnode.
+	pub components: PartialComponents<
+		Client,
+		Backend,
+		SelectChain,
+		ImportQueue,
+		Pool,
+		(BlockImport, Option<Telemetry>, U),
+	>,
+	/// Config needed for simnode's own subsystems.
+	config: Configuration,
+	/// Use instant sealing for block production? if not uses manual seal.
+	instant: bool,
+}
+
+#[cfg(feature = "parachain")]
 /// Set up and run simnode for a standalone or parachain runtime.
 pub async fn start_simnode<C, B, S, I, BI, U>(
-	components: PartialComponents<
+	params: SimnodeParams<
 		TFullClient<C::Block, C::RuntimeApi, Executor>,
 		TFullBackend<B>,
 		S,
-		I,
 		FullPool<B, FullClientFor<C>>,
-		(BI, Option<Telemetry>, U),
+		I,
+		BI,
+		U,
 	>,
-	config: Configuration,
-	is_parachain: bool,
 ) -> Result<TaskManager, sc_service::Error>
 where
 	B: BlockT,
@@ -123,7 +141,7 @@ where
 		> + Send
 		+ Sync
 		+ 'static,
-	S: Clone + SelectChain<B> + 'static,
+	S: SelectChain<B> + 'static,
 	<C::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<C>>>::RuntimeApi:
 		Core<B>
 			+ TaggedTransactionQueue<B>
@@ -141,9 +159,11 @@ where
 	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 	<B as BlockT>::Hash: Unpin,
 	<B as BlockT>::Header: Unpin,
+	C::Runtime: parachain_info::Config,
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
+	let SimnodeParams { components, config, instant } = params;
 	let PartialComponents {
 		client,
 		backend,
@@ -154,11 +174,10 @@ where
 		transaction_pool: pool,
 		other: (block_import, mut telemetry, _),
 	} = components;
-	let parachain_inherent_provider = if is_parachain {
-		Some(Arc::new(Mutex::new(ParachainSproofInherentProvider::new(client.clone()))))
-	} else {
-		None
-	};
+	use manual_seal::consensus::aura::AuraConsensusDataProvider;
+
+	let parachain_inherent_provider =
+		Arc::new(Mutex::new(ParachainSproofInherentProvider::new(client.clone())));
 
 	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
@@ -247,16 +266,29 @@ where
 		env,
 		client: client.clone(),
 		pool: pool.clone(),
-		commands_stream,
+		commands_stream: if instant {
+			let tx_notifications =
+				pool.import_notification_stream().map(move |_| EngineCommand::SealNewBlock {
+					create_empty: false,
+					// parachains need their blocks finalized instantly to be part of the main
+					// chain.
+					finalize: true,
+					parent_hash: None,
+					sender: None,
+				});
+
+			Either::Left(futures::stream::select(tx_notifications, commands_stream))
+		} else {
+			Either::Right(commands_stream)
+		},
 		select_chain,
 		consensus_data_provider: Some(Box::new(AuraConsensusDataProvider::new(client.clone()))),
 		create_inherent_data_providers: {
 			let client = client.clone();
 			let parachain_inherent_provider = parachain_inherent_provider.clone();
-			// todo:
 			move |_, _| {
 				let client = client.clone();
-				let parachain_sproof = parachain_inherent_provider.clone().unwrap();
+				let parachain_sproof = parachain_inherent_provider.clone();
 				async move {
 					let client = client.clone();
 					let parachain_sproof = parachain_sproof.clone();
@@ -271,6 +303,195 @@ where
 					let parachain_system =
 						parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
 					Ok((timestamp, _aura, parachain_system))
+				}
+			}
+		},
+	})
+	.await;
+
+	Ok(task_manager)
+}
+
+#[cfg(feature = "standalone")]
+/// Set up and run simnode for a standalone or parachain runtime.
+pub async fn start_simnode<C, B, S, I, BI, U>(
+	params: SimnodeParams<
+		TFullClient<B, C::RuntimeApi, Executor>,
+		TFullBackend<B>,
+		sc_consensus::LongestChain<TFullBackend<B>, B>,
+		FullPool<B, FullClientFor<C>>,
+		I,
+		BI,
+		sc_consensus_babe::BabeLink<B>,
+	>,
+) -> Result<TaskManager, sc_service::Error>
+where
+	B: BlockT,
+	C: ChainInfo<Block = B> + 'static + Send + Sync,
+	I: ImportQueue<B> + 'static,
+	BI: BlockImport<
+			B,
+			Error = sp_consensus::Error,
+			Transaction = PrefixedMemoryDB<<B::Header as Header>::Hashing>,
+		> + Send
+		+ Sync
+		+ 'static,
+	S: SelectChain<B> + 'static,
+	<C::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<C>>>::RuntimeApi:
+		Core<B>
+			+ TaggedTransactionQueue<B>
+			+ sp_offchain::OffchainWorkerApi<B>
+			+ sp_api::Metadata<B>
+			+ sp_session::SessionKeys<B>
+			+ ApiExt<B, StateBackend = <BlockImportOperation<B> as IBlockImportOperation<B>>::State>
+			+ BlockBuilder<B>
+			+ sp_consensus_babe::BabeApi<B>
+			+ CreateTransactionApi<
+				C::Block,
+				<C::Runtime as frame_system::Config>::RuntimeCall,
+				<C::Runtime as frame_system::Config>::AccountId,
+			>,
+	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
+	<B as BlockT>::Hash: Unpin,
+	<B as BlockT>::Header: Unpin,
+	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
+	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
+{
+	use manual_seal::consensus::babe::BabeConsensusDataProvider;
+	use sp_consensus_babe::AuthorityId;
+	use sp_keyring::Sr25519Keyring::Alice;
+
+	let SimnodeParams { components, config, instant } = params;
+	let PartialComponents {
+		client,
+		backend,
+		mut task_manager,
+		keystore_container,
+		select_chain,
+		import_queue,
+		transaction_pool: pool,
+		other: (block_import, mut telemetry, babe_link),
+	} = components;
+
+	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
+		let params = BuildNetworkParams {
+			config: &config,
+			client: client.clone(),
+			transaction_pool: pool.clone(),
+			spawn_handle: task_manager.spawn_handle(),
+			import_queue,
+			block_announce_validator_builder: None,
+			warp_sync_params: None,
+		};
+		build_network(params)?
+	};
+
+	// offchain workers
+	sc_service::build_offchain_workers(
+		&config,
+		task_manager.spawn_handle(),
+		client.clone(),
+		network.clone(),
+	);
+
+	// Proposer object for block authorship.
+	let env = sc_basic_authorship::ProposerFactory::new(
+		task_manager.spawn_handle(),
+		client.clone(),
+		pool.clone(),
+		config.prometheus_registry(),
+		None,
+	);
+
+	// Channel for the rpc handler to communicate with the authorship task.
+	let (command_sink, commands_stream) = mpsc::channel(10);
+
+	let rpc_sink = command_sink.clone();
+
+	let rpc_handlers = {
+		let client = client.clone();
+		let backend = backend.clone();
+		let pool = pool.clone();
+		let params = SpawnTasksParams {
+			config,
+			client: client.clone(),
+			backend: backend.clone(),
+			task_manager: &mut task_manager,
+			keystore: keystore_container.sync_keystore(),
+			transaction_pool: pool.clone(),
+			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
+				let mut io = <C as ChainInfo>::rpc_handler(RpcHandlerArgs {
+					client: client.clone(),
+					backend: backend.clone(),
+					pool: pool.clone(),
+					deny_unsafe,
+					subscription_executor,
+				});
+				io.merge(SimnodeRpcHandler::<C>::new(client.clone()).into_rpc()).map_err(|_| {
+					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
+				})?;
+				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
+					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
+				})?;
+				Ok(io)
+			}),
+			network,
+			system_rpc_tx,
+			tx_handler_controller,
+			sync_service,
+			telemetry: telemetry.as_mut(),
+		};
+		spawn_tasks(params)?
+	};
+
+	_network_starter.start_network();
+	let _rpc_handler = rpc_handlers.handle();
+
+	let consensus_data_provider = BabeConsensusDataProvider::new(
+		client.clone(),
+		keystore_container.sync_keystore(),
+		babe_link.epoch_changes().clone(),
+		vec![(AuthorityId::from(Alice.public()), 1000)],
+	)
+	.expect("failed to create ConsensusDataProvider");
+
+	run_manual_seal(ManualSealParams {
+		block_import,
+		env,
+		client: client.clone(),
+		pool: pool.clone(),
+		commands_stream: if instant {
+			let tx_notifications =
+				pool.import_notification_stream().map(move |_| EngineCommand::SealNewBlock {
+					create_empty: false,
+					// parachains need their blocks finalized instantly to be part of the main
+					// chain.
+					finalize: true,
+					parent_hash: None,
+					sender: None,
+				});
+
+			Either::Left(futures::stream::select(tx_notifications, commands_stream))
+		} else {
+			Either::Right(commands_stream)
+		},
+		select_chain,
+		consensus_data_provider: Some(Box::new(consensus_data_provider)),
+		create_inherent_data_providers: {
+			let client = client.clone();
+			move |_, _| {
+				let client = client.clone();
+				async move {
+					let client = client.clone();
+
+					let timestamp = SlotTimestampProvider::new_babe(client.clone())
+						.map_err(|err| format!("{:?}", err))?;
+
+					let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
+						timestamp.slot().into(),
+					);
+
+					Ok((timestamp, babe))
 				}
 			}
 		},
