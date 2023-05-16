@@ -43,11 +43,11 @@ use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
 use sp_consensus::SelectChain;
+use sp_core::crypto::AccountId32;
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::{Arc, Mutex};
-use sp_core::crypto::AccountId32;
 
 /// Arguments to pass to the `create_rpc_io_handler`
 pub struct RpcHandlerArgs<C: ChainInfo>

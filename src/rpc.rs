@@ -24,7 +24,10 @@ use jsonrpsee::{
 use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ConstructRuntimeApi, ProvideRuntimeApi};
 use sp_blockchain::HeaderBackend;
-use sp_core::{Bytes,crypto::{Ss58Codec, AccountId32}};
+use sp_core::{
+	crypto::{AccountId32, Ss58Codec},
+	Bytes,
+};
 use std::sync::Arc;
 
 /// Simnode RPC methods.
@@ -65,9 +68,9 @@ where
 		let account = AccountId32::from_string(&account)
 			.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
 		let extrinsic =
-			self.client.runtime_api().create_transaction(at, account.into(), call).map_err(|e| {
-				RpcError::Custom(format!("CreateTransactionApi is unimplemented: {e:?}"))
-			})?;
+			self.client.runtime_api().create_transaction(at, account.into(), call).map_err(
+				|e| RpcError::Custom(format!("CreateTransactionApi is unimplemented: {e:?}")),
+			)?;
 
 		Ok(extrinsic.into())
 	}
