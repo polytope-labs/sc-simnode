@@ -118,7 +118,7 @@ pub struct SimnodeParams<Client, Backend, SelectChain, Pool, ImportQueue, BlockI
 }
 
 #[cfg(feature = "parachain")]
-/// Set up and run simnode for a standalone or parachain runtime.
+/// Set up and run simnode for a parachain runtime.
 pub async fn start_simnode<C, B, S, I, BI, U>(
 	params: SimnodeParams<
 		TFullClient<C::Block, C::RuntimeApi, Executor>,
@@ -313,7 +313,7 @@ where
 }
 
 #[cfg(feature = "standalone")]
-/// Set up and run simnode for a standalone or parachain runtime.
+/// Set up and run simnode for a standalone runtime.
 pub async fn start_simnode<C, B, S, I, BI, U>(
 	params: SimnodeParams<
 		TFullClient<B, C::RuntimeApi, Executor>,
