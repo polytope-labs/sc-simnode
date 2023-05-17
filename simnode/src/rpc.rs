@@ -43,10 +43,10 @@ use sp_state_machine::{Ext, OverlayedChanges};
 use std::sync::Arc;
 
 use crate::sproof::SharedParachainSproofInherentProvider;
-use polkadot_primitives::UpgradeGoAhead;
-use sproof_builder::RelayStateSproofBuilder;
 use futures::channel::mpsc;
 use manual_seal::EngineCommand;
+use polkadot_primitives::UpgradeGoAhead;
+use sproof_builder::RelayStateSproofBuilder;
 
 /// Simnode RPC methods.
 #[rpc(client, server)]
@@ -74,7 +74,10 @@ pub struct SimnodeRpcHandler<T: ChainInfo> {
 	backend: Arc<TFullBackend<T::Block>>,
 	/// parachain inherent provider for
 	/// Sink for sending commands to the manual seal authorship task.
-	parachain: (SharedParachainSproofInherentProvider<T>, mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>),
+	parachain: (
+		SharedParachainSproofInherentProvider<T>,
+		mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
+	),
 }
 
 impl<T> SimnodeRpcHandler<T>
@@ -92,13 +95,12 @@ where
 	pub fn new(
 		client: Arc<FullClientFor<T>>,
 		backend: Arc<TFullBackend<T::Block>>,
-		parachain: (SharedParachainSproofInherentProvider<T>, mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>),
+		parachain: (
+			SharedParachainSproofInherentProvider<T>,
+			mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>,
+		),
 	) -> Self {
-		Self {
-			client,
-			backend,
-			parachain,
-		}
+		Self { client, backend, parachain }
 	}
 
 	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Vec<u8>> {

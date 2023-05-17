@@ -24,7 +24,10 @@ jobs:
           sudo apt update
           sudo apt install protobuf-compiler
 
-      - name: Run cargo check
+      - name: cargo check parachain runtime
+        run: cargo +nightly-2023-03-28 check -p parachain-template-runtime --no-default-features --target=wasm32-unknown-unknown
+
+      - name: cargo check
         run: cargo check --workspace
 
   lint:

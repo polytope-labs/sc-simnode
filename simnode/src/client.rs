@@ -238,8 +238,7 @@ where
 					SimnodeRpcHandler::<C>::new(
 						client.clone(),
 						backend.clone(),
-						(
-						parachain_inherent_provider_clone.clone(), rpc_sink.clone()),
+						(parachain_inherent_provider_clone.clone(), rpc_sink.clone()),
 					)
 					.into_rpc(),
 				)
@@ -271,7 +270,7 @@ where
 		commands_stream: if instant {
 			let tx_notifications =
 				pool.import_notification_stream().map(move |_| EngineCommand::SealNewBlock {
-					create_empty: false,
+					create_empty: true,
 					// parachains need their blocks finalized instantly to be part of the main
 					// chain.
 					finalize: true,
@@ -313,4 +312,3 @@ where
 
 	Ok(task_manager)
 }
-
