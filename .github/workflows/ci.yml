@@ -5,6 +5,10 @@ on:
     branches: [master]
   pull_request:
 
+concurrency:
+  group: ${{ github.repository }}-workflow
+  cancel-in-progress: true
+
 jobs:
   check:
     name: Check
@@ -43,6 +47,11 @@ jobs:
         with:
           toolchain: nightly-2022-11-16
           components: rustfmt
+
+      - name: Install protoc
+        run: |
+          sudo apt update
+          sudo apt install protobuf-compiler
 
       - name: Run parachain simnode
         run: |
