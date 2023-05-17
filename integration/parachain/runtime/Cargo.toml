@@ -121,7 +121,6 @@ std = [
 	"sp-version/std",
 	"xcm-builder/std",
 	"xcm-executor/std",
-	"simnode-runtime-api/std",
 	"xcm/std",
 ]
 
