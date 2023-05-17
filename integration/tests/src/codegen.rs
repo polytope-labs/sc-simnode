@@ -5,7 +5,7 @@ pub mod api {
 	mod root_mod {
 		pub use super::*;
 	}
-	pub static PALLETS: [&str; 16usize] = [
+	pub static PALLETS: [&str; 17usize] = [
 		"System",
 		"ParachainSystem",
 		"Timestamp",
@@ -21,6 +21,7 @@ pub mod api {
 		"PolkadotXcm",
 		"CumulusXcm",
 		"DmpQueue",
+		"Sudo",
 		"TemplatePallet",
 	];
 	/// The error type returned when there is a runtime issue.
@@ -55,6 +56,8 @@ pub mod api {
 		CumulusXcm(cumulus_xcm::Event),
 		#[codec(index = 33)]
 		DmpQueue(dmp_queue::Event),
+		#[codec(index = 34)]
+		Sudo(sudo::Event),
 		#[codec(index = 40)]
 		TemplatePallet(template_pallet::Event),
 	}
@@ -135,6 +138,13 @@ pub mod api {
 			}
 			if pallet_name == "DmpQueue" {
 				return Ok(Event::DmpQueue(dmp_queue::Event::decode_with_metadata(
+					&mut &*pallet_bytes,
+					pallet_ty,
+					metadata,
+				)?))
+			}
+			if pallet_name == "Sudo" {
+				return Ok(Event::Sudo(sudo::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
@@ -222,6 +232,9 @@ pub mod api {
 		pub fn dmp_queue(&self) -> dmp_queue::storage::StorageApi {
 			dmp_queue::storage::StorageApi
 		}
+		pub fn sudo(&self) -> sudo::storage::StorageApi {
+			sudo::storage::StorageApi
+		}
 		pub fn template_pallet(&self) -> template_pallet::storage::StorageApi {
 			template_pallet::storage::StorageApi
 		}
@@ -261,6 +274,9 @@ pub mod api {
 		pub fn dmp_queue(&self) -> dmp_queue::calls::TransactionApi {
 			dmp_queue::calls::TransactionApi
 		}
+		pub fn sudo(&self) -> sudo::calls::TransactionApi {
+			sudo::calls::TransactionApi
+		}
 		pub fn template_pallet(&self) -> template_pallet::calls::TransactionApi {
 			template_pallet::calls::TransactionApi
 		}
@@ -272,9 +288,9 @@ pub mod api {
 		let runtime_metadata_hash = client.metadata().metadata_hash(&PALLETS);
 		if runtime_metadata_hash !=
 			[
-				105u8, 174u8, 153u8, 120u8, 37u8, 126u8, 82u8, 112u8, 148u8, 227u8, 37u8, 60u8,
-				152u8, 190u8, 5u8, 110u8, 196u8, 204u8, 125u8, 89u8, 28u8, 44u8, 122u8, 171u8,
-				43u8, 104u8, 66u8, 242u8, 68u8, 54u8, 237u8, 161u8,
+				126u8, 88u8, 85u8, 242u8, 204u8, 124u8, 219u8, 8u8, 34u8, 220u8, 193u8, 59u8,
+				160u8, 75u8, 87u8, 69u8, 46u8, 233u8, 210u8, 99u8, 165u8, 232u8, 59u8, 135u8, 20u8,
+				177u8, 156u8, 222u8, 130u8, 34u8, 176u8, 25u8,
 			] {
 			Err(::subxt::error::MetadataError::IncompatibleMetadata)
 		} else {
@@ -944,9 +960,10 @@ pub mod api {
 						"Events",
 						vec![],
 						[
-							188u8, 35u8, 38u8, 71u8, 202u8, 139u8, 78u8, 19u8, 53u8, 220u8, 59u8,
-							0u8, 201u8, 10u8, 96u8, 19u8, 244u8, 92u8, 76u8, 79u8, 144u8, 81u8,
-							143u8, 47u8, 238u8, 53u8, 130u8, 223u8, 167u8, 228u8, 6u8, 7u8,
+							231u8, 200u8, 231u8, 63u8, 21u8, 69u8, 81u8, 127u8, 194u8, 143u8, 88u8,
+							174u8, 146u8, 238u8, 143u8, 66u8, 91u8, 212u8, 126u8, 245u8, 97u8,
+							144u8, 207u8, 94u8, 144u8, 163u8, 208u8, 234u8, 63u8, 241u8, 148u8,
+							229u8,
 						],
 					)
 				}
@@ -2502,8 +2519,6 @@ pub mod api {
 				::subxt::ext::scale_decode::DecodeAsType,
 				::subxt::ext::scale_encode::EncodeAsType,
 				Debug,
-				Ord,
-				PartialOrd,
 				Eq,
 				PartialEq,
 			)]
@@ -6531,6 +6546,245 @@ pub mod api {
 			}
 		}
 	}
+	pub mod sudo {
+		use super::{root_mod, runtime_types};
+		///Contains one variant per dispatchable that can be called by an extrinsic.
+		pub mod calls {
+			use super::{root_mod, runtime_types};
+			type DispatchError = runtime_types::sp_runtime::DispatchError;
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct Sudo {
+				pub call: ::std::boxed::Box<runtime_types::parachain_template_runtime::RuntimeCall>,
+			}
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct SudoUncheckedWeight {
+				pub call: ::std::boxed::Box<runtime_types::parachain_template_runtime::RuntimeCall>,
+				pub weight: runtime_types::sp_weights::weight_v2::Weight,
+			}
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct SetKey {
+				pub new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+			}
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct SudoAs {
+				pub who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+				pub call: ::std::boxed::Box<runtime_types::parachain_template_runtime::RuntimeCall>,
+			}
+			pub struct TransactionApi;
+			impl TransactionApi {
+				///Authenticates the sudo key and dispatches a function call with `Root` origin.
+				///
+				///The dispatch origin for this call must be _Signed_.
+				///
+				///## Complexity
+				/// - O(1).
+				pub fn sudo(
+					&self,
+					call: runtime_types::parachain_template_runtime::RuntimeCall,
+				) -> ::subxt::tx::Payload<Sudo> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"sudo",
+						Sudo { call: ::std::boxed::Box::new(call) },
+						[
+							23u8, 190u8, 92u8, 89u8, 141u8, 57u8, 136u8, 163u8, 126u8, 49u8, 164u8,
+							91u8, 84u8, 76u8, 39u8, 179u8, 145u8, 96u8, 38u8, 224u8, 132u8, 105u8,
+							92u8, 3u8, 220u8, 122u8, 56u8, 242u8, 241u8, 181u8, 74u8, 236u8,
+						],
+					)
+				}
+				///Authenticates the sudo key and dispatches a function call with `Root` origin.
+				///This function does not check the weight of the call, and instead allows the
+				///Sudo user to specify the weight of the call.
+				///
+				///The dispatch origin for this call must be _Signed_.
+				///
+				///## Complexity
+				/// - O(1).
+				pub fn sudo_unchecked_weight(
+					&self,
+					call: runtime_types::parachain_template_runtime::RuntimeCall,
+					weight: runtime_types::sp_weights::weight_v2::Weight,
+				) -> ::subxt::tx::Payload<SudoUncheckedWeight> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"sudo_unchecked_weight",
+						SudoUncheckedWeight { call: ::std::boxed::Box::new(call), weight },
+						[
+							147u8, 53u8, 123u8, 96u8, 148u8, 152u8, 134u8, 151u8, 114u8, 209u8,
+							243u8, 188u8, 12u8, 15u8, 213u8, 136u8, 244u8, 145u8, 13u8, 1u8, 119u8,
+							143u8, 67u8, 42u8, 53u8, 80u8, 87u8, 102u8, 207u8, 102u8, 45u8, 189u8,
+						],
+					)
+				}
+				///Authenticates the current sudo key and sets the given AccountId (`new`) as the
+				/// new sudo key.
+				///
+				///The dispatch origin for this call must be _Signed_.
+				///
+				///## Complexity
+				/// - O(1).
+				pub fn set_key(
+					&self,
+					new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+				) -> ::subxt::tx::Payload<SetKey> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"set_key",
+						SetKey { new },
+						[
+							23u8, 224u8, 218u8, 169u8, 8u8, 28u8, 111u8, 199u8, 26u8, 88u8, 225u8,
+							105u8, 17u8, 19u8, 87u8, 156u8, 97u8, 67u8, 89u8, 173u8, 70u8, 0u8,
+							5u8, 246u8, 198u8, 135u8, 182u8, 180u8, 44u8, 9u8, 212u8, 95u8,
+						],
+					)
+				}
+				///Authenticates the sudo key and dispatches a function call with `Signed` origin
+				/// from a given account.
+				///
+				///The dispatch origin for this call must be _Signed_.
+				///
+				///## Complexity
+				/// - O(1).
+				pub fn sudo_as(
+					&self,
+					who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+					call: runtime_types::parachain_template_runtime::RuntimeCall,
+				) -> ::subxt::tx::Payload<SudoAs> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"sudo_as",
+						SudoAs { who, call: ::std::boxed::Box::new(call) },
+						[
+							54u8, 63u8, 253u8, 237u8, 69u8, 131u8, 155u8, 32u8, 132u8, 76u8, 233u8,
+							186u8, 220u8, 14u8, 77u8, 6u8, 230u8, 192u8, 71u8, 65u8, 180u8, 101u8,
+							249u8, 64u8, 213u8, 141u8, 203u8, 73u8, 38u8, 237u8, 180u8, 217u8,
+						],
+					)
+				}
+			}
+		}
+		/**
+		The [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted
+		by this pallet.
+		*/
+		pub type Event = runtime_types::pallet_sudo::pallet::Event;
+		pub mod events {
+			use super::runtime_types;
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			///A sudo just took place. \[result\]
+			pub struct Sudid {
+				pub sudo_result:
+					::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+			}
+			impl ::subxt::events::StaticEvent for Sudid {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "Sudid";
+			}
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			///The \[sudoer\] just switched identity; the old key is supplied if one existed.
+			pub struct KeyChanged {
+				pub old_sudoer: ::core::option::Option<::subxt::utils::AccountId32>,
+			}
+			impl ::subxt::events::StaticEvent for KeyChanged {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "KeyChanged";
+			}
+			#[derive(
+				::subxt::ext::codec::Decode,
+				::subxt::ext::codec::Encode,
+				::subxt::ext::scale_decode::DecodeAsType,
+				::subxt::ext::scale_encode::EncodeAsType,
+				Debug,
+			)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			///A sudo just took place. \[result\]
+			pub struct SudoAsDone {
+				pub sudo_result:
+					::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+			}
+			impl ::subxt::events::StaticEvent for SudoAsDone {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "SudoAsDone";
+			}
+		}
+		pub mod storage {
+			use super::runtime_types;
+			pub struct StorageApi;
+			impl StorageApi {
+				/// The `AccountId` of the sudo key.
+				pub fn key(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					::subxt::utils::AccountId32,
+					::subxt::storage::address::Yes,
+					(),
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"Sudo",
+						"Key",
+						vec![],
+						[
+							244u8, 73u8, 188u8, 136u8, 218u8, 163u8, 68u8, 179u8, 122u8, 173u8,
+							34u8, 108u8, 137u8, 28u8, 182u8, 16u8, 196u8, 92u8, 138u8, 34u8, 102u8,
+							80u8, 199u8, 88u8, 107u8, 207u8, 36u8, 22u8, 168u8, 167u8, 20u8, 142u8,
+						],
+					)
+				}
+			}
+		}
+	}
 	pub mod template_pallet {
 		use super::{root_mod, runtime_types};
 		///Contains one variant per dispatchable that can be called by an extrinsic.
@@ -8301,6 +8555,121 @@ pub mod api {
 				}
 			}
 		}
+		pub mod pallet_sudo {
+			use super::runtime_types;
+			pub mod pallet {
+				use super::runtime_types;
+				#[derive(
+					::subxt::ext::codec::Decode,
+					::subxt::ext::codec::Encode,
+					::subxt::ext::scale_decode::DecodeAsType,
+					::subxt::ext::scale_encode::EncodeAsType,
+					Debug,
+				)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				///Contains one variant per dispatchable that can be called by an extrinsic.
+				pub enum Call {
+					#[codec(index = 0)]
+					///Authenticates the sudo key and dispatches a function call with `Root`
+					/// origin.
+					///
+					///The dispatch origin for this call must be _Signed_.
+					///
+					///## Complexity
+					/// - O(1).
+					sudo {
+						call: ::std::boxed::Box<
+							runtime_types::parachain_template_runtime::RuntimeCall,
+						>,
+					},
+					#[codec(index = 1)]
+					///Authenticates the sudo key and dispatches a function call with `Root`
+					/// origin. This function does not check the weight of the call, and instead
+					/// allows the Sudo user to specify the weight of the call.
+					///
+					///The dispatch origin for this call must be _Signed_.
+					///
+					///## Complexity
+					/// - O(1).
+					sudo_unchecked_weight {
+						call: ::std::boxed::Box<
+							runtime_types::parachain_template_runtime::RuntimeCall,
+						>,
+						weight: runtime_types::sp_weights::weight_v2::Weight,
+					},
+					#[codec(index = 2)]
+					///Authenticates the current sudo key and sets the given AccountId (`new`) as
+					/// the new sudo key.
+					///
+					///The dispatch origin for this call must be _Signed_.
+					///
+					///## Complexity
+					/// - O(1).
+					set_key { new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()> },
+					#[codec(index = 3)]
+					///Authenticates the sudo key and dispatches a function call with `Signed`
+					/// origin from a given account.
+					///
+					///The dispatch origin for this call must be _Signed_.
+					///
+					///## Complexity
+					/// - O(1).
+					sudo_as {
+						who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+						call: ::std::boxed::Box<
+							runtime_types::parachain_template_runtime::RuntimeCall,
+						>,
+					},
+				}
+				#[derive(
+					::subxt::ext::codec::Decode,
+					::subxt::ext::codec::Encode,
+					::subxt::ext::scale_decode::DecodeAsType,
+					::subxt::ext::scale_encode::EncodeAsType,
+					Debug,
+				)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				///Error for the Sudo pallet
+				pub enum Error {
+					#[codec(index = 0)]
+					///Sender must be the Sudo account
+					RequireSudo,
+				}
+				#[derive(
+					::subxt::ext::codec::Decode,
+					::subxt::ext::codec::Encode,
+					::subxt::ext::scale_decode::DecodeAsType,
+					::subxt::ext::scale_encode::EncodeAsType,
+					Debug,
+				)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				/**
+				The [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted
+				by this pallet.
+				*/
+				pub enum Event {
+					#[codec(index = 0)]
+					///A sudo just took place. \[result\]
+					Sudid {
+						sudo_result:
+							::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+					},
+					#[codec(index = 1)]
+					///The \[sudoer\] just switched identity; the old key is supplied if one
+					/// existed.
+					KeyChanged { old_sudoer: ::core::option::Option<::subxt::utils::AccountId32> },
+					#[codec(index = 2)]
+					///A sudo just took place. \[result\]
+					SudoAsDone {
+						sudo_result:
+							::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+					},
+				}
+			}
+		}
 		pub mod pallet_template {
 			use super::runtime_types;
 			pub mod pallet {
@@ -9109,6 +9478,8 @@ pub mod api {
 				CumulusXcm(runtime_types::cumulus_pallet_xcm::pallet::Call),
 				#[codec(index = 33)]
 				DmpQueue(runtime_types::cumulus_pallet_dmp_queue::pallet::Call),
+				#[codec(index = 34)]
+				Sudo(runtime_types::pallet_sudo::pallet::Call),
 				#[codec(index = 40)]
 				TemplatePallet(runtime_types::pallet_template::pallet::Call),
 			}
@@ -9142,6 +9513,8 @@ pub mod api {
 				CumulusXcm(runtime_types::cumulus_pallet_xcm::pallet::Event),
 				#[codec(index = 33)]
 				DmpQueue(runtime_types::cumulus_pallet_dmp_queue::pallet::Event),
+				#[codec(index = 34)]
+				Sudo(runtime_types::pallet_sudo::pallet::Event),
 				#[codec(index = 40)]
 				TemplatePallet(runtime_types::pallet_template::pallet::Event),
 			}

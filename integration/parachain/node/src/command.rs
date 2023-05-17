@@ -281,7 +281,7 @@ pub fn run() -> Result<()> {
 			})
 		},
 		Some(Subcommand::Simnode(cmd)) => {
-			let runner = cli.create_runner(cmd)?;
+			let runner = cli.create_runner(&cmd.run.normalize())?;
 			let config = runner.config();
 			let executor = sc_simnode::Executor::new(
 				config.wasm_method,

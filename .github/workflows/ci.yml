@@ -30,6 +30,31 @@ jobs:
       - name: cargo check
         run: cargo check --workspace
 
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2023-03-28
+          components: rustfmt
+
+      - name: Run parachain simnode
+        run: |
+          cargo +nightly-2022-11-16  build --release -p parachain-node
+          ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
+
+      - name: Integration tests
+        run: RUST_BACKTRACE=1 cargo +nightly test -p simnode-integration-tests -- --nocapture
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -48,4 +73,4 @@ jobs:
           components: rustfmt
 
       - name: Check format
-        run: cargo fmt --all --check
+        run: cargo +nightly-2023-03-28 fmt --all --check

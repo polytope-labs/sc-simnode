@@ -16,20 +16,12 @@
 
 //! Simnode Cli Utilities
 
-use sc_cli::{CliConfiguration, SharedParams};
-
 /// The `simnode` sub-command.
 ///
 /// See [`Command`] for more info.
-#[derive(Debug, Clone, clap::Parser)]
+#[derive(Debug, clap::Parser)]
 pub struct SimnodeCli {
-	/// Shared params need by substrate
-	#[clap(flatten)]
-	shared: SharedParams,
-}
-
-impl CliConfiguration for SimnodeCli {
-	fn shared_params(&self) -> &SharedParams {
-		&self.shared
-	}
+	/// params need by substrate
+	#[command(flatten)]
+	pub run: cumulus_client_cli::RunCmd,
 }

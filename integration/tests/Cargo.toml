@@ -12,4 +12,4 @@ futures = "0.3.28"
 sp-core = { version = "20.0.0", features = ["full_crypto"] }
 sp-keyring = { version = "23.0.0" }
 manual-seal = { package = "sc-consensus-manual-seal", version = "0.18.0" }
-tokio = { version = "1.27.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.27.0", features = ["macros"] }
