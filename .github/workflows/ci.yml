@@ -47,6 +47,7 @@ jobs:
         with:
           toolchain: nightly-2022-11-16
           components: rustfmt
+          targets: wasm32-unknown-unknown
 
       - name: Install protoc
         run: |
