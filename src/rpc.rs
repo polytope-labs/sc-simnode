@@ -20,6 +20,7 @@ use crate::{
 	client::{FullClientFor, UncheckedExtrinsicFor},
 	ChainInfo,
 };
+use async_trait::async_trait;
 use codec::Encode;
 use jsonrpsee::{
 	core::{Error as RpcError, RpcResult as Result},
@@ -41,14 +42,11 @@ use sp_runtime::{
 use sp_state_machine::{Ext, OverlayedChanges};
 use std::sync::Arc;
 
-#[cfg(feature = "parachain")]
-mod imports {
-	pub use crate::sproof::SharedParachainSproofInherentProvider;
-	pub use polkadot_primitives::UpgradeGoAhead;
-	pub use sproof_builder::RelayStateSproofBuilder;
-}
-#[cfg(feature = "parachain")]
-pub use imports::*;
+use crate::sproof::SharedParachainSproofInherentProvider;
+use polkadot_primitives::UpgradeGoAhead;
+use sproof_builder::RelayStateSproofBuilder;
+use futures::channel::mpsc;
+use manual_seal::EngineCommand;
 
 /// Simnode RPC methods.
 #[rpc(client, server)]
@@ -58,18 +56,25 @@ pub trait SimnodeApi {
 	#[method(name = "simnode_authorExtrinsic")]
 	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes>;
 
+	/// reverts `n` number of blocks and their state from the chain.
+	#[method(name = "simnode_revertBlocks")]
+	fn revert_blocks(&self, n: u32) -> Result<()>;
+
 	/// Insert the [`UpgradeGoAhead`] command into the inherents as if it came from the relay chain.
 	/// This greenlights/aborts a pending runtime upgrade.
 	#[method(name = "simnode_upgradeSignal")]
-	fn upgrade_signal(&self, go_ahead: bool) -> Result<()>;
+	async fn upgrade_signal(&self, go_ahead: bool) -> Result<()>;
 }
 
 /// Handler implementation for Simnode RPC API.
 pub struct SimnodeRpcHandler<T: ChainInfo> {
+	/// Client type
 	client: Arc<FullClientFor<T>>,
-	/// backend type.
-	#[cfg(feature = "parachain")]
-	parachain_inherent_provider: SharedParachainSproofInherentProvider<T>,
+	/// Backend type.
+	backend: Arc<TFullBackend<T::Block>>,
+	/// parachain inherent provider for
+	/// Sink for sending commands to the manual seal authorship task.
+	parachain: (SharedParachainSproofInherentProvider<T>, mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>),
 }
 
 impl<T> SimnodeRpcHandler<T>
@@ -86,13 +91,13 @@ where
 	/// Creates a new instance of simnode's RPC handler.
 	pub fn new(
 		client: Arc<FullClientFor<T>>,
-		#[cfg(feature = "parachain")]
-		parachain_inherent_provider: SharedParachainSproofInherentProvider<T>,
+		backend: Arc<TFullBackend<T::Block>>,
+		parachain: (SharedParachainSproofInherentProvider<T>, mpsc::Sender<EngineCommand<<T::Block as BlockT>::Hash>>),
 	) -> Self {
 		Self {
 			client,
-			#[cfg(feature = "parachain")]
-			parachain_inherent_provider,
+			backend,
+			parachain,
 		}
 	}
 
@@ -168,14 +173,23 @@ where
 		sp_externalities::set_and_run_with_externalities(&mut ext, closure)
 	}
 
-	#[cfg(feature = "parachain")]
+	fn revert_blocks(&self, n: u32) -> Result<()> {
+		self.backend
+			.revert(n.into(), true)
+			.map_err(|e| RpcError::Custom(format!("failed to revert blocks: {e:?}")))?;
+
+		Ok(())
+	}
+
 	/// If this is a parachain node, it will allow you to signal runtime upgrades to your
 	/// parachain runtime.
-	pub fn give_upgrade_signal(&self, signal: UpgradeGoAhead)
+	pub async fn give_upgrade_signal(&self, signal: UpgradeGoAhead) -> Result<()>
 	where
 		<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 		T::Runtime: parachain_info::Config,
 	{
+		use futures::{channel::oneshot, SinkExt};
+
 		let para_id =
 			self.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
 		let builder = RelayStateSproofBuilder {
@@ -183,11 +197,29 @@ where
 			upgrade_go_ahead: Some(signal),
 			..Default::default()
 		};
-		self.parachain_inherent_provider.lock().unwrap().update_sproof_builder(builder)
+		self.parachain.0.lock().unwrap().update_sproof_builder(builder);
+
+		let mut sink = self.parachain.1.clone();
+		let (sender, receiver) = oneshot::channel();
+		// NOTE: this sends a Result over the channel.
+		let command = EngineCommand::SealNewBlock {
+			create_empty: true,
+			finalize: true,
+			parent_hash: None,
+			sender: Some(sender),
+		};
+
+		sink.send(command).await?;
+
+		match receiver.await {
+			Ok(Ok(_)) => Ok(()),
+			Ok(Err(e)) => Err(e.into()),
+			Err(e) => Err(RpcError::to_call_error(e)),
+		}
 	}
 }
 
-#[cfg(feature = "parachain")]
+#[async_trait]
 impl<T> SimnodeApiServer for SimnodeRpcHandler<T>
 where
 	T: ChainInfo + Send + Sync + 'static,
@@ -205,38 +237,18 @@ where
 		Ok(self.author_extrinsic(call, account)?.into())
 	}
 
-	fn upgrade_signal(&self, go_ahead: bool) -> Result<()> {
+	fn revert_blocks(&self, n: u32) -> Result<()> {
+		self.revert_blocks(n)
+	}
+
+	async fn upgrade_signal(&self, go_ahead: bool) -> Result<()> {
 		let signal = match go_ahead {
 			true => UpgradeGoAhead::GoAhead,
 			false => UpgradeGoAhead::Abort,
 		};
 		// insert the upgrade signal into the sproof provider, it'll be included in the next block.
-		self.give_upgrade_signal(signal);
+		self.give_upgrade_signal(signal).await?;
 
 		Ok(())
-	}
-}
-
-#[cfg(feature = "standalone")]
-impl<T> SimnodeApiServer for SimnodeRpcHandler<T>
-where
-	T: ChainInfo + Send + Sync + 'static,
-	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
-		CreateTransactionApi<
-			T::Block,
-			<T::Runtime as frame_system::Config>::RuntimeCall,
-			<T::Runtime as frame_system::Config>::AccountId,
-		>,
-	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
-	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
-{
-	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes> {
-		Ok(self.author_extrinsic(call, account)?.into())
-	}
-
-	fn upgrade_signal(&self, _go_ahead: bool) -> Result<()> {
-		use jsonrpsee::core::Error;
-
-		Err(Error::Custom(format!("Standalone runtimes don't need upgrade signals")))
 	}
 }
