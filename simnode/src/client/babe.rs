@@ -212,11 +212,11 @@ where
 					let timestamp = SlotTimestampProvider::new_babe(client.clone())
 						.map_err(|err| format!("{:?}", err))?;
 
-					let aura = sp_consensus_aura::inherents::InherentDataProvider::new(
+					let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
 						timestamp.slot().into(),
 					);
 
-					Ok((timestamp, aura))
+					Ok((timestamp, babe))
 				}
 			}
 		},

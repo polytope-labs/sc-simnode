@@ -2,9 +2,15 @@
 members = [
     "simnode",
     "runtime-api",
+
+    "integration/pallets/*",
+    "integration/tests",
+
     # parachain
     "integration/parachain/node",
-    "integration/pallets/*",
     "integration/parachain/runtime",
-    "integration/tests",
+
+    # aura
+    "integration/aura/node",
+    "integration/aura/runtime",
 ]

@@ -1,2 +1,3 @@
 pub mod codegen;
-pub mod tests;
+pub mod parachain;
+pub mod common;
