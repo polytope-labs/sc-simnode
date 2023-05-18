@@ -1,5 +1,8 @@
 # <h1> sc-simnode </h1>
 
+![alt text](./assets/neo.webp)
+
+> I'm trying to free your mind, Neo. But I can only show you the door. You're the one that has to walk through it.
 
 This library exists to allow substrate developers to:
  - [x] Test complex pallets that require a full runtime, not a mocked runtime.

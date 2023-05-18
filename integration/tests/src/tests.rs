@@ -91,7 +91,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	let old_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(old_version.spec_version, 1);
 
-	let code = include_bytes!("../wasm/upgrade.wasm").to_vec();
+	let code = include_bytes!("../../../assets/upgrade.wasm").to_vec();
 
 	let call = client.tx().call_data(&api::tx().sudo().sudo_unchecked_weight(
 		RuntimeCall::System(Call::set_code { code }),
