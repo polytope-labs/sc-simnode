@@ -88,42 +88,6 @@ async fn simple_transfer() -> Result<(), anyhow::Error> {
 	Ok(())
 }
 
-async fn revert_blocks() -> Result<(), anyhow::Error> {
-	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
-	let old_header =
-		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
-	let n = 10;
-
-	for _ in 0..n {
-		client
-			.rpc()
-			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
-			.await?;
-	}
-	let new_header =
-		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
-
-	assert_eq!(old_header.number + n, new_header.number);
-
-	let revert = n / 2;
-
-	client
-		.rpc()
-		.request::<()>(
-			"simnode_revertBlocks",
-			// author an extrinsic from alice
-			rpc_params![revert],
-		)
-		.await?;
-
-	let new_header =
-		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
-
-	assert_eq!(old_header.number + revert, new_header.number);
-
-	Ok(())
-}
-
 async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
 
@@ -168,6 +132,41 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	// assert the version
 	let new_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(new_version.spec_version, 100);
+
+	Ok(())
+}
+
+async fn revert_blocks() -> Result<(), anyhow::Error> {
+	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
+	let old_header =
+		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
+	let n = 10;
+
+	for _ in 0..n {
+		client
+			.rpc()
+			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
+			.await?;
+	}
+	let new_header =
+		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
+
+	assert_eq!(old_header.number + n, new_header.number);
+
+	let revert = n / 2;
+
+	client
+		.rpc()
+		.request::<()>(
+			"simnode_revertBlocks",
+			rpc_params![revert],
+		)
+		.await?;
+
+	let new_header =
+		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
+
+	assert_eq!(old_header.number + revert, new_header.number);
 
 	Ok(())
 }
