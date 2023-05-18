@@ -52,7 +52,7 @@ jobs:
       - name: Install protoc
         run: |
           sudo apt update
-          sudo apt install -y protobuf-compiler build-essentials
+          sudo apt install -y protobuf-compiler build-essential
 
       - name: Run parachain simnode
         run: |
