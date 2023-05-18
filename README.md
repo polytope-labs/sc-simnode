@@ -11,7 +11,6 @@ This library exists to allow substrate developers to:
  - [x] Execute transactions from any origin on their live chain state.
  - [x] Simulate runtime upgrades & migrations.
 
-<br />
 
 ## Documentation
 
