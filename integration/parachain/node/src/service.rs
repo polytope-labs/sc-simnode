@@ -52,7 +52,7 @@ pub struct WithSignatureOverride;
 impl sc_executor::NativeExecutionDispatch for WithSignatureOverride {
 	type ExtendHostFunctions = (
 		frame_benchmarking::benchmarking::HostFunctions,
-		sc_simnode::host_functions::SignatureVerificationOverride,
+		sc_simnode::overrides::SignatureVerificationOverride,
 	);
 
 	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {

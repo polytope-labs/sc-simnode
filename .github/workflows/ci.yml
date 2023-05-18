@@ -60,7 +60,7 @@ jobs:
           ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
 
       - name: Integration tests
-        run: RUST_BACKTRACE=1 cargo +nightly-2022-11-16 test -p simnode-integration-tests -- --nocapture
+        run: RUST_BACKTRACE=1 cargo +nightly-2022-11-16 test --release -p simnode-integration-tests -- --nocapture
 
   lint:
     runs-on: ubuntu-latest

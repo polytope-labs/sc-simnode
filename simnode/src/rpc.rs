@@ -116,8 +116,8 @@ where
 			>>(at)
 			.map_err(|e| RpcError::Custom(format!("failed read runtime api: {e:?}")))?;
 
-		let ext = match has_api {
-			true => {
+		let ext =
+			if has_api {
 				let call = codec::Decode::decode(&mut &call.0[..])
 					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
 				let account = AccountId32::from_string(&account)
@@ -125,8 +125,7 @@ where
 				self.client.runtime_api().create_transaction(at, account.into(), call).map_err(
 					|e| RpcError::Custom(format!("CreateTransactionApi is unimplemented: {e:?}")),
 				)?
-			},
-			false => {
+			} else {
 				let call = codec::Decode::decode(&mut &call.0[..])
 					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
 				let account = AccountId32::from_string(&account)
@@ -139,8 +138,7 @@ where
 					extra,
 				);
 				ext.encode()
-			},
-		};
+			};
 
 		Ok(ext)
 	}
@@ -199,7 +197,7 @@ where
 			upgrade_go_ahead: Some(signal),
 			..Default::default()
 		};
-		self.parachain.0.lock().unwrap().update_sproof_builder(builder);
+		self.parachain.0.lock().await.update_sproof_builder(builder);
 
 		let mut sink = self.parachain.1.clone();
 		let (sender, receiver) = oneshot::channel();

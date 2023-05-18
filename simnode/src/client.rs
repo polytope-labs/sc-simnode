@@ -20,7 +20,7 @@ use crate::{
 	ChainInfo, ParachainSproofInherentProvider, SignatureVerificationOverride, SimnodeApiServer,
 	SimnodeRpcHandler,
 };
-use futures::{channel::mpsc, future::Either, StreamExt};
+use futures::{channel::mpsc, future::Either, lock::Mutex, StreamExt};
 use jsonrpsee::RpcModule;
 use manual_seal::{
 	consensus::timestamp::SlotTimestampProvider,
@@ -53,7 +53,7 @@ use sp_runtime::{
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use sp_wasm_interface::ExtendedHostFunctions;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 /// Shared instance of [`ParachainSproofInherentProvider`]
 pub type SharedParachainInherentProvider<T> = Arc<Mutex<ParachainSproofInherentProvider<T>>>;
@@ -168,6 +168,8 @@ where
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
+	use manual_seal::consensus::aura::AuraConsensusDataProvider;
+
 	let SimnodeParams { components, config, instant, rpc_builder } = params;
 	let PartialComponents {
 		client,
@@ -179,7 +181,6 @@ where
 		transaction_pool: pool,
 		other: (block_import, mut telemetry, _),
 	} = components;
-	use manual_seal::consensus::aura::AuraConsensusDataProvider;
 
 	let parachain_inherent_provider =
 		Arc::new(Mutex::new(ParachainSproofInherentProvider::new(client.clone())));
@@ -297,13 +298,13 @@ where
 					let timestamp = SlotTimestampProvider::new_aura(client.clone())
 						.map_err(|err| format!("{:?}", err))?;
 
-					let _aura = sp_consensus_aura::inherents::InherentDataProvider::new(
+					let aura = sp_consensus_aura::inherents::InherentDataProvider::new(
 						timestamp.slot().into(),
 					);
 
 					let parachain_system =
-						parachain_sproof.lock().unwrap().create_inherent(timestamp.slot().into());
-					Ok((timestamp, _aura, parachain_system))
+						parachain_sproof.lock().await.create_inherent(timestamp.slot().into())?;
+					Ok((timestamp, aura, parachain_system))
 				}
 			}
 		},

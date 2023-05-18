@@ -21,14 +21,14 @@ use sp_runtime::traits::{Block as BlockT, SignedExtension};
 
 pub mod cli;
 pub mod client;
-pub mod host_functions;
+pub mod overrides;
 pub mod parachain;
 pub mod rpc;
 pub mod sproof;
 
 pub use cli::*;
 pub use client::*;
-pub use host_functions::*;
+pub use overrides::*;
 pub use parachain::*;
 pub use rpc::*;
 pub use sproof::*;
@@ -42,7 +42,7 @@ pub trait ChainInfo: Sized {
 	type Runtime: frame_system::Config;
 
 	/// RuntimeApi
-	type RuntimeApi: Send + Sync + 'static + ConstructRuntimeApi<Self::Block, FullClientFor<Self>>;
+	type RuntimeApi: ConstructRuntimeApi<Self::Block, FullClientFor<Self>> + Send + Sync + 'static;
 
 	/// The signed extras required by the runtime
 	type SignedExtras: SignedExtension;
