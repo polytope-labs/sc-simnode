@@ -13,8 +13,8 @@ use sp_inherents::{InherentData, InherentDataProvider};
 use sp_keyring::Sr25519Keyring;
 use sp_runtime::{OpaqueExtrinsic, SaturatedConversion};
 
-use std::{sync::Arc, time::Duration};
 use sc_executor::NativeElseWasmExecutor;
+use std::{sync::Arc, time::Duration};
 
 /// Generates extrinsics for the `benchmark overhead` command.
 ///
@@ -64,7 +64,11 @@ pub struct TransferKeepAliveBuilder {
 
 impl TransferKeepAliveBuilder {
 	/// Creates a new [`Self`] from the given client.
-	pub fn new(client: Arc<FullClient<NativeElseWasmExecutor<ExecutorDispatch>>>, dest: AccountId, value: Balance) -> Self {
+	pub fn new(
+		client: Arc<FullClient<NativeElseWasmExecutor<ExecutorDispatch>>>,
+		dest: AccountId,
+		value: Balance,
+	) -> Self {
 		Self { client, dest, value }
 	}
 }

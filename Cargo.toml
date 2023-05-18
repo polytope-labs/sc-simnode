@@ -3,7 +3,6 @@ members = [
     "simnode",
     "runtime-api",
 
-    "integration/pallets/*",
     "integration/tests",
 
     # parachain

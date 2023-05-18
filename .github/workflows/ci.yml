@@ -56,8 +56,8 @@ jobs:
 
       - name: Run parachain simnode
         run: |
-          cargo +nightly-2022-11-16  build --release -p parachain-node
-          ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
+          cargo +nightly-2022-11-16  build --release -p aura-node
+          ./target/release/aura-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
 
       - name: Integration tests
         run: RUST_BACKTRACE=1 cargo +nightly-2022-11-16 test --release -p simnode-integration-tests -- --nocapture

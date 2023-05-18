@@ -90,7 +90,8 @@ where
 	pub fn new(
 		client: Arc<FullClientFor<T>>,
 		backend: Arc<TFullBackend<T::Block>>,
-		#[cfg(feature = "parachain")] parachain: (
+		#[cfg(feature = "parachain")]
+		parachain: (
 			crate::sproof::SharedParachainSproofInherentProvider<T>,
 			futures::channel::mpsc::Sender<manual_seal::EngineCommand<<T::Block as BlockT>::Hash>>,
 		),
