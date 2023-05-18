@@ -1,14 +1,14 @@
-# <h1 align="center"> sc-simnode ⚙️ </h1>
+# <h1> sc-simnode </h1>
 
 
-This library exists to allow substrate developers:
+This library exists to allow substrate developers to:
  - [x] Test complex pallets that require a full runtime, not a mocked runtime.
- - [x] Simulate runtime upgrades.
- - [x] Simulate runtime migrations.
- - [x] Simulate transactions on their live chain state.
- - [x] Execute transactions from any origin.
+ - [x] Execute transactions from any origin on their live chain state.
+ - [x] Simulate runtime upgrades & migrations.
 
-Installation and integration guides can be found in the [book](https://simnode.polytope.technology)
+## Documentation
+
+Installation and integration guides can be found in the [book](https://simnode.polytope.technology).
 
 ## License
 

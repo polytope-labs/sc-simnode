@@ -72,7 +72,7 @@ pub struct SimnodeRpcHandler<T: ChainInfo> {
 	client: Arc<FullClientFor<T>>,
 	/// Backend type.
 	backend: Arc<TFullBackend<T::Block>>,
-	/// parachain inherent provider for
+	/// parachain inherent provider for sproofing the parachain inherent.
 	/// Sink for sending commands to the manual seal authorship task.
 	parachain: (
 		SharedParachainSproofInherentProvider<T>,

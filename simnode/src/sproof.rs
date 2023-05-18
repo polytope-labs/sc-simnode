@@ -66,6 +66,9 @@ where
 		sproof.current_slot = slot.into();
 		sproof.host_config.validation_upgrade_delay = 2;
 		sproof.host_config.max_code_size = 15 * 1024 * 1024;
+		// this makes every block random, so that you can still author blocks after reverting.
+		// instead of getting the AlreadyInChain error.
+		sproof.randomness = rand::random();
 
 		let info = self.client.info();
 		let header = self

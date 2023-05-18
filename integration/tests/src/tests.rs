@@ -15,9 +15,11 @@ use anyhow::anyhow;
 use manual_seal::CreatedBlock;
 use sp_core::{crypto::Ss58Codec, Bytes, H256};
 use sp_keyring::sr25519::Keyring;
+use std::time::Duration;
 use subxt::{
 	rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient, SubstrateConfig,
 };
+use tokio::time::sleep;
 
 #[tokio::test]
 async fn test_all_features() -> Result<(), anyhow::Error> {
@@ -140,7 +142,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 			.request::<CreatedBlock<H256>>(
 				"engine_createBlock",
 				// author an extrinsic from alice who is the sudo account.
-				rpc_params![Bytes::from(call), Keyring::Alice.to_account_id().to_ss58check()],
+				rpc_params![true, true],
 			)
 			.await?;
 	}
@@ -173,6 +175,21 @@ async fn revert_blocks() -> Result<(), anyhow::Error> {
 		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
 
 	assert_eq!(old_header.number + revert, new_header.number);
+
+	// wait 5 secs for db to flush
+	sleep(Duration::from_secs(5)).await;
+
+	// try to create n blocks again
+	for _ in 0..n {
+		client
+			.rpc()
+			.request::<CreatedBlock<H256>>(
+				"engine_createBlock",
+				// author an extrinsic from alice who is the sudo account.
+				rpc_params![true, true],
+			)
+			.await?;
+	}
 
 	Ok(())
 }
