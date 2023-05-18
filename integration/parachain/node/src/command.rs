@@ -295,24 +295,22 @@ pub fn run() -> Result<()> {
 			runner.run_node_until_exit(move |config| async move {
 				let client = components.client.clone();
 				let pool = components.transaction_pool.clone();
-				let task_manager =
-					sc_simnode::start_simnode::<ParachainRuntimeChainInfo, _, _, _, _, _>(
-						sc_simnode::SimnodeParams {
-							components,
-							config,
-							instant: true,
-							rpc_builder: Box::new(move |deny_unsafe, _| {
-								let client = client.clone();
-								let pool = pool.clone();
-								let full_deps = rpc::FullDeps { client, pool, deny_unsafe };
-								let io =
-									rpc::create_full(full_deps).expect("Rpc to be initialized");
+				let task_manager = sc_simnode::start_simnode::<RuntimeInfo, _, _, _, _, _>(
+					sc_simnode::SimnodeParams {
+						components,
+						config,
+						instant: true,
+						rpc_builder: Box::new(move |deny_unsafe, _| {
+							let client = client.clone();
+							let pool = pool.clone();
+							let full_deps = rpc::FullDeps { client, pool, deny_unsafe };
+							let io = rpc::create_full(full_deps).expect("Rpc to be initialized");
 
-								Ok(io)
-							}),
-						},
-					)
-					.await?;
+							Ok(io)
+						}),
+					},
+				)
+				.await?;
 				Ok(task_manager)
 			})
 		},
@@ -516,14 +514,21 @@ impl CliConfiguration<Self> for RelayChainCli {
 	}
 }
 
-pub struct ParachainRuntimeChainInfo;
+pub struct RuntimeInfo;
 
-impl sc_simnode::ChainInfo for ParachainRuntimeChainInfo {
+impl sc_simnode::ChainInfo for RuntimeInfo {
+	// make sure you pass the opaque::Block here
 	type Block = parachain_template_runtime::opaque::Block;
+	// the runtime type
 	type Runtime = parachain_template_runtime::Runtime;
+	// the runtime api
 	type RuntimeApi = parachain_template_runtime::RuntimeApi;
+	// [`SignedExtra`] for your runtime
 	type SignedExtras = parachain_template_runtime::SignedExtra;
 
+	// initialize the [`SignedExtra`] for your runtime, you'll notice I'm calling a pallet method in
+	// order to read from storage. This is possible becase this method is called in an externalities
+	// provided environment. So feel free to reasd your runtime storage.
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::pallet::Config>::AccountId,
 	) -> Self::SignedExtras {

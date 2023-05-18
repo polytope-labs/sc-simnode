@@ -105,7 +105,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 		.rpc()
 		.request(
 			"simnode_authorExtrinsic",
-			// author an extrinsic from alice
+			// author an extrinsic from alice who is the sudo account.
 			rpc_params![Bytes::from(call), Keyring::Alice.to_account_id().to_ss58check()],
 		)
 		.await?;
@@ -133,6 +133,18 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	let new_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(new_version.spec_version, 100);
 
+	// try to create 10 blocks to assert that the runtime still works.
+	for _ in 0..10 {
+		client
+			.rpc()
+			.request::<CreatedBlock<H256>>(
+				"engine_createBlock",
+				// author an extrinsic from alice who is the sudo account.
+				rpc_params![Bytes::from(call), Keyring::Alice.to_account_id().to_ss58check()],
+			)
+			.await?;
+	}
+
 	Ok(())
 }
 
@@ -155,13 +167,7 @@ async fn revert_blocks() -> Result<(), anyhow::Error> {
 
 	let revert = n / 2;
 
-	client
-		.rpc()
-		.request::<()>(
-			"simnode_revertBlocks",
-			rpc_params![revert],
-		)
-		.await?;
+	client.rpc().request::<()>("simnode_revertBlocks", rpc_params![revert]).await?;
 
 	let new_header =
 		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
