@@ -18,7 +18,7 @@ jsonrpsee = { version = "0.16.2", features = ["server"] }
 
 # Local
 parachain-template-runtime = { path = "../runtime" }
-sc-simnode = { path = "../../../simnode" }
+sc-simnode = { path = "../../../simnode", features = ["parachain"] }
 
 # Substrate
 frame-system = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "polkadot-v0.9.40" }

@@ -17,12 +17,16 @@ sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v
 sc-tracing = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-client-db = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
-sp-consensus-aura = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
-sc-consensus = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-transaction-pool-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-client-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sc-rpc-server = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+
+# consensus
+sp-consensus-aura = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40", optional = true }
+sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40", optional = true }
 manual-seal = { package = "sc-consensus-manual-seal", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sc-consensus = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 
 # primitive deps
 sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
@@ -74,3 +78,8 @@ simnode-runtime-api = { path = "../runtime-api" }
 default = ["std"]
 # This is here so that we can use the `runtime_interface` procedural macro
 std = []
+
+# consensus
+parachain = []
+aura = []
+babe = ["sp-consensus-babe", "sc-consensus-babe"]
