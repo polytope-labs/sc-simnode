@@ -15,11 +15,9 @@ use anyhow::anyhow;
 use manual_seal::CreatedBlock;
 use sp_core::{crypto::Ss58Codec, Bytes, H256};
 use sp_keyring::sr25519::Keyring;
-use std::time::Duration;
 use subxt::{
 	rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient, SubstrateConfig,
 };
-use tokio::time::sleep;
 
 #[tokio::test]
 async fn test_all_features() -> Result<(), anyhow::Error> {
@@ -33,9 +31,9 @@ async fn simple_transfer() -> Result<(), anyhow::Error> {
 	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
 
 	let bob = AccountId32::from(Keyring::Bob.public());
-	let alice_account = AccountId32::from(Keyring::Alice.public());
+	let alice = AccountId32::from(Keyring::Alice.public());
 
-	let addr = api::storage().system().account(alice_account.clone());
+	let addr = api::storage().system().account(alice.clone());
 	let old = client
 		.storage()
 		.at_latest()
@@ -68,13 +66,10 @@ async fn simple_transfer() -> Result<(), anyhow::Error> {
 		.ok_or_else(|| anyhow!("transfer event not found!"))?;
 
 	// assert that the event was emitted
-	assert_eq!(
-		transfer,
-		Transfer { from: alice_account.clone(), to: bob.clone(), amount: old / 2 }
-	);
+	assert_eq!(transfer, Transfer { from: alice.clone(), to: bob.clone(), amount: old / 2 });
 
 	// confirm that state has changed
-	let addr = api::storage().system().account(&alice_account);
+	let addr = api::storage().system().account(&alice);
 	let new = client
 		.storage()
 		.at_latest()
@@ -96,7 +91,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	let old_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(old_version.spec_version, 1);
 
-	let code = include_bytes!("../upgrade.wasm").to_vec();
+	let code = include_bytes!("../wasm/upgrade.wasm").to_vec();
 
 	let call = client.tx().call_data(&api::tx().sudo().sudo_unchecked_weight(
 		RuntimeCall::System(Call::set_code { code }),
@@ -107,7 +102,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 		.rpc()
 		.request(
 			"simnode_authorExtrinsic",
-			// author an extrinsic from alice who is the sudo account.
+			// author an extrinsic from the sudo account.
 			rpc_params![Bytes::from(call), Keyring::Alice.to_account_id().to_ss58check()],
 		)
 		.await?;
@@ -139,11 +134,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	for _ in 0..10 {
 		client
 			.rpc()
-			.request::<CreatedBlock<H256>>(
-				"engine_createBlock",
-				// author an extrinsic from alice who is the sudo account.
-				rpc_params![true, true],
-			)
+			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
 			.await?;
 	}
 
@@ -176,20 +167,17 @@ async fn revert_blocks() -> Result<(), anyhow::Error> {
 
 	assert_eq!(old_header.number + revert, new_header.number);
 
-	// wait 5 secs for db to flush
-	sleep(Duration::from_secs(5)).await;
-
 	// try to create n blocks again
 	for _ in 0..n {
 		client
 			.rpc()
-			.request::<CreatedBlock<H256>>(
-				"engine_createBlock",
-				// author an extrinsic from alice who is the sudo account.
-				rpc_params![true, true],
-			)
+			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
 			.await?;
 	}
+
+	let header = client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
+
+	assert_eq!(header.number, new_header.number + n);
 
 	Ok(())
 }
