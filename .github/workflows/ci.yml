@@ -20,7 +20,7 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2022-11-16
+          toolchain: nightly-2022-10-28
 
       - name: Install protoc
         run: |
@@ -28,7 +28,7 @@ jobs:
           sudo apt install protobuf-compiler
 
       - name: cargo check simnode
-        run: cargo +nightly-2022-11-16 check -p sc-simnode
+        run: cargo +nightly-2022-10-28 check -p sc-simnode
 
   tests:
     runs-on: ubuntu-latest
@@ -52,14 +52,14 @@ jobs:
 
       - name: Run aura simnode
         run: |
-          cargo +nightly-2022-11-16  build --release -p aura-node
+          cargo +nightly-2022-10-28  build --release -p aura-node
 #          ./target/release/aura-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
 #      - name: Integration tests
 #        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
 
       - name: Run parachain simnode
         run: |
-          cargo +nightly-2022-11-16  build --release -p parachain-node
+          cargo +nightly-2022-10-28  build --release -p parachain-node
 #          ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
 #      - name: Integration tests
 #        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
@@ -78,8 +78,8 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2022-11-16
+          toolchain: nightly-2022-10-28
           components: rustfmt
 
       - name: Check format
-        run: cargo +nightly-2022-11-16 fmt --all --check
+        run: cargo +nightly-2022-10-28 fmt --all --check
