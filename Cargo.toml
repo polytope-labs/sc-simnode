@@ -12,4 +12,8 @@ members = [
     # aura
     "integration/aura/node",
     "integration/aura/runtime",
+
+    # babe
+    "integration/babe/node",
+    "integration/babe/runtime",
 ]
