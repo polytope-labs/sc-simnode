@@ -7,5 +7,7 @@ members = [
     "integration/pallets/*",
     "integration/parachain/runtime",
     "integration/tests",
+    "integration/standalone/rpc",
+    "integration/standalone/node",
     "integration/standalone/runtime",
 ]
