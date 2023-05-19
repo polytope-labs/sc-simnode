@@ -43,14 +43,14 @@ jobs:
 #          cargo +nightly-2022-11-16  build --release -p aura-node
 #          ./target/release/aura-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
       - name: Integration tests
-        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
+        run: RUST_BACKTRACE=1 cargo +nightly test --release -p simnode-integration-tests --tests aura -- --nocapture
 
 #      - name: Run parachain simnode
 #        run: |
 #          cargo +nightly-2022-11-16  build --release -p parachain-node
 #          ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
       - name: Integration tests
-        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
+        run: RUST_BACKTRACE=1 cargo +nightly test --release -p simnode-integration-tests --tests parachain -- --nocapture
 
   lint:
     runs-on: ubuntu-latest
