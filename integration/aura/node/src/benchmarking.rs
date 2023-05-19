@@ -4,7 +4,7 @@
 
 use crate::service::{ExecutorDispatch, FullClient};
 
-use node_template_runtime as runtime;
+use aura_runtime as runtime;
 use runtime::{AccountId, Balance, BalancesCall, SystemCall};
 use sc_cli::Result;
 use sc_client_api::BlockBackend;

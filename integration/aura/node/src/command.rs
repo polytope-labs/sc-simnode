@@ -5,7 +5,7 @@ use crate::{
 	rpc, service,
 };
 use frame_benchmarking_cli::{BenchmarkCmd, ExtrinsicFactory, SUBSTRATE_REFERENCE_HARDWARE};
-use node_template_runtime::{Block, EXISTENTIAL_DEPOSIT};
+use aura_runtime::{Block, EXISTENTIAL_DEPOSIT};
 use sc_cli::{ChainSpec, RuntimeVersion, SubstrateCli};
 use sc_executor::NativeElseWasmExecutor;
 use sc_service::PartialComponents;
@@ -51,7 +51,7 @@ impl SubstrateCli for Cli {
 	}
 
 	fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		&node_template_runtime::VERSION
+		&aura_runtime::VERSION
 	}
 }
 
@@ -315,13 +315,13 @@ pub struct RuntimeInfo;
 
 impl sc_simnode::ChainInfo for RuntimeInfo {
 	// make sure you pass the opaque::Block here
-	type Block = node_template_runtime::opaque::Block;
+	type Block = aura_runtime::opaque::Block;
 	// the runtime type
-	type Runtime = node_template_runtime::Runtime;
+	type Runtime = aura_runtime::Runtime;
 	// the runtime api
-	type RuntimeApi = node_template_runtime::RuntimeApi;
+	type RuntimeApi = aura_runtime::RuntimeApi;
 	// [`SignedExtra`] for your runtime
-	type SignedExtras = node_template_runtime::SignedExtra;
+	type SignedExtras = aura_runtime::SignedExtra;
 
 	// initialize the [`SignedExtra`] for your runtime, you'll notice I'm calling a pallet method in
 	// order to read from storage. This is possible becase this method is called in an externalities

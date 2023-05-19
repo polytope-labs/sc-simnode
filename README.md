@@ -1,4 +1,4 @@
-# <h1> sc-simnode </h1>
+# sc-simnode ![Unit Tests](https://github.com/polytope-labs/sc-simnode/actions/workflows/ci.yml/badge.svg)
 
 ![alt text](./assets/neo.webp)
 
