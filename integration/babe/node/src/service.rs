@@ -25,9 +25,9 @@ use codec::Encode;
 use frame_benchmarking_cli::SUBSTRATE_REFERENCE_HARDWARE;
 use frame_system_rpc_runtime_api::AccountNonceApi;
 use futures::prelude::*;
-use node_template_runtime::RuntimeApi;
 use node_executor::ExecutorDispatch;
 use node_primitives::Block;
+use node_template_runtime::RuntimeApi;
 use sc_client_api::BlockBackend;
 use sc_consensus_babe::{self, SlotProportion};
 use sc_executor::NativeElseWasmExecutor;
@@ -43,11 +43,11 @@ use std::sync::Arc;
 
 /// The full client type definition.
 pub type FullClient =
-sc_service::TFullClient<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>>;
+	sc_service::TFullClient<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>>;
 type FullBackend = sc_service::TFullBackend<Block>;
 type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
 type FullGrandpaBlockImport =
-grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>;
+	grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>;
 
 /// The transaction pool type defintion.
 pub type TransactionPool = sc_transaction_pool::FullPool<Block, FullClient>;
@@ -571,7 +571,7 @@ pub fn new_full(config: Configuration, cli: Cli) -> Result<TaskManager, ServiceE
 		database_source,
 		&task_manager.spawn_essential_handle(),
 	)
-		.map_err(|e| ServiceError::Application(e.into()))?;
+	.map_err(|e| ServiceError::Application(e.into()))?;
 
 	Ok(task_manager)
 }
@@ -580,11 +580,11 @@ pub fn new_full(config: Configuration, cli: Cli) -> Result<TaskManager, ServiceE
 mod tests {
 	use crate::service::{new_full_base, NewFullBase};
 	use codec::Encode;
+	use node_primitives::{Block, DigestItem, Signature};
 	use node_template_runtime::{
 		constants::{currency::CENTS, time::SLOT_DURATION},
 		Address, BalancesCall, RuntimeCall, UncheckedExtrinsic,
 	};
-	use node_primitives::{Block, DigestItem, Signature};
 	use sc_client_api::BlockBackend;
 	use sc_consensus::{BlockImport, BlockImportParams, ForkChoiceStrategy};
 	use sc_consensus_babe::{BabeIntermediate, CompatibleDigestItem, INTERMEDIATE_KEY};
@@ -699,8 +699,8 @@ mod tests {
 						.unwrap();
 
 					if let Some(babe_pre_digest) =
-					sc_consensus_babe::authorship::claim_slot(slot.into(), &epoch, &keystore)
-						.map(|(digest, _)| digest)
+						sc_consensus_babe::authorship::claim_slot(slot.into(), &epoch, &keystore)
+							.map(|(digest, _)| digest)
 					{
 						break (babe_pre_digest, epoch_descriptor)
 					}
@@ -717,7 +717,7 @@ mod tests {
 					)
 						.create_inherent_data(),
 				)
-					.expect("Creates inherent data");
+				.expect("Creates inherent data");
 
 				digest.push(<DigestItem as CompatibleDigestItem>::babe_pre_digest(babe_pre_digest));
 
@@ -728,8 +728,8 @@ mod tests {
 						.propose(inherent_data, digest, std::time::Duration::from_secs(1), None)
 						.await
 				})
-					.expect("Error making test block")
-					.block;
+				.expect("Error making test block")
+				.block;
 
 				let (new_header, new_body) = new_block.deconstruct();
 				let pre_hash = new_header.hash();
@@ -742,10 +742,10 @@ mod tests {
 					&alice.to_public_crypto_pair(),
 					&to_sign,
 				)
-					.unwrap()
-					.unwrap()
-					.try_into()
-					.unwrap();
+				.unwrap()
+				.unwrap()
+				.try_into()
+				.unwrap();
 				let item = <DigestItem as CompatibleDigestItem>::babe_seal(signature);
 				slot += 1;
 

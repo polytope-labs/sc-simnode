@@ -39,8 +39,8 @@ use sp_runtime::{
 	Perbill,
 };
 
-pub use node_template_runtime::GenesisConfig;
 pub use node_primitives::{AccountId, Balance, Signature};
+pub use node_template_runtime::GenesisConfig;
 
 type AccountPublic = <Signature as Verify>::Signer;
 
@@ -205,8 +205,8 @@ pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Pu
 
 /// Helper function to generate an account ID from seed
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
-	where
-		AccountPublic: From<<TPublic::Pair as Pair>::Public>,
+where
+	AccountPublic: From<<TPublic::Pair as Pair>::Public>,
 {
 	AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
@@ -354,7 +354,7 @@ pub fn testnet_genesis(
 			max_members: 999,
 		},
 		vesting: Default::default(),
-        transaction_storage: Default::default(),
+		transaction_storage: Default::default(),
 		assets: pallet_assets::GenesisConfig {
 			// This asset is used by the NIS pallet as counterpart currency.
 			assets: vec![(9, get_account_id_from_seed::<sr25519::Public>("Alice"), true, 1)],
