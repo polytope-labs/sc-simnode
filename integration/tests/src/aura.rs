@@ -12,7 +12,7 @@ use crate::codegen::aura::{
 };
 use anyhow::anyhow;
 use manual_seal::CreatedBlock;
-use sp_core::{bytes::to_hex, crypto::Ss58Codec, Bytes, H256};
+use sp_core::{crypto::Ss58Codec, Bytes, H256};
 use sp_keyring::sr25519::Keyring;
 use subxt::{
 	rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient, SubstrateConfig,
