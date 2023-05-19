@@ -1,2 +1,3 @@
+pub mod aura;
 pub mod codegen;
-pub mod tests;
+pub mod parachain;

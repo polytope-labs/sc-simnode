@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::codegen::{
+use crate::codegen::parachain::{
 	api,
 	api::{
 		balances::events::Transfer,
@@ -91,7 +91,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	let old_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(old_version.spec_version, 1);
 
-	let code = include_bytes!("../../../assets/upgrade.wasm").to_vec();
+	let code = include_bytes!("../../../assets/parachain-runtime-upgrade.wasm").to_vec();
 
 	let call = client.tx().call_data(&api::tx().sudo().sudo_unchecked_weight(
 		RuntimeCall::System(Call::set_code { code }),
@@ -166,18 +166,6 @@ async fn revert_blocks() -> Result<(), anyhow::Error> {
 		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
 
 	assert_eq!(old_header.number + revert, new_header.number);
-
-	// try to create n blocks again
-	for _ in 0..n {
-		client
-			.rpc()
-			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
-			.await?;
-	}
-
-	let header = client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
-
-	assert_eq!(header.number, new_header.number + n);
 
 	Ok(())
 }

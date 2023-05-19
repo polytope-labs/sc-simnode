@@ -18,7 +18,9 @@
 
 use super::*;
 use crate::{ChainInfo, ParachainSproofInherentProvider, SimnodeApiServer, SimnodeRpcHandler};
+use async_trait::async_trait;
 use futures::{channel::mpsc, future::Either, lock::Mutex, StreamExt};
+use jsonrpsee::core::{Error as RpcError, RpcResult};
 use manual_seal::{
 	consensus::timestamp::SlotTimestampProvider,
 	rpc::{ManualSeal, ManualSealApiServer},
@@ -38,11 +40,82 @@ use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
 use sp_consensus::SelectChain;
-use sp_core::crypto::AccountId32;
+use sp_core::{crypto::AccountId32, Bytes};
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::Arc;
+
+/// Parachain handler implementation for Simnode RPC API.
+pub struct ParachainRPCHandler<T: ChainInfo> {
+	/// Holds the inner rpc handler for delegating requests
+	inner: SimnodeRpcHandler<T>,
+	/// Sink for sending commands to the manual seal authorship task.
+	sink: futures::channel::mpsc::Sender<manual_seal::EngineCommand<<T::Block as BlockT>::Hash>>,
+	/// parachain inherent provider for sproofing the parachain inherent.
+	parachain: crate::sproof::SharedParachainSproofInherentProvider<T>,
+}
+
+#[async_trait]
+impl<T> SimnodeApiServer for ParachainRPCHandler<T>
+where
+	T: ChainInfo + Send + Sync + 'static,
+	<T::RuntimeApi as ConstructRuntimeApi<T::Block, FullClientFor<T>>>::RuntimeApi:
+		CreateTransactionApi<
+			T::Block,
+			<T::Runtime as frame_system::Config>::RuntimeCall,
+			<T::Runtime as frame_system::Config>::AccountId,
+		>,
+	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
+	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
+	T::Runtime: parachain_info::Config,
+{
+	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes> {
+		Ok(self.inner.author_extrinsic(call, account)?.into())
+	}
+
+	fn revert_blocks(&self, n: u32) -> RpcResult<()> {
+		self.inner.revert_blocks(n)
+	}
+
+	async fn upgrade_signal(&self, go_ahead: bool) -> RpcResult<()> {
+		use futures::{channel::oneshot, SinkExt};
+
+		let signal = match go_ahead {
+			true => polkadot_primitives::UpgradeGoAhead::GoAhead,
+			false => polkadot_primitives::UpgradeGoAhead::Abort,
+		};
+
+		// insert the upgrade signal into the sproof provider, it'll be included in the next block.
+		let para_id = self
+			.inner
+			.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
+		let builder = sproof_builder::RelayStateSproofBuilder {
+			para_id,
+			upgrade_go_ahead: Some(signal),
+			..Default::default()
+		};
+		self.parachain.lock().await.update_sproof_builder(builder);
+
+		let mut sink = self.sink.clone();
+		let (sender, receiver) = oneshot::channel();
+		// NOTE: this sends a Result over the channel.
+		let command = manual_seal::EngineCommand::SealNewBlock {
+			create_empty: true,
+			finalize: true,
+			parent_hash: None,
+			sender: Some(sender),
+		};
+
+		sink.send(command).await?;
+
+		match receiver.await {
+			Ok(Ok(_)) => Ok(()),
+			Ok(Err(e)) => Err(e.into()),
+			Err(e) => Err(RpcError::to_call_error(e)),
+		}
+	}
+}
 
 /// Set up and run simnode
 pub async fn start_simnode<C, B, S, I, BI, U>(
@@ -104,7 +177,7 @@ where
 	} = components;
 
 	let parachain_inherent_provider =
-		Arc::new(Mutex::new(ParachainSproofInherentProvider::new(client.clone())));
+		Arc::new(Mutex::new(ParachainSproofInherentProvider::<C>::new(client.clone())));
 
 	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
@@ -157,11 +230,11 @@ where
 				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
 
 				io.merge(
-					SimnodeRpcHandler::<C>::new(
-						client.clone(),
-						backend.clone(),
-						(parachain_inherent_provider_clone.clone(), rpc_sink.clone()),
-					)
+					ParachainRPCHandler {
+						inner: SimnodeRpcHandler::new(client.clone(), backend.clone()),
+						sink: rpc_sink.clone(),
+						parachain: parachain_inherent_provider_clone.clone(),
+					}
 					.into_rpc(),
 				)
 				.map_err(|_| {
