@@ -32,23 +32,11 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    container:
+      image: paritytech/ci-linux:production
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly-2022-10-28
-          override: true
-
-      - uses: Swatinem/rust-cache@v1
-      - run: rustup target add wasm32-unknown-unknown
-
-      - name: Install protoc
-        run: |
-          sudo apt update
-          sudo apt install -y protobuf-compiler build-essential
 
 #      - name: Run aura simnode
 #        run: |
