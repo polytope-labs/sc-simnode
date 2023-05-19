@@ -27,27 +27,27 @@ use frame_system_rpc_runtime_api::AccountNonceApi;
 use futures::prelude::*;
 use node_executor::ExecutorDispatch;
 use node_primitives::Block;
-use node_template_runtime::RuntimeApi;
+use babe_runtime::RuntimeApi;
 use sc_client_api::BlockBackend;
 use sc_consensus_babe::{self, SlotProportion};
-use sc_executor::NativeElseWasmExecutor;
+use sc_executor::{NativeElseWasmExecutor, RuntimeVersionOf};
 use sc_network::{event::Event, NetworkEventStream, NetworkService};
 use sc_network_common::sync::warp::WarpSyncParams;
 use sc_network_sync::SyncingService;
 use sc_service::{config::Configuration, error::Error as ServiceError, RpcHandlers, TaskManager};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sp_api::ProvideRuntimeApi;
-use sp_core::crypto::Pair;
+use sp_core::{crypto::Pair, traits::CodeExecutor};
 use sp_runtime::{generic, traits::Block as BlockT, SaturatedConversion};
 use std::sync::Arc;
 
 /// The full client type definition.
-pub type FullClient =
-	sc_service::TFullClient<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>>;
+pub type FullClient<E = NativeElseWasmExecutor<ExecutorDispatch>> =
+	sc_service::TFullClient<Block, RuntimeApi, E>;
 type FullBackend = sc_service::TFullBackend<Block>;
 type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
-type FullGrandpaBlockImport =
-	grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>;
+type FullGrandpaBlockImport<E = NativeElseWasmExecutor<ExecutorDispatch>> =
+	grandpa::GrandpaBlockImport<FullBackend, Block, FullClient<E>, FullSelectChain>;
 
 /// The transaction pool type defintion.
 pub type TransactionPool = sc_transaction_pool::FullPool<Block, FullClient>;
@@ -72,43 +72,43 @@ pub fn fetch_nonce(client: &FullClient, account: sp_core::sr25519::Pair) -> u32 
 pub fn create_extrinsic(
 	client: &FullClient,
 	sender: sp_core::sr25519::Pair,
-	function: impl Into<node_template_runtime::RuntimeCall>,
+	function: impl Into<babe_runtime::RuntimeCall>,
 	nonce: Option<u32>,
-) -> node_template_runtime::UncheckedExtrinsic {
+) -> babe_runtime::UncheckedExtrinsic {
 	let function = function.into();
 	let genesis_hash = client.block_hash(0).ok().flatten().expect("Genesis block exists; qed");
 	let best_hash = client.chain_info().best_hash;
 	let best_block = client.chain_info().best_number;
 	let nonce = nonce.unwrap_or_else(|| fetch_nonce(client, sender.clone()));
 
-	let period = node_template_runtime::BlockHashCount::get()
+	let period = babe_runtime::BlockHashCount::get()
 		.checked_next_power_of_two()
 		.map(|c| c / 2)
 		.unwrap_or(2) as u64;
 	let tip = 0;
-	let extra: node_template_runtime::SignedExtra = (
-		frame_system::CheckNonZeroSender::<node_template_runtime::Runtime>::new(),
-		frame_system::CheckSpecVersion::<node_template_runtime::Runtime>::new(),
-		frame_system::CheckTxVersion::<node_template_runtime::Runtime>::new(),
-		frame_system::CheckGenesis::<node_template_runtime::Runtime>::new(),
-		frame_system::CheckEra::<node_template_runtime::Runtime>::from(generic::Era::mortal(
+	let extra: babe_runtime::SignedExtra = (
+		frame_system::CheckNonZeroSender::<babe_runtime::Runtime>::new(),
+		frame_system::CheckSpecVersion::<babe_runtime::Runtime>::new(),
+		frame_system::CheckTxVersion::<babe_runtime::Runtime>::new(),
+		frame_system::CheckGenesis::<babe_runtime::Runtime>::new(),
+		frame_system::CheckEra::<babe_runtime::Runtime>::from(generic::Era::mortal(
 			period,
 			best_block.saturated_into(),
 		)),
-		frame_system::CheckNonce::<node_template_runtime::Runtime>::from(nonce),
-		frame_system::CheckWeight::<node_template_runtime::Runtime>::new(),
-		pallet_asset_tx_payment::ChargeAssetTxPayment::<node_template_runtime::Runtime>::from(
+		frame_system::CheckNonce::<babe_runtime::Runtime>::from(nonce),
+		frame_system::CheckWeight::<babe_runtime::Runtime>::new(),
+		pallet_asset_tx_payment::ChargeAssetTxPayment::<babe_runtime::Runtime>::from(
 			tip, None,
 		),
 	);
 
-	let raw_payload = node_template_runtime::SignedPayload::from_raw(
+	let raw_payload = babe_runtime::SignedPayload::from_raw(
 		function.clone(),
 		extra.clone(),
 		(
 			(),
-			node_template_runtime::VERSION.spec_version,
-			node_template_runtime::VERSION.transaction_version,
+			babe_runtime::VERSION.spec_version,
+			babe_runtime::VERSION.transaction_version,
 			genesis_hash,
 			best_hash,
 			(),
@@ -118,32 +118,33 @@ pub fn create_extrinsic(
 	);
 	let signature = raw_payload.using_encoded(|e| sender.sign(e));
 
-	node_template_runtime::UncheckedExtrinsic::new_signed(
+	babe_runtime::UncheckedExtrinsic::new_signed(
 		function,
 		sp_runtime::AccountId32::from(sender.public()).into(),
-		node_template_runtime::Signature::Sr25519(signature),
+		babe_runtime::Signature::Sr25519(signature),
 		extra,
 	)
 }
 
 /// Creates a new partial node.
-pub fn new_partial(
+pub fn new_partial<E>(
 	config: &Configuration,
+	executor: E,
 ) -> Result<
 	sc_service::PartialComponents<
-		FullClient,
+		FullClient<E>,
 		FullBackend,
 		FullSelectChain,
-		sc_consensus::DefaultImportQueue<Block, FullClient>,
-		sc_transaction_pool::FullPool<Block, FullClient>,
+		sc_consensus::DefaultImportQueue<Block, FullClient<E>>,
+		sc_transaction_pool::FullPool<Block, FullClient<E>>,
 		(
 			impl Fn(
 				node_rpc::DenyUnsafe,
 				sc_rpc::SubscriptionTaskExecutor,
 			) -> Result<jsonrpsee::RpcModule<()>, sc_service::Error>,
 			(
-				sc_consensus_babe::BabeBlockImport<Block, FullClient, FullGrandpaBlockImport>,
-				grandpa::LinkHalf<Block, FullClient, FullSelectChain>,
+				sc_consensus_babe::BabeBlockImport<Block, FullClient<E>, FullGrandpaBlockImport<E>>,
+				grandpa::LinkHalf<Block, FullClient<E>, FullSelectChain>,
 				sc_consensus_babe::BabeLink<Block>,
 			),
 			grandpa::SharedVoterState,
@@ -151,7 +152,10 @@ pub fn new_partial(
 		),
 	>,
 	ServiceError,
-> {
+>
+where
+	E: CodeExecutor + RuntimeVersionOf + 'static,
+{
 	let telemetry = config
 		.telemetry_endpoints
 		.clone()
@@ -162,13 +166,6 @@ pub fn new_partial(
 			Ok((worker, telemetry))
 		})
 		.transpose()?;
-
-	let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-		config.wasm_method,
-		config.default_heap_pages,
-		config.max_runtime_instances,
-		config.runtime_cache_size,
-	);
 
 	let (client, backend, keystore_container, task_manager) =
 		sc_service::new_full_parts::<Block, RuntimeApi, _>(
@@ -326,6 +323,13 @@ pub fn new_full_base(
 		}))
 		.flatten();
 
+	let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+		config.wasm_method,
+		config.default_heap_pages,
+		config.max_runtime_instances,
+		config.runtime_cache_size,
+	);
+
 	let sc_service::PartialComponents {
 		client,
 		backend,
@@ -335,7 +339,7 @@ pub fn new_full_base(
 		select_chain,
 		transaction_pool,
 		other: (rpc_builder, import_setup, rpc_setup, mut telemetry),
-	} = new_partial(&config)?;
+	} = new_partial(&config, executor)?;
 
 	let shared_voter_state = rpc_setup;
 	let auth_disc_publish_non_global_ips = config.network.allow_non_globals_in_dht;
@@ -581,7 +585,7 @@ mod tests {
 	use crate::service::{new_full_base, NewFullBase};
 	use codec::Encode;
 	use node_primitives::{Block, DigestItem, Signature};
-	use node_template_runtime::{
+	use babe_runtime::{
 		constants::{currency::CENTS, time::SLOT_DURATION},
 		Address, BalancesCall, RuntimeCall, UncheckedExtrinsic,
 	};
@@ -609,8 +613,8 @@ mod tests {
 	type AccountPublic = <Signature as Verify>::Signer;
 
 	#[test]
-	// It is "ignored", but the node-cli ignored tests are running on the CI.
-	// This can be run locally with `cargo test --release -p node-cli test_sync -- --ignored`.
+	// It is "ignored", but the babe-node ignored tests are running on the CI.
+	// This can be run locally with `cargo test --release -p babe-node test_sync -- --ignored`.
 	#[ignore]
 	fn test_sync() {
 		sp_tracing::try_init_simple();

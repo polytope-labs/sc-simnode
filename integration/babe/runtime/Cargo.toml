@@ -1,5 +1,5 @@
 [package]
-name = "node-template-runtime"
+name = "babe-runtime"
 version = "3.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 description = "Substrate node kitchensink runtime."
@@ -116,6 +116,8 @@ pallet-uniques = { version = "4.0.0-dev", default-features = false, git = "https
 pallet-vesting = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
 pallet-whitelist = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40"}
 
+simnode-runtime-api = { path = "../../../runtime-api", default-features = false }
+
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40", optional = true }
 
@@ -213,6 +215,7 @@ std = [
 	"sp-io/std",
 	"pallet-child-bounties/std",
 	"pallet-alliance/std",
+	"simnode-runtime-api/std",
 	"substrate-wasm-builder",
 ]
 runtime-benchmarks = [

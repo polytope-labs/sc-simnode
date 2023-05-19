@@ -1,12 +1,12 @@
 [package]
-name = "node-cli"
+name = "babe-node"
 version = "3.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 description = "Generic Substrate node implementation in Rust."
 build = "build.rs"
 edition = "2021"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-default-run = "substrate"
+default-run = "babe-node"
 homepage = "https://substrate.io"
 repository = "https://github.com/paritytech/substrate/"
 publish = false
@@ -26,7 +26,7 @@ is-it-maintained-issue-resolution = { repository = "paritytech/substrate" }
 is-it-maintained-open-issues = { repository = "paritytech/substrate" }
 
 [[bin]]
-name = "substrate"
+name = "babe-node"
 path = "src/main.rs"
 required-features = ["cli"]
 
@@ -91,10 +91,11 @@ pallet-asset-tx-payment = { version = "4.0.0-dev",  git = "https://github.com/pa
 pallet-im-online = { version = "4.0.0-dev", default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
 
 # node-specific dependencies
-node-template-runtime = { version = "3.0.0-dev", path = "../runtime" }
+babe-runtime = { version = "3.0.0-dev", path = "../runtime" }
 node-rpc = { version = "3.0.0-dev", path = "../rpc" }
 node-primitives = { version = "2.0.0",  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
 node-executor = { version = "3.0.0-dev",  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+sc-simnode = { path = "../../../simnode", features = ["babe"] }
 
 # CLI-specific dependencies
 sc-cli = { version = "0.10.0-dev", optional = true,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
@@ -129,9 +130,9 @@ cli = [
     "try-runtime-cli",
 ]
 runtime-benchmarks = [
-    "node-template-runtime/runtime-benchmarks",
+    "babe-runtime/runtime-benchmarks",
     "frame-benchmarking-cli/runtime-benchmarks"
 ]
 # Enable features that allow the runtime to be tried and debugged. Name might be subject to change
 # in the near future.
-try-runtime = ["node-template-runtime/try-runtime", "try-runtime-cli/try-runtime"]
+try-runtime = ["babe-runtime/try-runtime", "try-runtime-cli/try-runtime"]

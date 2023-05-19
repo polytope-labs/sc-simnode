@@ -47,7 +47,7 @@ use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 
 /// Set up and run simnode
-pub async fn start_simnode<C, B, S, I, BI, U>(
+pub async fn start_simnode<C, B, S, I, BI>(
 	params: SimnodeParams<
 		TFullClient<C::Block, C::RuntimeApi, Executor>,
 		TFullBackend<B>,
@@ -87,7 +87,6 @@ where
 	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 	<B as BlockT>::Hash: Unpin,
 	<B as BlockT>::Header: Unpin,
-	C::Runtime: parachain_info::Config,
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {

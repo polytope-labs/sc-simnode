@@ -138,7 +138,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	// and set impl_version to 0. If only runtime
 	// implementation changes and behavior does not, then leave spec_version as
 	// is and increment impl_version.
-	spec_version: 268,
+	spec_version: 1,
 	impl_version: 0,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 2,
@@ -2141,6 +2141,42 @@ impl_runtime_apis! {
 			encoded: Vec<u8>,
 		) -> Option<Vec<(Vec<u8>, KeyTypeId)>> {
 			SessionKeys::decode_into_raw_public_keys(&encoded)
+		}
+	}
+
+	impl<RuntimeCall, AccountId> simnode_runtime_api::CreateTransactionApi<Block, RuntimeCall, AccountId> for Runtime
+		where
+			RuntimeCall: codec::Codec,
+			Block: sp_runtime::traits::Block,
+			AccountId: codec::Codec + codec::EncodeLike<sp_runtime::AccountId32> + Into<sp_runtime::AccountId32> + Clone + PartialEq + scale_info::TypeInfo + core::fmt::Debug,
+	{
+		fn create_transaction(account: AccountId, call: RuntimeCall) -> Vec<u8> {
+			use sp_runtime::{
+				generic::Era, MultiSignature,
+				traits::StaticLookup,
+			};
+			use codec::Encode;
+			use sp_core::sr25519;
+			let nonce = frame_system::Pallet::<Runtime>::account_nonce(account.clone());
+			let extra = (
+				frame_system::CheckNonZeroSender::<Runtime>::new(),
+				frame_system::CheckSpecVersion::<Runtime>::new(),
+				frame_system::CheckTxVersion::<Runtime>::new(),
+				frame_system::CheckGenesis::<Runtime>::new(),
+				frame_system::CheckEra::<Runtime>::from(Era::Immortal),
+				frame_system::CheckNonce::<Runtime>::from(nonce),
+				frame_system::CheckWeight::<Runtime>::new(),
+				pallet_asset_tx_payment::ChargeAssetTxPayment::<Runtime>::from(0, None),
+			);
+			let signature = MultiSignature::from(sr25519::Signature([0_u8;64]));
+			let address = sp_runtime::traits::AccountIdLookup::unlookup(account.into());
+			let ext = generic::UncheckedExtrinsic::<Address, RuntimeCall, Signature, SignedExtra>::new_signed(
+				call,
+				address,
+				signature,
+				extra,
+			);
+			ext.encode()
 		}
 	}
 
