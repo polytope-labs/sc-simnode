@@ -36,17 +36,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Rust cache
-        uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/toolchain@v1
         with:
-          cache-on-failure: true
+          profile: minimal
+          toolchain: nightly-2022-10-28
+          override: true
 
-      - name: Install nightly toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly-2022-11-16
-          components: rustfmt
-          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v1
+      - run: rustup target add wasm32-unknown-unknown
 
       - name: Install protoc
         run: |
