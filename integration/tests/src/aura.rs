@@ -5,9 +5,9 @@ use crate::codegen::aura::{
 	api::{
 		balances::events::Transfer,
 		runtime_types::{
-			frame_system::pallet::Call,
-			sp_weights::weight_v2::Weight,
+			aura_runtime::RuntimeCall, frame_system::pallet::Call, sp_weights::weight_v2::Weight,
 		},
+		system::events::CodeUpdated,
 	},
 };
 use anyhow::anyhow;
@@ -17,8 +17,6 @@ use sp_keyring::sr25519::Keyring;
 use subxt::{
 	rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient, SubstrateConfig,
 };
-use crate::codegen::aura::api::runtime_types::aura_runtime::RuntimeCall;
-use crate::codegen::aura::api::system::events::CodeUpdated;
 
 #[tokio::test]
 async fn test_all_features() -> Result<(), anyhow::Error> {

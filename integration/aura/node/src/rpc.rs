@@ -7,8 +7,8 @@
 
 use std::sync::Arc;
 
-use jsonrpsee::RpcModule;
 use aura_runtime::{opaque::Block, AccountId, Balance, Index};
+use jsonrpsee::RpcModule;
 use sc_transaction_pool_api::TransactionPool;
 use sp_api::ProvideRuntimeApi;
 use sp_block_builder::BlockBuilder;

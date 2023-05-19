@@ -1,2 +1,2 @@
-pub mod parachain;
 pub mod aura;
+pub mod parachain;
