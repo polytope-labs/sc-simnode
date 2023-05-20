@@ -11,7 +11,7 @@ use crate::codegen::babe::{
 	},
 };
 use anyhow::anyhow;
-use sp_core::{crypto::Ss58Codec, Bytes, H256};
+use sp_core::{crypto::Ss58Codec, Bytes};
 use sp_keyring::sr25519::Keyring;
 use subxt::{
 	dynamic::Value, rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient,
