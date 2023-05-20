@@ -11,12 +11,12 @@ use crate::codegen::babe::{
 	},
 };
 use anyhow::anyhow;
-use manual_seal::CreatedBlock;
 use sp_core::{crypto::Ss58Codec, Bytes, H256};
 use sp_keyring::sr25519::Keyring;
 use subxt::{
 	rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient, SubstrateConfig,
 };
+use subxt::dynamic::Value;
 
 #[tokio::test]
 async fn test_all_features() -> Result<(), anyhow::Error> {
@@ -122,7 +122,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	for _ in 0..10 {
 		client
 			.rpc()
-			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
+			.request::<Value>("engine_createBlock", rpc_params![true, true])
 			.await?;
 	}
 
