@@ -31,7 +31,7 @@ jobs:
         run: cargo +nightly-2022-10-28 check -p sc-simnode
 
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest-16-cores
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -48,7 +48,7 @@ jobs:
       - name: Install protoc
         run: |
           sudo apt update
-          sudo apt install -y protobuf-compiler build-essential
+          sudo apt install -y protobuf-compiler build-essential gcc-multilib libpq-dev
 
       - name: Run aura simnode
         run: |
