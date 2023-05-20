@@ -150,7 +150,7 @@ async fn revert_blocks() -> Result<(), anyhow::Error> {
 	for _ in 0..n {
 		client
 			.rpc()
-			.request::<CreatedBlock<H256>>("engine_createBlock", rpc_params![true, true])
+			.request::<Value>("engine_createBlock", rpc_params![true, true])
 			.await?;
 	}
 	let new_header =
