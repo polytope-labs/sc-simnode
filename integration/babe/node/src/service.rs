@@ -21,13 +21,13 @@
 //! Service implementation. Specialized wrapper over substrate service.
 
 use crate::Cli;
+use babe_runtime::RuntimeApi;
 use codec::Encode;
 use frame_benchmarking_cli::SUBSTRATE_REFERENCE_HARDWARE;
 use frame_system_rpc_runtime_api::AccountNonceApi;
 use futures::prelude::*;
 use node_executor::ExecutorDispatch;
 use node_primitives::Block;
-use babe_runtime::RuntimeApi;
 use sc_client_api::BlockBackend;
 use sc_consensus_babe::{self, SlotProportion};
 use sc_executor::{NativeElseWasmExecutor, RuntimeVersionOf};
@@ -97,9 +97,7 @@ pub fn create_extrinsic(
 		)),
 		frame_system::CheckNonce::<babe_runtime::Runtime>::from(nonce),
 		frame_system::CheckWeight::<babe_runtime::Runtime>::new(),
-		pallet_asset_tx_payment::ChargeAssetTxPayment::<babe_runtime::Runtime>::from(
-			tip, None,
-		),
+		pallet_asset_tx_payment::ChargeAssetTxPayment::<babe_runtime::Runtime>::from(tip, None),
 	);
 
 	let raw_payload = babe_runtime::SignedPayload::from_raw(
@@ -583,12 +581,12 @@ pub fn new_full(config: Configuration, cli: Cli) -> Result<TaskManager, ServiceE
 #[cfg(test)]
 mod tests {
 	use crate::service::{new_full_base, NewFullBase};
-	use codec::Encode;
-	use node_primitives::{Block, DigestItem, Signature};
 	use babe_runtime::{
 		constants::{currency::CENTS, time::SLOT_DURATION},
 		Address, BalancesCall, RuntimeCall, UncheckedExtrinsic,
 	};
+	use codec::Encode;
+	use node_primitives::{Block, DigestItem, Signature};
 	use sc_client_api::BlockBackend;
 	use sc_consensus::{BlockImport, BlockImportParams, ForkChoiceStrategy};
 	use sc_consensus_babe::{BabeIntermediate, CompatibleDigestItem, INTERMEDIATE_KEY};

@@ -18,7 +18,6 @@
 
 //! Substrate chain configurations.
 
-use grandpa_primitives::AuthorityId as GrandpaId;
 use babe_runtime::{
 	constants::currency::*, wasm_binary_unwrap, AuthorityDiscoveryConfig, BabeConfig,
 	BalancesConfig, Block, CouncilConfig, DemocracyConfig, ElectionsConfig, GrandpaConfig,
@@ -26,6 +25,7 @@ use babe_runtime::{
 	SessionKeys, SocietyConfig, StakerStatus, StakingConfig, SudoConfig, SystemConfig,
 	TechnicalCommitteeConfig,
 };
+use grandpa_primitives::AuthorityId as GrandpaId;
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
 use sc_service::ChainType;
@@ -39,8 +39,8 @@ use sp_runtime::{
 	Perbill,
 };
 
-pub use node_primitives::{AccountId, Balance, Signature};
 pub use babe_runtime::GenesisConfig;
+pub use node_primitives::{AccountId, Balance, Signature};
 
 type AccountPublic = <Signature as Verify>::Signer;
 

@@ -20,7 +20,6 @@
 
 #![warn(missing_docs)]
 
-
 fn main() -> sc_cli::Result<()> {
 	babe_node::run()
 }

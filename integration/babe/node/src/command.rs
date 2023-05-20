@@ -22,17 +22,17 @@ use crate::{
 	service::{new_partial, FullClient},
 	Cli, Subcommand,
 };
+use babe_runtime::{ExistentialDeposit, RuntimeApi};
 use frame_benchmarking_cli::*;
 use node_executor::ExecutorDispatch;
 use node_primitives::Block;
-use babe_runtime::{ExistentialDeposit, RuntimeApi};
 use sc_cli::{ChainSpec, Result, RuntimeVersion, SubstrateCli};
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
 
 use sc_executor::NativeElseWasmExecutor;
-use std::sync::Arc;
 use sp_runtime::generic::Era;
+use std::sync::Arc;
 
 #[cfg(feature = "try-runtime")]
 use {
@@ -397,7 +397,6 @@ impl sc_simnode::ChainInfo for RuntimeInfo {
 			frame_system::CheckNonce::<Self::Runtime>::from(nonce),
 			frame_system::CheckWeight::<Self::Runtime>::new(),
 			pallet_asset_tx_payment::ChargeAssetTxPayment::<Self::Runtime>::from(0, None),
-
 		)
 	}
 }
