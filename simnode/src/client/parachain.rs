@@ -45,6 +45,7 @@ use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::Arc;
+use sp_blockchain::HeaderBackend;
 
 /// Parachain handler implementation for Simnode RPC API.
 pub struct ParachainRPCHandler<T: ChainInfo> {
@@ -116,6 +117,46 @@ where
 		}
 	}
 }
+
+/// Parachain [`SelectChain`] implementation
+/// Since parachains don't have a select chain implementation, use this one instead.
+pub struct ParachainSelectChain<Client> {
+	client: Arc<Client>,
+}
+
+impl<C> Clone for ParachainSelectChain<C> {
+	fn clone(&self) -> Self {
+		Self { client: self.client.clone() }
+	}
+}
+
+impl<C> ParachainSelectChain<C> {
+	/// Initialize the parachain [`SelectChain`]
+	pub fn new(client: Arc<C>) -> Self {
+		Self { client }
+	}
+}
+
+#[async_trait]
+impl<B, C> SelectChain<B> for ParachainSelectChain<C>
+	where
+		B: BlockT,
+		C: HeaderBackend<B>,
+{
+	async fn leaves(&self) -> Result<Vec<B::Hash>, sp_consensus::Error> {
+		Ok(vec![])
+	}
+
+	async fn best_chain(&self) -> Result<B::Header, sp_consensus::Error> {
+		let header = self
+			.client
+			.header(self.client.info().best_hash)
+			.map_err(|e| sp_consensus::Error::Other(Box::new(e)))?
+			.ok_or_else(|| sp_consensus::Error::StateUnavailable(format!("Header not found!")))?;
+		Ok(header)
+	}
+}
+
 
 /// Set up and run simnode
 pub async fn start_simnode<C, B, S, I, BI, U>(

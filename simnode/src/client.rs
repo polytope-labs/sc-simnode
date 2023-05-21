@@ -17,19 +17,14 @@
 //! Utilities for creating the neccessary client subsystems.
 
 #[cfg(feature = "aura")]
-mod aura;
-#[cfg(feature = "aura")]
-pub use aura::*;
+pub mod aura;
 
 #[cfg(feature = "parachain")]
-mod parachain;
-#[cfg(feature = "parachain")]
-pub use parachain::*;
+pub mod parachain;
 
 #[cfg(feature = "babe")]
-mod babe;
-#[cfg(feature = "babe")]
-pub use babe::*;
+pub mod babe;
+
 
 use crate::{ChainInfo, SignatureVerificationOverride};
 use jsonrpsee::RpcModule;

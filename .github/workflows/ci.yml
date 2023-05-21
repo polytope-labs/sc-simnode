@@ -48,28 +48,29 @@ jobs:
       - name: Install protoc
         run: |
           sudo apt update
-          sudo apt install -y protobuf-compiler build-essential gcc-multilib libpq-dev
+          sudo apt install -y protobuf-compiler build-essential
 
-      - name: Run aura simnode
+      - name: Build all binaries
         run: |
-          cargo +nightly-2022-10-28  build --release -p aura-node
+          cargo +nightly-2022-10-28  build --release --bins
+
+      - name: Aura Integration tests
+        run: |
           ./target/release/aura-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
-      - name: Integration tests
-        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
+          RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
+          kill -9 $!
 
       - name: Run babe simnode
         run: |
-          cargo +nightly-2022-10-28  build --release -p babe-node
           ./target/release/babe-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
-      - name: Integration tests
-        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests babe -- --nocapture
+          RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests babe -- --nocapture
+          kill -9 $!
 
       - name: Run parachain simnode
         run: |
-          cargo +nightly-2022-10-28  build --release -p parachain-node
-            ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
-      - name: Integration tests
-        run: RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
+          ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
+          RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
+          kill -9 $!
 
   lint:
     runs-on: ubuntu-latest

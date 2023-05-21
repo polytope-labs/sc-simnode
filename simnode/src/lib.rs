@@ -22,14 +22,12 @@ use sp_runtime::traits::{Block as BlockT, SignedExtension};
 pub mod cli;
 pub mod client;
 pub mod overrides;
-pub mod parachain;
 pub mod rpc;
 pub mod sproof;
 
 pub use cli::*;
 pub use client::*;
 pub use overrides::*;
-pub use parachain::*;
 pub use rpc::*;
 pub use sproof::*;
 
