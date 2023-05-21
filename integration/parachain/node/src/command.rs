@@ -295,22 +295,24 @@ pub fn run() -> Result<()> {
 			runner.run_node_until_exit(move |config| async move {
 				let client = components.client.clone();
 				let pool = components.transaction_pool.clone();
-				let task_manager = sc_simnode::parachain::start_simnode::<RuntimeInfo, _, _, _, _, _>(
-					sc_simnode::SimnodeParams {
-						components,
-						config,
-						instant: true,
-						rpc_builder: Box::new(move |deny_unsafe, _| {
-							let client = client.clone();
-							let pool = pool.clone();
-							let full_deps = rpc::FullDeps { client, pool, deny_unsafe };
-							let io = rpc::create_full(full_deps).expect("Rpc to be initialized");
+				let task_manager =
+					sc_simnode::parachain::start_simnode::<RuntimeInfo, _, _, _, _, _>(
+						sc_simnode::SimnodeParams {
+							components,
+							config,
+							instant: true,
+							rpc_builder: Box::new(move |deny_unsafe, _| {
+								let client = client.clone();
+								let pool = pool.clone();
+								let full_deps = rpc::FullDeps { client, pool, deny_unsafe };
+								let io =
+									rpc::create_full(full_deps).expect("Rpc to be initialized");
 
-							Ok(io)
-						}),
-					},
-				)
-				.await?;
+								Ok(io)
+							}),
+						},
+					)
+					.await?;
 				Ok(task_manager)
 			})
 		},

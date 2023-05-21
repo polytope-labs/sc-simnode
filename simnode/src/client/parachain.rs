@@ -39,13 +39,13 @@ use sc_transaction_pool_api::TransactionPool;
 use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
+use sp_blockchain::HeaderBackend;
 use sp_consensus::SelectChain;
 use sp_core::{crypto::AccountId32, Bytes};
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::Arc;
-use sp_blockchain::HeaderBackend;
 
 /// Parachain handler implementation for Simnode RPC API.
 pub struct ParachainRPCHandler<T: ChainInfo> {
@@ -139,9 +139,9 @@ impl<C> ParachainSelectChain<C> {
 
 #[async_trait]
 impl<B, C> SelectChain<B> for ParachainSelectChain<C>
-	where
-		B: BlockT,
-		C: HeaderBackend<B>,
+where
+	B: BlockT,
+	C: HeaderBackend<B>,
 {
 	async fn leaves(&self) -> Result<Vec<B::Hash>, sp_consensus::Error> {
 		Ok(vec![])
@@ -156,7 +156,6 @@ impl<B, C> SelectChain<B> for ParachainSelectChain<C>
 		Ok(header)
 	}
 }
-
 
 /// Set up and run simnode
 pub async fn start_simnode<C, B, S, I, BI, U>(

@@ -25,7 +25,6 @@ pub mod parachain;
 #[cfg(feature = "babe")]
 pub mod babe;
 
-
 use crate::{ChainInfo, SignatureVerificationOverride};
 use jsonrpsee::RpcModule;
 use sc_executor::WasmExecutor;

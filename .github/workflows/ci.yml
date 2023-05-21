@@ -60,13 +60,13 @@ jobs:
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
           kill -9 $!
 
-      - name: Run babe simnode
+      - name: Babe Integration tests
         run: |
           ./target/release/babe-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests babe -- --nocapture
           kill -9 $!
 
-      - name: Run parachain simnode
+      - name: Parachain Integration tests
         run: |
           ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
