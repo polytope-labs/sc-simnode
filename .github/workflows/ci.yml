@@ -57,18 +57,21 @@ jobs:
       - name: Aura Integration tests
         run: |
           ./target/release/aura-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
+          sleep 10;
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
           kill -9 $!
 
       - name: Babe Integration tests
         run: |
           ./target/release/babe-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
+          sleep 10;
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests babe -- --nocapture
           kill -9 $!
 
       - name: Parachain Integration tests
         run: |
           ./target/release/parachain-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
+          sleep 10;
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
           kill -9 $!
 
