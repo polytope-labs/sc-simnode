@@ -1,4 +1,6 @@
-// Copyright (C) 2023 Polytope Labs (Caymans) Ltd.
+// This file is part of Substrate.
+
+// Copyright (C) Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,22 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//! Simnode Cli Utilities
+//! Substrate Node CLI
 
-use sc_cli::{CliConfiguration, SharedParams};
+#![warn(missing_docs)]
 
-/// The `simnode` sub-command.
-///
-/// See [`Command`] for more info.
-#[derive(Debug, Clone, clap::Parser)]
-pub struct Simnode {
-	/// Shared params need by substrate
-	#[clap(flatten)]
-	shared: SharedParams,
-}
-
-impl CliConfiguration for Simnode {
-	fn shared_params(&self) -> &SharedParams {
-		&self.shared
-	}
+fn main() -> sc_cli::Result<()> {
+	babe_node::run()
 }

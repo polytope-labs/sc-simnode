@@ -17,34 +17,41 @@
 //! Parachain inherent data provider, useful for signalling relay chain authorizations to
 //! parachain simnodes.
 
+use crate::{client::FullClientFor, ChainInfo};
 use codec::Encode;
+use futures::lock::Mutex;
 use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
 use polkadot_primitives::v2::PersistedValidationData;
+use sp_api::BlockT;
 use sp_blockchain::HeaderBackend;
-use sp_runtime::traits::{Block, Header};
+use sp_runtime::traits::Header;
+use sp_wasm_interface::{anyhow, anyhow::anyhow};
 use sproof_builder::RelayStateSproofBuilder;
 use std::{marker::PhantomData, sync::Arc};
 
 /// Provides the inherent for parachain runtimes. Can also be manipulated to send relay chain
 /// signals to simulated node runtime.
-pub struct ParachainInherentSproofProvider<B, C> {
+pub struct ParachainSproofInherentProvider<T: ChainInfo> {
 	// client type
-	client: Arc<C>,
+	client: Arc<FullClientFor<T>>,
 	// sproof builder
-	pub(crate) sproof_builder: Option<RelayStateSproofBuilder>,
-	_phantom: PhantomData<B>,
+	sproof_builder: Option<RelayStateSproofBuilder>,
+	// phantom type
+	_phantom: PhantomData<T>,
 }
 
-impl<B, C> ParachainInherentSproofProvider<B, C>
+/// A thread safe parachain sproof inherent provider
+pub type SharedParachainSproofInherentProvider<T> = Arc<Mutex<ParachainSproofInherentProvider<T>>>;
+
+impl<T> ParachainSproofInherentProvider<T>
 where
-	B: Block,
-	C: HeaderBackend<B>,
-	<B::Header as Header>::Number: AsPrimitive<u32>,
+	T: ChainInfo,
+	<<T::Block as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
-	pub fn new(client: Arc<C>) -> Self {
-		ParachainInherentSproofProvider { client, sproof_builder: None, _phantom: PhantomData }
+	pub fn new(client: Arc<FullClientFor<T>>) -> Self {
+		ParachainSproofInherentProvider { client, sproof_builder: None, _phantom: PhantomData }
 	}
 
 	/// updates the sproof to a new state
@@ -53,23 +60,25 @@ where
 	}
 
 	/// Given the current slot, create the inherent.
-	pub fn create_inherent(&mut self, slot: u64) -> ParachainInherentData {
+	pub fn create_inherent(&mut self, slot: u64) -> Result<ParachainInherentData, anyhow::Error> {
 		let mut sproof = self.sproof_builder.take().unwrap_or_default();
 		sproof.current_slot = slot.into();
 		sproof.host_config.validation_upgrade_delay = 2;
 		sproof.host_config.max_code_size = 15 * 1024 * 1024;
+		// this makes every block random, so that you can still author blocks after reverting.
+		// instead of getting the AlreadyInChain error.
+		sproof.randomness = rand::random();
 
 		let info = self.client.info();
 		let header = self
 			.client
-			.header(info.best_hash)
-			.expect("Failed to create inherent; panic!")
-			.expect("Failed to create inherent; panic!")
+			.header(info.best_hash)?
+			.ok_or_else(|| anyhow!("Couldn't fetch best header!"))?
 			.encode();
 
 		let (state_root, proof) = sproof.into_state_root_and_proof();
 
-		ParachainInherentData {
+		Ok(ParachainInherentData {
 			validation_data: PersistedValidationData {
 				parent_head: header.into(),
 				relay_parent_number: info.best_number.as_() + 100,
@@ -79,6 +88,6 @@ where
 			relay_chain_state: proof,
 			downward_messages: Default::default(),
 			horizontal_messages: Default::default(),
-		}
+		})
 	}
 }

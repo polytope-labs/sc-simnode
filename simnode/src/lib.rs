@@ -15,44 +15,35 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 #![deny(missing_docs, unused_extern_crates)]
 
-//! ### substrate-simnode
-
-use crate::{client::RpcHandlerArgs, node::FullClientFor};
-use sc_executor::{NativeElseWasmExecutor, NativeExecutionDispatch};
+//! ### sc-simnode
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
 
 pub mod cli;
 pub mod client;
-pub mod host_functions;
-pub mod node;
-pub mod parachain;
+pub mod overrides;
 pub mod rpc;
 pub mod sproof;
+
+pub use cli::*;
+pub use client::*;
+pub use overrides::*;
+pub use rpc::*;
+pub use sproof::*;
 
 /// Wrapper trait for concrete type required by this testing framework.
 pub trait ChainInfo: Sized {
 	/// Opaque block type
 	type Block: BlockT;
 
-	/// ExecutorDispatch dispatch type
-	type ExecutorDispatch: NativeExecutionDispatch + 'static;
-
 	/// Runtime
 	type Runtime: frame_system::Config;
 
 	/// RuntimeApi
-	type RuntimeApi: Send + Sync + 'static + ConstructRuntimeApi<Self::Block, FullClientFor<Self>>;
+	type RuntimeApi: ConstructRuntimeApi<Self::Block, FullClientFor<Self>> + Send + Sync + 'static;
 
 	/// The signed extras required by the runtime
 	type SignedExtras: SignedExtension;
-
-	/// Should return the json rpc Iohandler
-	fn rpc_handler(deps: RpcHandlerArgs<Self>) -> jsonrpsee::RpcModule<()>
-	where
-		<Self::RuntimeApi as ConstructRuntimeApi<Self::Block, FullClientFor<Self>>>::RuntimeApi:
-			sp_api::Core<Self::Block>
-				+ sp_transaction_pool::runtime_api::TaggedTransactionQueue<Self::Block>;
 
 	/// This is for cases you don't yet have the simnode runtime api implemented.
 	/// this function is caled in an externalities provided environment, so feel free to read state.
