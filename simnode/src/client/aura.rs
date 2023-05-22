@@ -145,7 +145,7 @@ where
 			client: client.clone(),
 			backend: backend.clone(),
 			task_manager: &mut task_manager,
-			keystore: keystore_container.sync_keystore(),
+			keystore: keystore_container.keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
 				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;

@@ -145,7 +145,7 @@ where
 			client: client.clone(),
 			backend: backend.clone(),
 			task_manager: &mut task_manager,
-			keystore: keystore_container.sync_keystore(),
+			keystore: keystore_container.keystore(),
 			transaction_pool: pool.clone(),
 			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
 				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
@@ -173,7 +173,7 @@ where
 
 	let babe_consensus = BabeConsensusDataProvider::new(
 		client.clone(),
-		keystore_container.sync_keystore(),
+		keystore_container.keystore(),
 		babe_link.epoch_changes().clone(),
 		vec![(AuthorityId::from(Alice.public()), 1000)],
 	)
