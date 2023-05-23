@@ -24,7 +24,7 @@ use crate::{
 use frame_support::{
 	pallet_prelude::*,
 	traits::{
-		fungibles::{Balanced, CreditOf},
+		fungibles::{Balanced, Credit},
 		Currency, OnUnbalanced,
 	},
 };
@@ -45,7 +45,7 @@ impl OnUnbalanced<NegativeImbalance> for Author {
 /// Will drop and burn the assets in case the transfer fails.
 pub struct CreditToBlockAuthor;
 impl HandleCredit<AccountId, Assets> for CreditToBlockAuthor {
-	fn handle_credit(credit: CreditOf<AccountId, Assets>) {
+	fn handle_credit(credit: Credit<AccountId, Assets>) {
 		if let Some(author) = pallet_authorship::Pallet::<Runtime>::author() {
 			// Drop the result which will trigger the `OnDrop` of the imbalance in case of error.
 			let _ = Assets::resolve(&author, credit);
@@ -256,7 +256,7 @@ mod multiplier_tests {
 				let next = runtime_multiplier_update(fm);
 				fm = next;
 				if fm == min_multiplier() {
-					break
+					break;
 				}
 				iterations += 1;
 			}
@@ -284,8 +284,8 @@ mod multiplier_tests {
 		// `cargo test congested_chain_simulation -- --nocapture` to get some insight.
 
 		// almost full. The entire quota of normal transactions is taken.
-		let block_weight = BlockWeights::get().get(DispatchClass::Normal).max_total.unwrap() -
-			Weight::from_parts(100, 0);
+		let block_weight = BlockWeights::get().get(DispatchClass::Normal).max_total.unwrap()
+			- Weight::from_parts(100, 0);
 
 		// Default substrate weight.
 		let tx_weight = frame_support::weights::constants::ExtrinsicBaseWeight::get();
