@@ -43,21 +43,21 @@ pub mod api {
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "Grandpa" {
 				return Ok(Event::Grandpa(grandpa::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "Balances" {
 				return Ok(Event::Balances(balances::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "TransactionPayment" {
 				return Ok(Event::TransactionPayment(
@@ -66,14 +66,14 @@ pub mod api {
 						pallet_ty,
 						metadata,
 					)?,
-				));
+				))
 			}
 			if pallet_name == "Sudo" {
 				return Ok(Event::Sudo(sudo::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			Err(::subxt::ext::scale_decode::Error::custom(format!(
 				"Pallet name '{}' not found in root Event enum",
@@ -156,8 +156,8 @@ pub mod api {
 		client: &C,
 	) -> Result<(), ::subxt::error::MetadataError> {
 		let runtime_metadata_hash = client.metadata().metadata_hash(&PALLETS);
-		if runtime_metadata_hash
-			!= [
+		if runtime_metadata_hash !=
+			[
 				217u8, 155u8, 231u8, 56u8, 247u8, 0u8, 2u8, 214u8, 253u8, 37u8, 160u8, 187u8, 90u8,
 				135u8, 244u8, 97u8, 180u8, 165u8, 9u8, 129u8, 237u8, 246u8, 87u8, 135u8, 168u8,
 				6u8, 72u8, 93u8, 247u8, 213u8, 161u8, 203u8,
@@ -168,12 +168,10 @@ pub mod api {
 		}
 	}
 	pub mod system {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -1114,12 +1112,10 @@ pub mod api {
 		}
 	}
 	pub mod timestamp {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -1239,8 +1235,7 @@ pub mod api {
 		}
 	}
 	pub mod aura {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
@@ -1297,12 +1292,10 @@ pub mod api {
 		}
 	}
 	pub mod grandpa {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -1719,12 +1712,10 @@ pub mod api {
 		}
 	}
 	pub mod balances {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -2878,8 +2869,7 @@ pub mod api {
 		}
 	}
 	pub mod transaction_payment {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
 		pub type Event = runtime_types::pallet_transaction_payment::pallet::Event;
 		pub mod events {
@@ -2995,12 +2985,10 @@ pub mod api {
 		}
 	}
 	pub mod sudo {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,

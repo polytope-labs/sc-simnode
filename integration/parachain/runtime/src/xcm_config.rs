@@ -129,11 +129,11 @@ impl ShouldExecute for DenyReserveTransferToRelayChain {
 				InitiateReserveWithdraw {
 					reserve: MultiLocation { parents: 1, interior: Here },
 					..
-				}
-				| DepositReserveAsset {
+				} |
+				DepositReserveAsset {
 					dest: MultiLocation { parents: 1, interior: Here }, ..
-				}
-				| TransferReserveAsset {
+				} |
+				TransferReserveAsset {
 					dest: MultiLocation { parents: 1, interior: Here }, ..
 				} => {
 					Err(ProcessMessageError::Unsupported) // Deny

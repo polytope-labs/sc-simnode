@@ -228,7 +228,7 @@ where
 	let import_setup = (block_import, grandpa_link, babe_link);
 
 	let (rpc_extensions_builder, rpc_setup) = {
-		let (_, grandpa_link, babe_link) = &import_setup;
+		let (_, grandpa_link, _babe_link) = &import_setup;
 
 		let justification_stream = grandpa_link.justification_stream();
 		let shared_authority_set = grandpa_link.shared_authority_set().clone();
@@ -239,9 +239,6 @@ where
 			backend.clone(),
 			Some(shared_authority_set.clone()),
 		);
-
-		let babe_config = babe_link.config().clone();
-		let shared_epoch_changes = babe_link.epoch_changes().clone();
 
 		let client = client.clone();
 		let pool = transaction_pool.clone();
@@ -702,7 +699,7 @@ mod tests {
 						sc_consensus_babe::authorship::claim_slot(slot.into(), &epoch, &keystore)
 							.map(|(digest, _)| digest)
 					{
-						break (babe_pre_digest, epoch_descriptor);
+						break (babe_pre_digest, epoch_descriptor)
 					}
 
 					slot += 1;

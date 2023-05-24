@@ -71,21 +71,21 @@ pub mod api {
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "ParachainSystem" {
 				return Ok(Event::ParachainSystem(parachain_system::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "Balances" {
 				return Ok(Event::Balances(balances::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "TransactionPayment" {
 				return Ok(Event::TransactionPayment(
@@ -94,7 +94,7 @@ pub mod api {
 						pallet_ty,
 						metadata,
 					)?,
-				));
+				))
 			}
 			if pallet_name == "CollatorSelection" {
 				return Ok(Event::CollatorSelection(
@@ -103,49 +103,49 @@ pub mod api {
 						pallet_ty,
 						metadata,
 					)?,
-				));
+				))
 			}
 			if pallet_name == "Session" {
 				return Ok(Event::Session(session::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "XcmpQueue" {
 				return Ok(Event::XcmpQueue(xcmp_queue::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "PolkadotXcm" {
 				return Ok(Event::PolkadotXcm(polkadot_xcm::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "CumulusXcm" {
 				return Ok(Event::CumulusXcm(cumulus_xcm::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "DmpQueue" {
 				return Ok(Event::DmpQueue(dmp_queue::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			if pallet_name == "Sudo" {
 				return Ok(Event::Sudo(sudo::Event::decode_with_metadata(
 					&mut &*pallet_bytes,
 					pallet_ty,
 					metadata,
-				)?));
+				)?))
 			}
 			Err(::subxt::ext::scale_decode::Error::custom(format!(
 				"Pallet name '{}' not found in root Event enum",
@@ -270,8 +270,8 @@ pub mod api {
 		client: &C,
 	) -> Result<(), ::subxt::error::MetadataError> {
 		let runtime_metadata_hash = client.metadata().metadata_hash(&PALLETS);
-		if runtime_metadata_hash
-			!= [
+		if runtime_metadata_hash !=
+			[
 				131u8, 58u8, 110u8, 131u8, 137u8, 107u8, 73u8, 218u8, 76u8, 165u8, 201u8, 111u8,
 				246u8, 93u8, 169u8, 25u8, 48u8, 197u8, 27u8, 162u8, 38u8, 91u8, 161u8, 87u8, 111u8,
 				213u8, 170u8, 133u8, 101u8, 96u8, 29u8, 89u8,
@@ -282,12 +282,10 @@ pub mod api {
 		}
 	}
 	pub mod system {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -1228,12 +1226,10 @@ pub mod api {
 		}
 	}
 	pub mod parachain_system {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -2014,12 +2010,10 @@ pub mod api {
 		}
 	}
 	pub mod timestamp {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -2139,12 +2133,10 @@ pub mod api {
 		}
 	}
 	pub mod parachain_info {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			pub struct TransactionApi;
 			impl TransactionApi {}
@@ -2177,12 +2169,10 @@ pub mod api {
 		}
 	}
 	pub mod balances {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -3336,8 +3326,7 @@ pub mod api {
 		}
 	}
 	pub mod transaction_payment {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
 		pub type Event = runtime_types::pallet_transaction_payment::pallet::Event;
 		pub mod events {
@@ -3453,8 +3442,7 @@ pub mod api {
 		}
 	}
 	pub mod authorship {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
@@ -3485,12 +3473,10 @@ pub mod api {
 		}
 	}
 	pub mod collator_selection {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -3878,12 +3864,10 @@ pub mod api {
 		}
 	}
 	pub mod session {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -4201,8 +4185,7 @@ pub mod api {
 		}
 	}
 	pub mod aura {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
@@ -4259,8 +4242,7 @@ pub mod api {
 		}
 	}
 	pub mod aura_ext {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
@@ -4297,12 +4279,10 @@ pub mod api {
 		}
 	}
 	pub mod xcmp_queue {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -5079,12 +5059,10 @@ pub mod api {
 		}
 	}
 	pub mod polkadot_xcm {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -6526,12 +6504,10 @@ pub mod api {
 		}
 	}
 	pub mod cumulus_xcm {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			pub struct TransactionApi;
 			impl TransactionApi {}
@@ -6594,12 +6570,10 @@ pub mod api {
 		}
 	}
 	pub mod dmp_queue {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -6933,12 +6907,10 @@ pub mod api {
 		}
 	}
 	pub mod sudo {
-		use super::root_mod;
-		use super::runtime_types;
+		use super::{root_mod, runtime_types};
 		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
 		pub mod calls {
-			use super::root_mod;
-			use super::runtime_types;
+			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
