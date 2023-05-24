@@ -22,7 +22,7 @@ use codec::Encode;
 use futures::lock::Mutex;
 use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
-use polkadot_primitives::v2::PersistedValidationData;
+use polkadot_primitives::v4::PersistedValidationData;
 use sp_api::BlockT;
 use sp_blockchain::HeaderBackend;
 use sp_runtime::traits::Header;
