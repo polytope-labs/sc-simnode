@@ -16,7 +16,7 @@ This library exists to allow substrate developers to:
 Installation and integration guides can be found in the [book](https://simnode.polytope.technology).
 
 ## Support
-[<img src="https://telegram.org/img/t_logo.png" width="30" height="30">](https://t.me/sc_simnode)   [<img src="assets/discord-mark-blue.png" width="30" height="30">](https://discord.gg/vKAa3XcCBX)
+[<img src="https://telegram.org/img/t_logo.png" width="30" height="30">](https://t.me/sc_simnode)   [<img src="assets/discord-mark-blue.png" width="35" height="30">](https://discord.gg/vKAa3XcCBX)
 
 ## License
 
