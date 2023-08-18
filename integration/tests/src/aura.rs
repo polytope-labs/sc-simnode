@@ -29,8 +29,8 @@ async fn test_all_features() -> Result<(), anyhow::Error> {
 async fn simple_transfer() -> Result<(), anyhow::Error> {
 	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
 
-	let bob = AccountId32::from(Keyring::Bob.public());
-	let alice = AccountId32::from(Keyring::Alice.public());
+	let bob = AccountId32::from(Keyring::Bob.to_raw_public());
+	let alice = AccountId32::from(Keyring::Alice.to_raw_public());
 
 	let addr = api::storage().system().account(alice.clone());
 	let old = client
