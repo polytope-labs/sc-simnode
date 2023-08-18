@@ -20,7 +20,7 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2022-10-28
+          toolchain: +nightly-2023-08-18
 
       - name: Install protoc
         run: |
@@ -28,7 +28,7 @@ jobs:
           sudo apt install protobuf-compiler
 
       - name: cargo check simnode
-        run: cargo +nightly-2022-10-28 check -p sc-simnode
+        run: cargo check -p sc-simnode
 
   tests:
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2022-10-28
+          toolchain: +nightly-2023-08-18
           override: true
 
       - uses: Swatinem/rust-cache@v1
@@ -52,13 +52,13 @@ jobs:
 
       - name: Build all binaries
         run: |
-          cargo +nightly-2022-10-28  build --release --bins
+          cargo build --release --bins
 
       - name: Aura Integration tests
         run: |
           ./target/release/aura-node simnode --dev --state-pruning=archive --blocks-pruning=archive &
           sleep 20;
-          RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests aura -- --nocapture
+          RUST_BACKTRACE=1 cargo test  --release -p simnode-integration-tests --tests aura -- --nocapture
           kill -9 $!
 
       - name: Babe Integration tests
@@ -89,8 +89,8 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2022-10-28
+          toolchain: +nightly-2023-08-18
           components: rustfmt
 
       - name: Check format
-        run: cargo +nightly-2022-10-28 fmt --all --check
+        run: cargo fmt --all --check
