@@ -317,7 +317,7 @@ pub fn new_full_base(
 		}))
 		.flatten();
 
-	let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+	let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 		config.wasm_method,
 		config.default_heap_pages,
 		config.max_runtime_instances,

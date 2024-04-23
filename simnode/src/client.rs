@@ -27,7 +27,7 @@ pub mod babe;
 
 use crate::{ChainInfo, SignatureVerificationOverride};
 use jsonrpsee::RpcModule;
-use sc_executor::WasmExecutor;
+use sc_executor::{HeapAllocStrategy, WasmExecutor, DEFAULT_HEAP_ALLOC_STRATEGY};
 use sc_rpc::{DenyUnsafe, SubscriptionTaskExecutor};
 use sc_service::{Configuration, PartialComponents, TFullBackend, TFullClient};
 use sc_telemetry::Telemetry;
@@ -40,6 +40,20 @@ use sp_wasm_interface::ExtendedHostFunctions;
 pub type Executor = WasmExecutor<
 	ExtendedHostFunctions<sp_io::SubstrateHostFunctions, SignatureVerificationOverride>,
 >;
+
+/// Creates a [`WasmExecutor`] according to [`Configuration`].
+pub fn new_wasm_executor(config: &Configuration) -> Executor {
+	let strategy = config
+		.default_heap_pages
+		.map_or(DEFAULT_HEAP_ALLOC_STRATEGY, |p| HeapAllocStrategy::Static { extra_pages: p as _ });
+	WasmExecutor::builder()
+		.with_execution_method(config.wasm_method)
+		.with_onchain_heap_alloc_strategy(strategy)
+		.with_offchain_heap_alloc_strategy(strategy)
+		.with_max_runtime_instances(config.max_runtime_instances)
+		.with_runtime_cache_size(config.runtime_cache_size)
+		.build()
+}
 
 /// Type alias for [`sc_service::TFullClient`]
 pub type FullClientFor<C> =

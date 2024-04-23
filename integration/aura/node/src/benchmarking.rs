@@ -2,7 +2,7 @@
 //!
 //! Should only be used for benchmarking as it may break in other contexts.
 
-use crate::service::{ExecutorDispatch, FullClient};
+use crate::service::FullClient;
 
 use aura_runtime as runtime;
 use runtime::{AccountId, Balance, BalancesCall, SystemCall};
@@ -13,19 +13,20 @@ use sp_inherents::{InherentData, InherentDataProvider};
 use sp_keyring::Sr25519Keyring;
 use sp_runtime::{OpaqueExtrinsic, SaturatedConversion};
 
-use sc_executor::NativeElseWasmExecutor;
+use sc_executor::WasmExecutor;
+use sp_io::SubstrateHostFunctions;
 use std::{sync::Arc, time::Duration};
 
 /// Generates extrinsics for the `benchmark overhead` command.
 ///
 /// Note: Should only be used for benchmarking.
 pub struct RemarkBuilder {
-	client: Arc<FullClient<NativeElseWasmExecutor<ExecutorDispatch>>>,
+	client: Arc<FullClient<WasmExecutor<SubstrateHostFunctions>>>,
 }
 
 impl RemarkBuilder {
 	/// Creates a new [`Self`] from the given client.
-	pub fn new(client: Arc<FullClient<NativeElseWasmExecutor<ExecutorDispatch>>>) -> Self {
+	pub fn new(client: Arc<FullClient<WasmExecutor<SubstrateHostFunctions>>>) -> Self {
 		Self { client }
 	}
 }
@@ -57,7 +58,7 @@ impl frame_benchmarking_cli::ExtrinsicBuilder for RemarkBuilder {
 ///
 /// Note: Should only be used for benchmarking.
 pub struct TransferKeepAliveBuilder {
-	client: Arc<FullClient<NativeElseWasmExecutor<ExecutorDispatch>>>,
+	client: Arc<FullClient<WasmExecutor<SubstrateHostFunctions>>>,
 	dest: AccountId,
 	value: Balance,
 }
@@ -65,7 +66,7 @@ pub struct TransferKeepAliveBuilder {
 impl TransferKeepAliveBuilder {
 	/// Creates a new [`Self`] from the given client.
 	pub fn new(
-		client: Arc<FullClient<NativeElseWasmExecutor<ExecutorDispatch>>>,
+		client: Arc<FullClient<WasmExecutor<SubstrateHostFunctions>>>,
 		dest: AccountId,
 		value: Balance,
 	) -> Self {
@@ -104,7 +105,7 @@ impl frame_benchmarking_cli::ExtrinsicBuilder for TransferKeepAliveBuilder {
 ///
 /// Note: Should only be used for benchmarking.
 pub fn create_benchmark_extrinsic(
-	client: &FullClient<NativeElseWasmExecutor<ExecutorDispatch>>,
+	client: &FullClient<WasmExecutor<SubstrateHostFunctions>>,
 	sender: sp_core::sr25519::Pair,
 	call: runtime::RuntimeCall,
 	nonce: u32,

@@ -14,6 +14,7 @@ sc-network = { workspace = true }
 sc-cli = { workspace = true }
 sc-basic-authorship = { workspace = true }
 sc-rpc = { workspace = true }
+sc-offchain = { workspace = true }
 sc-tracing = { workspace = true }
 sc-transaction-pool = { workspace = true }
 sc-client-db = { workspace = true }

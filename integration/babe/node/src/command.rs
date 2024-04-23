@@ -122,7 +122,7 @@ pub fn run() -> Result<()> {
 					},
 					BenchmarkCmd::Block(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 							config.wasm_method,
 							config.default_heap_pages,
 							config.max_runtime_instances,
@@ -139,7 +139,7 @@ pub fn run() -> Result<()> {
 					#[cfg(feature = "runtime-benchmarks")]
 					BenchmarkCmd::Storage(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 							config.wasm_method,
 							config.default_heap_pages,
 							config.max_runtime_instances,
@@ -153,7 +153,7 @@ pub fn run() -> Result<()> {
 					},
 					BenchmarkCmd::Overhead(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 							config.wasm_method,
 							config.default_heap_pages,
 							config.max_runtime_instances,
@@ -172,7 +172,7 @@ pub fn run() -> Result<()> {
 					},
 					BenchmarkCmd::Extrinsic(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 							config.wasm_method,
 							config.default_heap_pages,
 							config.max_runtime_instances,
@@ -212,7 +212,7 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::CheckBlock(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 					config.wasm_method,
 					config.default_heap_pages,
 					config.max_runtime_instances,
@@ -226,7 +226,7 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::ExportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 					config.wasm_method,
 					config.default_heap_pages,
 					config.max_runtime_instances,
@@ -240,7 +240,7 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::ExportState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 					config.wasm_method,
 					config.default_heap_pages,
 					config.max_runtime_instances,
@@ -254,7 +254,7 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::ImportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 					config.wasm_method,
 					config.default_heap_pages,
 					config.max_runtime_instances,
@@ -272,7 +272,7 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::Revert(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
 					config.wasm_method,
 					config.default_heap_pages,
 					config.max_runtime_instances,
