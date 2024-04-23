@@ -49,7 +49,7 @@ pub type FullClientFor<C> =
 pub type UncheckedExtrinsicFor<T> = UncheckedExtrinsic<
 	MultiAddress<
 		<<T as ChainInfo>::Runtime as frame_system::Config>::AccountId,
-		<<T as ChainInfo>::Runtime as frame_system::Config>::Index,
+		<<T as ChainInfo>::Runtime as frame_system::Config>::Nonce,
 	>,
 	<<T as ChainInfo>::Runtime as frame_system::Config>::RuntimeCall,
 	MultiSignature,

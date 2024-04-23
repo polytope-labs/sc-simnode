@@ -29,11 +29,11 @@ use jsonrpsee::{
 use sc_client_api::{Backend, ExecutorProvider};
 use sc_service::TFullBackend;
 use simnode_runtime_api::CreateTransactionApi;
-use sp_api::{ApiExt, ConstructRuntimeApi, ProvideRuntimeApi, StorageTransactionCache};
+use sp_api::{ApiExt, ConstructRuntimeApi, ProvideRuntimeApi};
 use sp_blockchain::HeaderBackend;
 use sp_core::{
 	crypto::{AccountId32, Ss58Codec},
-	Bytes, ExecutionContext,
+	Bytes,
 };
 use sp_runtime::{
 	traits::{Block as BlockT, Header},
@@ -131,10 +131,6 @@ where
 		closure: impl FnOnce() -> R,
 	) -> R {
 		let mut overlay = OverlayedChanges::default();
-		let mut cache = StorageTransactionCache::<
-			T::Block,
-			<TFullBackend<T::Block> as Backend<T::Block>>::State,
-		>::default();
 		let id = id.unwrap_or_else(|| self.client.info().best_hash);
 		let block_number = self
 			.client
@@ -142,15 +138,11 @@ where
 			.ok()
 			.flatten()
 			.unwrap_or_else(|| self.client.info().best_number);
-		let mut extensions = self.client.execution_extensions().extensions(
-			id,
-			block_number,
-			ExecutionContext::BlockConstruction,
-		);
+		let mut extensions = self.client.execution_extensions().extensions(id, block_number);
 		let state_backend =
 			self.client.state_at(id).expect(&format!("State at block {} not found", id));
 
-		let mut ext = Ext::new(&mut overlay, &mut cache, &state_backend, Some(&mut extensions));
+		let mut ext = Ext::new(&mut overlay, &state_backend, Some(&mut extensions));
 		sp_externalities::set_and_run_with_externalities(&mut ext, closure)
 	}
 

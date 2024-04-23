@@ -22,10 +22,9 @@ use codec::Encode;
 use futures::lock::Mutex;
 use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
-use polkadot_primitives::v4::PersistedValidationData;
-use sp_api::BlockT;
+use polkadot_primitives::PersistedValidationData;
 use sp_blockchain::HeaderBackend;
-use sp_runtime::traits::Header;
+use sp_runtime::traits::{Block, Header};
 use sp_wasm_interface::{anyhow, anyhow::anyhow};
 use sproof_builder::RelayStateSproofBuilder;
 use std::{marker::PhantomData, sync::Arc};
@@ -47,7 +46,7 @@ pub type SharedParachainSproofInherentProvider<T> = Arc<Mutex<ParachainSproofInh
 impl<T> ParachainSproofInherentProvider<T>
 where
 	T: ChainInfo,
-	<<T::Block as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
+	<<T::Block as Block>::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
 	pub fn new(client: Arc<FullClientFor<T>>) -> Self {
