@@ -79,9 +79,11 @@ sc-executor = { workspace = true }
 sc-sync-state-rpc = { workspace = true }
 sc-sysinfo = { workspace = true }
 sc-storage-monitor = { workspace = true }
+sc-offchain = { workspace = true }
 
 # frame dependencies
 frame-system = { workspace = true }
+frame-benchmarking = { workspace = true }
 frame-system-rpc-runtime-api = { workspace = true }
 pallet-transaction-payment = { workspace = true }
 
