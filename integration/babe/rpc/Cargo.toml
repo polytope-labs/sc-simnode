@@ -1,6 +1,6 @@
 [package]
 name = "babe-node-rpc"
-version = "3.0.0-dev"
+version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 description = "Substrate node rpc methods."
 edition = "2021"
