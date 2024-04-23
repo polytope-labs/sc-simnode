@@ -17,13 +17,13 @@
 //! Parachain inherent data provider, useful for signalling relay chain authorizations to
 //! parachain simnodes.
 
-use crate::{client::FullClientFor, ChainInfo};
+use crate::{client::FullClientFor, with_state, ChainInfo};
 use codec::Encode;
 use futures::lock::Mutex;
 use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
 use polkadot_primitives::PersistedValidationData;
-use sp_api::ProvideRuntimeApi;
+
 use sp_blockchain::HeaderBackend;
 use sp_runtime::traits::{Block, Header};
 use sp_wasm_interface::{anyhow, anyhow::anyhow};
@@ -47,6 +47,7 @@ pub type SharedParachainSproofInherentProvider<T> = Arc<Mutex<ParachainSproofInh
 impl<T> ParachainSproofInherentProvider<T>
 where
 	T: ChainInfo,
+	T::Runtime: parachain_info::Config,
 	<<T::Block as Block>::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
@@ -62,9 +63,10 @@ where
 	/// Given the current slot, create the inherent.
 	pub fn create_inherent(&mut self, slot: u64) -> Result<ParachainInherentData, anyhow::Error> {
 		let mut sproof = self.sproof_builder.take().unwrap_or_default();
+		sproof.para_id = with_state::<T, _>(self.client.clone(), None, || {
+			parachain_info::Pallet::<T::Runtime>::parachain_id()
+		});
 		// relay chain is twice as fast the parachain
-		// todo: get the correct paraId here, somehow
-		sproof.para_id = 1000u32.into();
 		sproof.current_slot = ((slot * 2) + 1).into();
 		sproof.host_config.validation_upgrade_delay = 2;
 		sproof.host_config.max_code_size = 15 * 1024 * 1024;

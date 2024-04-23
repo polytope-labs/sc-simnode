@@ -18,7 +18,7 @@
 
 use crate::{
 	client::{FullClientFor, UncheckedExtrinsicFor},
-	ChainInfo,
+	with_state, ChainInfo,
 };
 use async_trait::async_trait;
 use codec::Encode;
@@ -26,7 +26,7 @@ use jsonrpsee::{
 	core::{Error as RpcError, RpcResult as Result},
 	proc_macros::rpc,
 };
-use sc_client_api::{Backend, ExecutorProvider};
+use sc_client_api::Backend;
 use sc_service::TFullBackend;
 use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, ProvideRuntimeApi};
@@ -39,7 +39,7 @@ use sp_runtime::{
 	traits::{Block as BlockT, Header},
 	MultiAddress, MultiSignature,
 };
-use sp_state_machine::{Ext, OverlayedChanges};
+
 use std::sync::Arc;
 
 /// Simnode RPC methods.
@@ -130,20 +130,7 @@ where
 		id: Option<<T::Block as BlockT>::Hash>,
 		closure: impl FnOnce() -> R,
 	) -> R {
-		let mut overlay = OverlayedChanges::default();
-		let id = id.unwrap_or_else(|| self.client.info().best_hash);
-		let block_number = self
-			.client
-			.number(id)
-			.ok()
-			.flatten()
-			.unwrap_or_else(|| self.client.info().best_number);
-		let mut extensions = self.client.execution_extensions().extensions(id, block_number);
-		let state_backend =
-			self.client.state_at(id).expect(&format!("State at block {} not found", id));
-
-		let mut ext = Ext::new(&mut overlay, &state_backend, Some(&mut extensions));
-		sp_externalities::set_and_run_with_externalities(&mut ext, closure)
+		with_state::<T, R>(self.client.clone(), id, closure)
 	}
 
 	fn revert_blocks(&self, n: u32) -> Result<()> {
