@@ -1,5 +1,5 @@
 [package]
-name = "node-rpc"
+name = "babe-node-rpc"
 version = "3.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 description = "Substrate node rpc methods."
@@ -14,19 +14,14 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 jsonrpsee = { version = "0.16.2", features = ["server"] }
-node-primitives = { workspace = true }
 pallet-transaction-payment-rpc = { workspace = true }
 sc-chain-spec = { workspace = true }
 sc-client-api = { workspace = true }
 sc-consensus-babe = { workspace = true }
-sc-consensus-babe-rpc = { workspace = true }
-sc-consensus-epochs = { workspace = true }
 sc-consensus-grandpa = { workspace = true }
-sc-consensus-grandpa-rpc = { workspace = true }
 sc-rpc = { workspace = true }
 sc-rpc-api = { workspace = true }
 sc-rpc-spec-v2 = { workspace = true }
-sc-sync-state-rpc = { workspace = true }
 sc-transaction-pool-api = { workspace = true }
 sp-api = { workspace = true }
 sp-block-builder = { workspace = true }
@@ -35,5 +30,9 @@ sp-consensus = { workspace = true }
 sp-consensus-babe = { workspace = true }
 sp-keystore = { workspace = true }
 sp-runtime = { workspace = true }
+sp-core = { workspace = true }
 substrate-frame-rpc-system = { workspace = true }
 substrate-state-trie-migration-rpc = { workspace = true }
+sc-consensus-babe-rpc = { workspace = true }
+sc-consensus-grandpa-rpc = { workspace = true }
+sc-sync-state-rpc = { workspace = true }
