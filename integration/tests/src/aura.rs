@@ -13,6 +13,7 @@ use crate::codegen::aura::{
 use anyhow::anyhow;
 use sp_core::{crypto::Ss58Codec, Bytes};
 use sp_keyring::sr25519::Keyring;
+use std::env;
 use subxt::{
 	dynamic::Value, rpc_params, tx::SubmittableExtrinsic, utils::AccountId32, OnlineClient,
 	SubstrateConfig,
@@ -27,7 +28,9 @@ async fn test_all_features() -> Result<(), anyhow::Error> {
 }
 
 async fn simple_transfer() -> Result<(), anyhow::Error> {
-	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
+	let port = env::var("PORT").unwrap_or("9944".into());
+	let client =
+		OnlineClient::<SubstrateConfig>::from_url(format!("ws://127.0.0.1:{}", port)).await?;
 
 	let bob = AccountId32::from(Keyring::Bob.to_raw_public());
 	let alice = AccountId32::from(Keyring::Alice.to_raw_public());
@@ -45,7 +48,7 @@ async fn simple_transfer() -> Result<(), anyhow::Error> {
 
 	let call = client
 		.tx()
-		.call_data(&api::tx().balances().transfer(bob.clone().into(), old / 2))?;
+		.call_data(&api::tx().balances().transfer_keep_alive(bob.clone().into(), old / 2))?;
 
 	let extrinsic: Bytes = client
 		.rpc()
@@ -85,7 +88,9 @@ async fn simple_transfer() -> Result<(), anyhow::Error> {
 }
 
 async fn runtime_upgrades() -> Result<(), anyhow::Error> {
-	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
+	let port = env::var("PORT").unwrap_or("9944".into());
+	let client =
+		OnlineClient::<SubstrateConfig>::from_url(format!("ws://127.0.0.1:{}", port)).await?;
 
 	let old_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(old_version.spec_version, 1);
@@ -130,7 +135,9 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 }
 
 async fn revert_blocks() -> Result<(), anyhow::Error> {
-	let client = OnlineClient::<SubstrateConfig>::from_url("ws://127.0.0.1:9944").await?;
+	let port = env::var("PORT").unwrap_or("9944".into());
+	let client =
+		OnlineClient::<SubstrateConfig>::from_url(format!("ws://127.0.0.1:{}", port)).await?;
 	let old_header =
 		client.rpc().header(None).await?.ok_or_else(|| anyhow!("Header not found!"))?;
 	let n = 10;

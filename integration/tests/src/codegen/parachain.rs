@@ -13,6 +13,7 @@ pub mod api {
 		"ParachainInfo",
 		"Balances",
 		"TransactionPayment",
+		"Sudo",
 		"Authorship",
 		"CollatorSelection",
 		"Session",
@@ -21,18 +22,32 @@ pub mod api {
 		"XcmpQueue",
 		"PolkadotXcm",
 		"CumulusXcm",
-		"DmpQueue",
-		"Sudo",
+		"MessageQueue",
 	];
-	pub static RUNTIME_APIS: [&str; 0usize] = [];
+	pub static RUNTIME_APIS: [&str; 14usize] = [
+		"AuraApi",
+		"Core",
+		"Metadata",
+		"BlockBuilder",
+		"TaggedTransactionQueue",
+		"AuraUnincludedSegmentApi",
+		"OffchainWorkerApi",
+		"SessionKeys",
+		"AccountNonceApi",
+		"TransactionPaymentApi",
+		"TransactionPaymentCallApi",
+		"CollectCollationInfo",
+		"CreateTransactionApi",
+		"GenesisBuilder",
+	];
 	#[doc = r" The error type returned when there is a runtime issue."]
 	pub type DispatchError = runtime_types::sp_runtime::DispatchError;
 	#[doc = r" The outer event enum."]
-	pub type Event = runtime_types::parachain_template_runtime::RuntimeEvent;
+	pub type Event = runtime_types::parachain_runtime::RuntimeEvent;
 	#[doc = r" The outer extrinsic enum."]
-	pub type Call = runtime_types::parachain_template_runtime::RuntimeCall;
+	pub type Call = runtime_types::parachain_runtime::RuntimeCall;
 	#[doc = r" The outer error enum representing the DispatchError's Module variant."]
-	pub type Error = runtime_types::parachain_template_runtime::RuntimeError;
+	pub type Error = runtime_types::parachain_runtime::RuntimeError;
 	pub fn constants() -> ConstantsApi {
 		ConstantsApi
 	}
@@ -49,7 +64,1205 @@ pub mod api {
 		use super::{root_mod, runtime_types};
 		use ::subxt::ext::codec::Encode;
 		pub struct RuntimeApi;
-		impl RuntimeApi {}
+		impl RuntimeApi {
+			pub fn aura_api(&self) -> aura_api::AuraApi {
+				aura_api::AuraApi
+			}
+			pub fn core(&self) -> core::Core {
+				core::Core
+			}
+			pub fn metadata(&self) -> metadata::Metadata {
+				metadata::Metadata
+			}
+			pub fn block_builder(&self) -> block_builder::BlockBuilder {
+				block_builder::BlockBuilder
+			}
+			pub fn tagged_transaction_queue(
+				&self,
+			) -> tagged_transaction_queue::TaggedTransactionQueue {
+				tagged_transaction_queue::TaggedTransactionQueue
+			}
+			pub fn aura_unincluded_segment_api(
+				&self,
+			) -> aura_unincluded_segment_api::AuraUnincludedSegmentApi {
+				aura_unincluded_segment_api::AuraUnincludedSegmentApi
+			}
+			pub fn offchain_worker_api(&self) -> offchain_worker_api::OffchainWorkerApi {
+				offchain_worker_api::OffchainWorkerApi
+			}
+			pub fn session_keys(&self) -> session_keys::SessionKeys {
+				session_keys::SessionKeys
+			}
+			pub fn account_nonce_api(&self) -> account_nonce_api::AccountNonceApi {
+				account_nonce_api::AccountNonceApi
+			}
+			pub fn transaction_payment_api(
+				&self,
+			) -> transaction_payment_api::TransactionPaymentApi {
+				transaction_payment_api::TransactionPaymentApi
+			}
+			pub fn transaction_payment_call_api(
+				&self,
+			) -> transaction_payment_call_api::TransactionPaymentCallApi {
+				transaction_payment_call_api::TransactionPaymentCallApi
+			}
+			pub fn collect_collation_info(&self) -> collect_collation_info::CollectCollationInfo {
+				collect_collation_info::CollectCollationInfo
+			}
+			pub fn create_transaction_api(&self) -> create_transaction_api::CreateTransactionApi {
+				create_transaction_api::CreateTransactionApi
+			}
+			pub fn genesis_builder(&self) -> genesis_builder::GenesisBuilder {
+				genesis_builder::GenesisBuilder
+			}
+		}
+		pub mod aura_api {
+			use super::{root_mod, runtime_types};
+			#[doc = " API necessary for block authorship with aura."]
+			pub struct AuraApi;
+			impl AuraApi {
+				#[doc = " Returns the slot duration for Aura."]
+				#[doc = ""]
+				#[doc = " Currently, only the value provided by this type at genesis will be used."]
+				pub fn slot_duration(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::SlotDuration,
+					runtime_types::sp_consensus_slots::SlotDuration,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"AuraApi",
+						"slot_duration",
+						types::SlotDuration {},
+						[
+							233u8, 210u8, 132u8, 172u8, 100u8, 125u8, 239u8, 92u8, 114u8, 82u8,
+							7u8, 110u8, 179u8, 196u8, 10u8, 19u8, 211u8, 15u8, 174u8, 2u8, 91u8,
+							73u8, 133u8, 100u8, 205u8, 201u8, 191u8, 60u8, 163u8, 122u8, 215u8,
+							10u8,
+						],
+					)
+				}
+				#[doc = " Return the current set of authorities."]
+				pub fn authorities(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::Authorities,
+					::std::vec::Vec<runtime_types::sp_consensus_aura::sr25519::app_sr25519::Public>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"AuraApi",
+						"authorities",
+						types::Authorities {},
+						[
+							96u8, 136u8, 226u8, 244u8, 105u8, 189u8, 8u8, 250u8, 71u8, 230u8, 37u8,
+							123u8, 218u8, 47u8, 179u8, 16u8, 170u8, 181u8, 165u8, 77u8, 102u8,
+							51u8, 43u8, 51u8, 186u8, 84u8, 49u8, 15u8, 208u8, 226u8, 129u8, 230u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct SlotDuration {}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct Authorities {}
+			}
+		}
+		pub mod core {
+			use super::{root_mod, runtime_types};
+			#[doc = " The `Core` runtime api that every Substrate runtime needs to implement."]
+			pub struct Core;
+			impl Core {
+				#[doc = " Returns the version of the runtime."]
+				pub fn version(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::Version,
+					runtime_types::sp_version::RuntimeVersion,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"Core",
+						"version",
+						types::Version {},
+						[
+							76u8, 202u8, 17u8, 117u8, 189u8, 237u8, 239u8, 237u8, 151u8, 17u8,
+							125u8, 159u8, 218u8, 92u8, 57u8, 238u8, 64u8, 147u8, 40u8, 72u8, 157u8,
+							116u8, 37u8, 195u8, 156u8, 27u8, 123u8, 173u8, 178u8, 102u8, 136u8,
+							6u8,
+						],
+					)
+				}
+				#[doc = " Execute the given block."]
+				pub fn execute_block(
+					&self,
+					block : runtime_types :: sp_runtime :: generic :: block :: Block < runtime_types :: sp_runtime :: generic :: header :: Header < :: core :: primitive :: u32 > , :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > >,
+				) -> ::subxt::runtime_api::Payload<types::ExecuteBlock, ()> {
+					::subxt::runtime_api::Payload::new_static(
+						"Core",
+						"execute_block",
+						types::ExecuteBlock { block },
+						[
+							133u8, 135u8, 228u8, 65u8, 106u8, 27u8, 85u8, 158u8, 112u8, 254u8,
+							93u8, 26u8, 102u8, 201u8, 118u8, 216u8, 249u8, 247u8, 91u8, 74u8, 56u8,
+							208u8, 231u8, 115u8, 131u8, 29u8, 209u8, 6u8, 65u8, 57u8, 214u8, 125u8,
+						],
+					)
+				}
+				#[doc = " Initialize a block with the given header."]
+				pub fn initialize_block(
+					&self,
+					header: runtime_types::sp_runtime::generic::header::Header<
+						::core::primitive::u32,
+					>,
+				) -> ::subxt::runtime_api::Payload<types::InitializeBlock, ()> {
+					::subxt::runtime_api::Payload::new_static(
+						"Core",
+						"initialize_block",
+						types::InitializeBlock { header },
+						[
+							146u8, 138u8, 72u8, 240u8, 63u8, 96u8, 110u8, 189u8, 77u8, 92u8, 96u8,
+							232u8, 41u8, 217u8, 105u8, 148u8, 83u8, 190u8, 152u8, 219u8, 19u8,
+							87u8, 163u8, 1u8, 232u8, 25u8, 221u8, 74u8, 224u8, 67u8, 223u8, 34u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct Version {}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct ExecuteBlock { pub block : runtime_types :: sp_runtime :: generic :: block :: Block < runtime_types :: sp_runtime :: generic :: header :: Header < :: core :: primitive :: u32 > , :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > > , }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct InitializeBlock {
+					pub header:
+						runtime_types::sp_runtime::generic::header::Header<::core::primitive::u32>,
+				}
+			}
+		}
+		pub mod metadata {
+			use super::{root_mod, runtime_types};
+			#[doc = " The `Metadata` api trait that returns metadata for the runtime."]
+			pub struct Metadata;
+			impl Metadata {
+				#[doc = " Returns the metadata of a runtime."]
+				pub fn metadata(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::Metadata,
+					runtime_types::sp_core::OpaqueMetadata,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"Metadata",
+						"metadata",
+						types::Metadata {},
+						[
+							231u8, 24u8, 67u8, 152u8, 23u8, 26u8, 188u8, 82u8, 229u8, 6u8, 185u8,
+							27u8, 175u8, 68u8, 83u8, 122u8, 69u8, 89u8, 185u8, 74u8, 248u8, 87u8,
+							217u8, 124u8, 193u8, 252u8, 199u8, 186u8, 196u8, 179u8, 179u8, 96u8,
+						],
+					)
+				}
+				#[doc = " Returns the metadata at a given version."]
+				#[doc = ""]
+				#[doc = " If the given `version` isn't supported, this will return `None`."]
+				#[doc = " Use [`Self::metadata_versions`] to find out about supported metadata version of the runtime."]
+				pub fn metadata_at_version(
+					&self,
+					version: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<
+					types::MetadataAtVersion,
+					::core::option::Option<runtime_types::sp_core::OpaqueMetadata>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"Metadata",
+						"metadata_at_version",
+						types::MetadataAtVersion { version },
+						[
+							131u8, 53u8, 212u8, 234u8, 16u8, 25u8, 120u8, 252u8, 153u8, 153u8,
+							216u8, 28u8, 54u8, 113u8, 52u8, 236u8, 146u8, 68u8, 142u8, 8u8, 10u8,
+							169u8, 131u8, 142u8, 204u8, 38u8, 48u8, 108u8, 134u8, 86u8, 226u8,
+							61u8,
+						],
+					)
+				}
+				#[doc = " Returns the supported metadata versions."]
+				#[doc = ""]
+				#[doc = " This can be used to call `metadata_at_version`."]
+				pub fn metadata_versions(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::MetadataVersions,
+					::std::vec::Vec<::core::primitive::u32>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"Metadata",
+						"metadata_versions",
+						types::MetadataVersions {},
+						[
+							23u8, 144u8, 137u8, 91u8, 188u8, 39u8, 231u8, 208u8, 252u8, 218u8,
+							224u8, 176u8, 77u8, 32u8, 130u8, 212u8, 223u8, 76u8, 100u8, 190u8,
+							82u8, 94u8, 190u8, 8u8, 82u8, 244u8, 225u8, 179u8, 85u8, 176u8, 56u8,
+							16u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct Metadata {}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct MetadataAtVersion {
+					pub version: ::core::primitive::u32,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct MetadataVersions {}
+			}
+		}
+		pub mod block_builder {
+			use super::{root_mod, runtime_types};
+			#[doc = " The `BlockBuilder` api trait that provides the required functionality for building a block."]
+			pub struct BlockBuilder;
+			impl BlockBuilder {
+				#[doc = " Apply the given extrinsic."]
+				#[doc = ""]
+				#[doc = " Returns an inclusion outcome which specifies if this extrinsic is included in"]
+				#[doc = " this block or not."]
+				pub fn apply_extrinsic(
+					&self,
+					extrinsic : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) >,
+				) -> ::subxt::runtime_api::Payload<
+					types::ApplyExtrinsic,
+					::core::result::Result<
+						::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+						runtime_types::sp_runtime::transaction_validity::TransactionValidityError,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"BlockBuilder",
+						"apply_extrinsic",
+						types::ApplyExtrinsic { extrinsic },
+						[
+							72u8, 54u8, 139u8, 3u8, 118u8, 136u8, 65u8, 47u8, 6u8, 105u8, 125u8,
+							223u8, 160u8, 29u8, 103u8, 74u8, 79u8, 149u8, 48u8, 90u8, 237u8, 2u8,
+							97u8, 201u8, 123u8, 34u8, 167u8, 37u8, 187u8, 35u8, 176u8, 97u8,
+						],
+					)
+				}
+				#[doc = " Finish the current block."]
+				pub fn finalize_block(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::FinalizeBlock,
+					runtime_types::sp_runtime::generic::header::Header<::core::primitive::u32>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"BlockBuilder",
+						"finalize_block",
+						types::FinalizeBlock {},
+						[
+							244u8, 207u8, 24u8, 33u8, 13u8, 69u8, 9u8, 249u8, 145u8, 143u8, 122u8,
+							96u8, 197u8, 55u8, 64u8, 111u8, 238u8, 224u8, 34u8, 201u8, 27u8, 146u8,
+							232u8, 99u8, 191u8, 30u8, 114u8, 16u8, 32u8, 220u8, 58u8, 62u8,
+						],
+					)
+				}
+				#[doc = " Generate inherent extrinsics. The inherent data will vary from chain to chain."]				pub fn inherent_extrinsics (& self , inherent : runtime_types :: sp_inherents :: InherentData ,) -> :: subxt :: runtime_api :: Payload < types :: InherentExtrinsics , :: std :: vec :: Vec < :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > > >{
+					::subxt::runtime_api::Payload::new_static(
+						"BlockBuilder",
+						"inherent_extrinsics",
+						types::InherentExtrinsics { inherent },
+						[
+							254u8, 110u8, 245u8, 201u8, 250u8, 192u8, 27u8, 228u8, 151u8, 213u8,
+							166u8, 89u8, 94u8, 81u8, 189u8, 234u8, 64u8, 18u8, 245u8, 80u8, 29u8,
+							18u8, 140u8, 129u8, 113u8, 236u8, 135u8, 55u8, 79u8, 159u8, 175u8,
+							183u8,
+						],
+					)
+				}
+				#[doc = " Check that the inherents are valid. The inherent data will vary from chain to chain."]
+				pub fn check_inherents(
+					&self,
+					block : runtime_types :: sp_runtime :: generic :: block :: Block < runtime_types :: sp_runtime :: generic :: header :: Header < :: core :: primitive :: u32 > , :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > >,
+					data: runtime_types::sp_inherents::InherentData,
+				) -> ::subxt::runtime_api::Payload<
+					types::CheckInherents,
+					runtime_types::sp_inherents::CheckInherentsResult,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"BlockBuilder",
+						"check_inherents",
+						types::CheckInherents { block, data },
+						[
+							153u8, 134u8, 1u8, 215u8, 139u8, 11u8, 53u8, 51u8, 210u8, 175u8, 197u8,
+							28u8, 38u8, 209u8, 175u8, 247u8, 142u8, 157u8, 50u8, 151u8, 164u8,
+							191u8, 181u8, 118u8, 80u8, 97u8, 160u8, 248u8, 110u8, 217u8, 181u8,
+							234u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct ApplyExtrinsic { pub extrinsic : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > , }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct FinalizeBlock {}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct InherentExtrinsics {
+					pub inherent: runtime_types::sp_inherents::InherentData,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct CheckInherents { pub block : runtime_types :: sp_runtime :: generic :: block :: Block < runtime_types :: sp_runtime :: generic :: header :: Header < :: core :: primitive :: u32 > , :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > > , pub data : runtime_types :: sp_inherents :: InherentData , }
+			}
+		}
+		pub mod tagged_transaction_queue {
+			use super::{root_mod, runtime_types};
+			#[doc = " The `TaggedTransactionQueue` api trait for interfering with the transaction queue."]
+			pub struct TaggedTransactionQueue;
+			impl TaggedTransactionQueue {
+				#[doc = " Validate the transaction."]
+				#[doc = ""]
+				#[doc = " This method is invoked by the transaction pool to learn details about given transaction."]
+				#[doc = " The implementation should make sure to verify the correctness of the transaction"]
+				#[doc = " against current state. The given `block_hash` corresponds to the hash of the block"]
+				#[doc = " that is used as current state."]
+				#[doc = ""]
+				#[doc = " Note that this call may be performed by the pool multiple times and transactions"]
+				#[doc = " might be verified in any possible order."]
+				pub fn validate_transaction(
+					&self,
+					source: runtime_types::sp_runtime::transaction_validity::TransactionSource,
+					tx : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) >,
+					block_hash: ::subxt::utils::H256,
+				) -> ::subxt::runtime_api::Payload<
+					types::ValidateTransaction,
+					::core::result::Result<
+						runtime_types::sp_runtime::transaction_validity::ValidTransaction,
+						runtime_types::sp_runtime::transaction_validity::TransactionValidityError,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"TaggedTransactionQueue",
+						"validate_transaction",
+						types::ValidateTransaction { source, tx, block_hash },
+						[
+							196u8, 50u8, 90u8, 49u8, 109u8, 251u8, 200u8, 35u8, 23u8, 150u8, 140u8,
+							143u8, 232u8, 164u8, 133u8, 89u8, 32u8, 240u8, 115u8, 39u8, 95u8, 70u8,
+							162u8, 76u8, 122u8, 73u8, 151u8, 144u8, 234u8, 120u8, 100u8, 29u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct ValidateTransaction { pub source : runtime_types :: sp_runtime :: transaction_validity :: TransactionSource , pub tx : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > , pub block_hash : :: subxt :: utils :: H256 , }
+			}
+		}
+		pub mod aura_unincluded_segment_api {
+			use super::{root_mod, runtime_types};
+			#[doc = " This runtime API is used to inform potential block authors whether they will"]
+			#[doc = " have the right to author at a slot, assuming they have claimed the slot."]
+			#[doc = ""]
+			#[doc = " In particular, this API allows Aura-based parachains to regulate their \"unincluded segment\","]
+			#[doc = " which is the section of the head of the chain which has not yet been made available in the"]
+			#[doc = " relay chain."]
+			#[doc = ""]
+			#[doc = " When the unincluded segment is short, Aura chains will allow authors to create multiple"]
+			#[doc = " blocks per slot in order to build a backlog. When it is saturated, this API will limit"]
+			#[doc = " the amount of blocks that can be created."]
+			pub struct AuraUnincludedSegmentApi;
+			impl AuraUnincludedSegmentApi {
+				#[doc = " Whether it is legal to extend the chain, assuming the given block is the most"]
+				#[doc = " recently included one as-of the relay parent that will be built against, and"]
+				#[doc = " the given slot."]
+				#[doc = ""]
+				#[doc = " This should be consistent with the logic the runtime uses when validating blocks to"]
+				#[doc = " avoid issues."]
+				#[doc = ""]
+				#[doc = " When the unincluded segment is empty, i.e. `included_hash == at`, where at is the block"]
+				#[doc = " whose state we are querying against, this must always return `true` as long as the slot"]
+				#[doc = " is more recent than the included block itself."]
+				pub fn can_build_upon(
+					&self,
+					included_hash: ::subxt::utils::H256,
+					slot: runtime_types::sp_consensus_slots::Slot,
+				) -> ::subxt::runtime_api::Payload<types::CanBuildUpon, ::core::primitive::bool> {
+					::subxt::runtime_api::Payload::new_static(
+						"AuraUnincludedSegmentApi",
+						"can_build_upon",
+						types::CanBuildUpon { included_hash, slot },
+						[
+							255u8, 59u8, 225u8, 229u8, 189u8, 250u8, 48u8, 150u8, 92u8, 226u8,
+							221u8, 202u8, 143u8, 145u8, 107u8, 112u8, 151u8, 146u8, 136u8, 155u8,
+							118u8, 174u8, 52u8, 178u8, 14u8, 89u8, 194u8, 157u8, 110u8, 103u8,
+							92u8, 72u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct CanBuildUpon {
+					pub included_hash: ::subxt::utils::H256,
+					pub slot: runtime_types::sp_consensus_slots::Slot,
+				}
+			}
+		}
+		pub mod offchain_worker_api {
+			use super::{root_mod, runtime_types};
+			#[doc = " The offchain worker api."]
+			pub struct OffchainWorkerApi;
+			impl OffchainWorkerApi {
+				#[doc = " Starts the off-chain task for given block header."]
+				pub fn offchain_worker(
+					&self,
+					header: runtime_types::sp_runtime::generic::header::Header<
+						::core::primitive::u32,
+					>,
+				) -> ::subxt::runtime_api::Payload<types::OffchainWorker, ()> {
+					::subxt::runtime_api::Payload::new_static(
+						"OffchainWorkerApi",
+						"offchain_worker",
+						types::OffchainWorker { header },
+						[
+							10u8, 135u8, 19u8, 153u8, 33u8, 216u8, 18u8, 242u8, 33u8, 140u8, 4u8,
+							223u8, 200u8, 130u8, 103u8, 118u8, 137u8, 24u8, 19u8, 127u8, 161u8,
+							29u8, 184u8, 111u8, 222u8, 111u8, 253u8, 73u8, 45u8, 31u8, 79u8, 60u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct OffchainWorker {
+					pub header:
+						runtime_types::sp_runtime::generic::header::Header<::core::primitive::u32>,
+				}
+			}
+		}
+		pub mod session_keys {
+			use super::{root_mod, runtime_types};
+			#[doc = " Session keys runtime api."]
+			pub struct SessionKeys;
+			impl SessionKeys {
+				#[doc = " Generate a set of session keys with optionally using the given seed."]
+				#[doc = " The keys should be stored within the keystore exposed via runtime"]
+				#[doc = " externalities."]
+				#[doc = ""]
+				#[doc = " The seed needs to be a valid `utf8` string."]
+				#[doc = ""]
+				#[doc = " Returns the concatenated SCALE encoded public keys."]
+				pub fn generate_session_keys(
+					&self,
+					seed: ::core::option::Option<::std::vec::Vec<::core::primitive::u8>>,
+				) -> ::subxt::runtime_api::Payload<
+					types::GenerateSessionKeys,
+					::std::vec::Vec<::core::primitive::u8>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"SessionKeys",
+						"generate_session_keys",
+						types::GenerateSessionKeys { seed },
+						[
+							96u8, 171u8, 164u8, 166u8, 175u8, 102u8, 101u8, 47u8, 133u8, 95u8,
+							102u8, 202u8, 83u8, 26u8, 238u8, 47u8, 126u8, 132u8, 22u8, 11u8, 33u8,
+							190u8, 175u8, 94u8, 58u8, 245u8, 46u8, 80u8, 195u8, 184u8, 107u8, 65u8,
+						],
+					)
+				}
+				#[doc = " Decode the given public session keys."]
+				#[doc = ""]
+				#[doc = " Returns the list of public raw public keys + key type."]
+				pub fn decode_session_keys(
+					&self,
+					encoded: ::std::vec::Vec<::core::primitive::u8>,
+				) -> ::subxt::runtime_api::Payload<
+					types::DecodeSessionKeys,
+					::core::option::Option<
+						::std::vec::Vec<(
+							::std::vec::Vec<::core::primitive::u8>,
+							runtime_types::sp_core::crypto::KeyTypeId,
+						)>,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"SessionKeys",
+						"decode_session_keys",
+						types::DecodeSessionKeys { encoded },
+						[
+							57u8, 242u8, 18u8, 51u8, 132u8, 110u8, 238u8, 255u8, 39u8, 194u8, 8u8,
+							54u8, 198u8, 178u8, 75u8, 151u8, 148u8, 176u8, 144u8, 197u8, 87u8,
+							29u8, 179u8, 235u8, 176u8, 78u8, 252u8, 103u8, 72u8, 203u8, 151u8,
+							248u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct GenerateSessionKeys {
+					pub seed: ::core::option::Option<::std::vec::Vec<::core::primitive::u8>>,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct DecodeSessionKeys {
+					pub encoded: ::std::vec::Vec<::core::primitive::u8>,
+				}
+			}
+		}
+		pub mod account_nonce_api {
+			use super::{root_mod, runtime_types};
+			#[doc = " The API to query account nonce."]
+			pub struct AccountNonceApi;
+			impl AccountNonceApi {
+				#[doc = " Get current account nonce of given `AccountId`."]
+				pub fn account_nonce(
+					&self,
+					account: ::subxt::utils::AccountId32,
+				) -> ::subxt::runtime_api::Payload<types::AccountNonce, ::core::primitive::u32> {
+					::subxt::runtime_api::Payload::new_static(
+						"AccountNonceApi",
+						"account_nonce",
+						types::AccountNonce { account },
+						[
+							231u8, 82u8, 7u8, 227u8, 131u8, 2u8, 215u8, 252u8, 173u8, 82u8, 11u8,
+							103u8, 200u8, 25u8, 114u8, 116u8, 79u8, 229u8, 152u8, 150u8, 236u8,
+							37u8, 101u8, 26u8, 220u8, 146u8, 182u8, 101u8, 73u8, 55u8, 191u8,
+							171u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct AccountNonce {
+					pub account: ::subxt::utils::AccountId32,
+				}
+			}
+		}
+		pub mod transaction_payment_api {
+			use super::{root_mod, runtime_types};
+			pub struct TransactionPaymentApi;
+			impl TransactionPaymentApi {
+				pub fn query_info(
+					&self,
+					uxt : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) >,
+					len: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<
+					types::QueryInfo,
+					runtime_types::pallet_transaction_payment::types::RuntimeDispatchInfo<
+						::core::primitive::u128,
+						runtime_types::sp_weights::weight_v2::Weight,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentApi",
+						"query_info",
+						types::QueryInfo { uxt, len },
+						[
+							56u8, 30u8, 174u8, 34u8, 202u8, 24u8, 177u8, 189u8, 145u8, 36u8, 1u8,
+							156u8, 98u8, 209u8, 178u8, 49u8, 198u8, 23u8, 150u8, 173u8, 35u8,
+							205u8, 147u8, 129u8, 42u8, 22u8, 69u8, 3u8, 129u8, 8u8, 196u8, 139u8,
+						],
+					)
+				}
+				pub fn query_fee_details(
+					&self,
+					uxt : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) >,
+					len: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<
+					types::QueryFeeDetails,
+					runtime_types::pallet_transaction_payment::types::FeeDetails<
+						::core::primitive::u128,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentApi",
+						"query_fee_details",
+						types::QueryFeeDetails { uxt, len },
+						[
+							117u8, 60u8, 137u8, 159u8, 237u8, 252u8, 216u8, 238u8, 232u8, 1u8,
+							100u8, 152u8, 26u8, 185u8, 145u8, 125u8, 68u8, 189u8, 4u8, 30u8, 125u8,
+							7u8, 196u8, 153u8, 235u8, 51u8, 219u8, 108u8, 185u8, 254u8, 100u8,
+							201u8,
+						],
+					)
+				}
+				pub fn query_weight_to_fee(
+					&self,
+					weight: runtime_types::sp_weights::weight_v2::Weight,
+				) -> ::subxt::runtime_api::Payload<types::QueryWeightToFee, ::core::primitive::u128>
+				{
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentApi",
+						"query_weight_to_fee",
+						types::QueryWeightToFee { weight },
+						[
+							206u8, 243u8, 189u8, 83u8, 231u8, 244u8, 247u8, 52u8, 126u8, 208u8,
+							224u8, 5u8, 163u8, 108u8, 254u8, 114u8, 214u8, 156u8, 227u8, 217u8,
+							211u8, 198u8, 121u8, 164u8, 110u8, 54u8, 181u8, 146u8, 50u8, 146u8,
+							146u8, 23u8,
+						],
+					)
+				}
+				pub fn query_length_to_fee(
+					&self,
+					length: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<types::QueryLengthToFee, ::core::primitive::u128>
+				{
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentApi",
+						"query_length_to_fee",
+						types::QueryLengthToFee { length },
+						[
+							92u8, 132u8, 29u8, 119u8, 66u8, 11u8, 196u8, 224u8, 129u8, 23u8, 249u8,
+							12u8, 32u8, 28u8, 92u8, 50u8, 188u8, 101u8, 203u8, 229u8, 248u8, 216u8,
+							130u8, 150u8, 212u8, 161u8, 81u8, 254u8, 116u8, 89u8, 162u8, 48u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryInfo { pub uxt : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > , pub len : :: core :: primitive :: u32 , }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryFeeDetails { pub uxt : :: subxt :: utils :: UncheckedExtrinsic < :: subxt :: utils :: MultiAddress < :: subxt :: utils :: AccountId32 , () > , runtime_types :: parachain_runtime :: RuntimeCall , runtime_types :: sp_runtime :: MultiSignature , (runtime_types :: frame_system :: extensions :: check_non_zero_sender :: CheckNonZeroSender , runtime_types :: frame_system :: extensions :: check_spec_version :: CheckSpecVersion , runtime_types :: frame_system :: extensions :: check_tx_version :: CheckTxVersion , runtime_types :: frame_system :: extensions :: check_genesis :: CheckGenesis , runtime_types :: frame_system :: extensions :: check_mortality :: CheckMortality , runtime_types :: frame_system :: extensions :: check_nonce :: CheckNonce , runtime_types :: frame_system :: extensions :: check_weight :: CheckWeight , runtime_types :: pallet_transaction_payment :: ChargeTransactionPayment ,) > , pub len : :: core :: primitive :: u32 , }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryWeightToFee {
+					pub weight: runtime_types::sp_weights::weight_v2::Weight,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryLengthToFee {
+					pub length: ::core::primitive::u32,
+				}
+			}
+		}
+		pub mod transaction_payment_call_api {
+			use super::{root_mod, runtime_types};
+			pub struct TransactionPaymentCallApi;
+			impl TransactionPaymentCallApi {
+				#[doc = " Query information of a dispatch class, weight, and fee of a given encoded `Call`."]
+				pub fn query_call_info(
+					&self,
+					call: runtime_types::parachain_runtime::RuntimeCall,
+					len: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<
+					types::QueryCallInfo,
+					runtime_types::pallet_transaction_payment::types::RuntimeDispatchInfo<
+						::core::primitive::u128,
+						runtime_types::sp_weights::weight_v2::Weight,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentCallApi",
+						"query_call_info",
+						types::QueryCallInfo { call, len },
+						[
+							54u8, 227u8, 203u8, 219u8, 100u8, 149u8, 137u8, 10u8, 32u8, 173u8,
+							38u8, 197u8, 163u8, 80u8, 63u8, 3u8, 115u8, 116u8, 164u8, 250u8, 199u8,
+							152u8, 167u8, 127u8, 191u8, 114u8, 24u8, 142u8, 38u8, 175u8, 248u8,
+							0u8,
+						],
+					)
+				}
+				#[doc = " Query fee details of a given encoded `Call`."]
+				pub fn query_call_fee_details(
+					&self,
+					call: runtime_types::parachain_runtime::RuntimeCall,
+					len: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<
+					types::QueryCallFeeDetails,
+					runtime_types::pallet_transaction_payment::types::FeeDetails<
+						::core::primitive::u128,
+					>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentCallApi",
+						"query_call_fee_details",
+						types::QueryCallFeeDetails { call, len },
+						[
+							119u8, 34u8, 143u8, 60u8, 63u8, 63u8, 21u8, 27u8, 252u8, 13u8, 214u8,
+							152u8, 49u8, 1u8, 83u8, 224u8, 136u8, 174u8, 108u8, 37u8, 162u8, 82u8,
+							234u8, 223u8, 66u8, 165u8, 185u8, 33u8, 80u8, 46u8, 225u8, 26u8,
+						],
+					)
+				}
+				#[doc = " Query the output of the current `WeightToFee` given some input."]
+				pub fn query_weight_to_fee(
+					&self,
+					weight: runtime_types::sp_weights::weight_v2::Weight,
+				) -> ::subxt::runtime_api::Payload<types::QueryWeightToFee, ::core::primitive::u128>
+				{
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentCallApi",
+						"query_weight_to_fee",
+						types::QueryWeightToFee { weight },
+						[
+							117u8, 91u8, 94u8, 22u8, 248u8, 212u8, 15u8, 23u8, 97u8, 116u8, 64u8,
+							228u8, 83u8, 123u8, 87u8, 77u8, 97u8, 7u8, 98u8, 181u8, 6u8, 165u8,
+							114u8, 141u8, 164u8, 113u8, 126u8, 88u8, 174u8, 171u8, 224u8, 35u8,
+						],
+					)
+				}
+				#[doc = " Query the output of the current `LengthToFee` given some input."]
+				pub fn query_length_to_fee(
+					&self,
+					length: ::core::primitive::u32,
+				) -> ::subxt::runtime_api::Payload<types::QueryLengthToFee, ::core::primitive::u128>
+				{
+					::subxt::runtime_api::Payload::new_static(
+						"TransactionPaymentCallApi",
+						"query_length_to_fee",
+						types::QueryLengthToFee { length },
+						[
+							246u8, 40u8, 4u8, 160u8, 152u8, 94u8, 170u8, 53u8, 205u8, 122u8, 5u8,
+							69u8, 70u8, 25u8, 128u8, 156u8, 119u8, 134u8, 116u8, 147u8, 14u8,
+							164u8, 65u8, 140u8, 86u8, 13u8, 250u8, 218u8, 89u8, 95u8, 234u8, 228u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryCallInfo {
+					pub call: runtime_types::parachain_runtime::RuntimeCall,
+					pub len: ::core::primitive::u32,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryCallFeeDetails {
+					pub call: runtime_types::parachain_runtime::RuntimeCall,
+					pub len: ::core::primitive::u32,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryWeightToFee {
+					pub weight: runtime_types::sp_weights::weight_v2::Weight,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct QueryLengthToFee {
+					pub length: ::core::primitive::u32,
+				}
+			}
+		}
+		pub mod collect_collation_info {
+			use super::{root_mod, runtime_types};
+			#[doc = " Runtime api to collect information about a collation."]
+			pub struct CollectCollationInfo;
+			impl CollectCollationInfo {
+				#[doc = " Collect information about a collation."]
+				#[doc = ""]
+				#[doc = " The given `header` is the header of the built block for that"]
+				#[doc = " we are collecting the collation info for."]
+				pub fn collect_collation_info(
+					&self,
+					header: runtime_types::sp_runtime::generic::header::Header<
+						::core::primitive::u32,
+					>,
+				) -> ::subxt::runtime_api::Payload<
+					types::CollectCollationInfo,
+					runtime_types::cumulus_primitives_core::CollationInfo,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"CollectCollationInfo",
+						"collect_collation_info",
+						types::CollectCollationInfo { header },
+						[
+							56u8, 138u8, 105u8, 91u8, 216u8, 40u8, 255u8, 98u8, 86u8, 138u8, 185u8,
+							155u8, 80u8, 141u8, 85u8, 48u8, 252u8, 235u8, 178u8, 231u8, 111u8,
+							216u8, 71u8, 20u8, 33u8, 202u8, 24u8, 215u8, 214u8, 132u8, 51u8, 166u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct CollectCollationInfo {
+					pub header:
+						runtime_types::sp_runtime::generic::header::Header<::core::primitive::u32>,
+				}
+			}
+		}
+		pub mod create_transaction_api {
+			use super::{root_mod, runtime_types};
+			#[doc = " Create transaction."]
+			#[doc = " This trait is meant to be implemented by the runtime and is responsible for constructing"]
+			#[doc = " a transaction to be included in the block."]
+			pub struct CreateTransactionApi;
+			impl CreateTransactionApi {
+				#[doc = " Attempt to create signed transaction"]
+				#[doc = " Runtime implementation is free to construct the payload to sign in any way it wants."]
+				#[doc = " Returns a scale encoded extrinsic Should panic if signed transaction cannot be created."]
+				pub fn create_transaction(
+					&self,
+					account: ::subxt::utils::AccountId32,
+					call: runtime_types::parachain_runtime::RuntimeCall,
+				) -> ::subxt::runtime_api::Payload<
+					types::CreateTransaction,
+					::std::vec::Vec<::core::primitive::u8>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"CreateTransactionApi",
+						"create_transaction",
+						types::CreateTransaction { account, call },
+						[
+							195u8, 216u8, 143u8, 180u8, 11u8, 5u8, 220u8, 221u8, 60u8, 1u8, 165u8,
+							142u8, 150u8, 55u8, 4u8, 133u8, 33u8, 142u8, 38u8, 19u8, 187u8, 192u8,
+							150u8, 117u8, 100u8, 175u8, 181u8, 46u8, 251u8, 185u8, 128u8, 4u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct CreateTransaction {
+					pub account: ::subxt::utils::AccountId32,
+					pub call: runtime_types::parachain_runtime::RuntimeCall,
+				}
+			}
+		}
+		pub mod genesis_builder {
+			use super::{root_mod, runtime_types};
+			#[doc = " API to interact with GenesisConfig for the runtime"]
+			pub struct GenesisBuilder;
+			impl GenesisBuilder {
+				#[doc = " Creates the default `GenesisConfig` and returns it as a JSON blob."]
+				#[doc = ""]
+				#[doc = " This function instantiates the default `GenesisConfig` struct for the runtime and serializes it into a JSON"]
+				#[doc = " blob. It returns a `Vec<u8>` containing the JSON representation of the default `GenesisConfig`."]
+				pub fn create_default_config(
+					&self,
+				) -> ::subxt::runtime_api::Payload<
+					types::CreateDefaultConfig,
+					::std::vec::Vec<::core::primitive::u8>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"GenesisBuilder",
+						"create_default_config",
+						types::CreateDefaultConfig {},
+						[
+							238u8, 5u8, 139u8, 81u8, 184u8, 155u8, 221u8, 118u8, 190u8, 76u8,
+							229u8, 67u8, 132u8, 89u8, 83u8, 80u8, 56u8, 171u8, 169u8, 64u8, 123u8,
+							20u8, 129u8, 159u8, 28u8, 135u8, 84u8, 52u8, 192u8, 98u8, 104u8, 214u8,
+						],
+					)
+				}
+				#[doc = " Build `GenesisConfig` from a JSON blob not using any defaults and store it in the storage."]
+				#[doc = ""]
+				#[doc = " This function deserializes the full `GenesisConfig` from the given JSON blob and puts it into the storage."]
+				#[doc = " If the provided JSON blob is incorrect or incomplete or the deserialization fails, an error is returned."]
+				#[doc = " It is recommended to log any errors encountered during the process."]
+				#[doc = ""]
+				#[doc = " Please note that provided json blob must contain all `GenesisConfig` fields, no defaults will be used."]
+				pub fn build_config(
+					&self,
+					json: ::std::vec::Vec<::core::primitive::u8>,
+				) -> ::subxt::runtime_api::Payload<
+					types::BuildConfig,
+					::core::result::Result<(), ::std::string::String>,
+				> {
+					::subxt::runtime_api::Payload::new_static(
+						"GenesisBuilder",
+						"build_config",
+						types::BuildConfig { json },
+						[
+							6u8, 98u8, 68u8, 125u8, 157u8, 26u8, 107u8, 86u8, 213u8, 227u8, 26u8,
+							229u8, 122u8, 161u8, 229u8, 114u8, 123u8, 192u8, 66u8, 231u8, 148u8,
+							175u8, 5u8, 185u8, 248u8, 88u8, 40u8, 122u8, 230u8, 209u8, 170u8,
+							254u8,
+						],
+					)
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct CreateDefaultConfig {}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct BuildConfig {
+					pub json: ::std::vec::Vec<::core::primitive::u8>,
+				}
+			}
+		}
 	}
 	pub struct ConstantsApi;
 	impl ConstantsApi {
@@ -64,6 +1277,12 @@ pub mod api {
 		}
 		pub fn transaction_payment(&self) -> transaction_payment::constants::ConstantsApi {
 			transaction_payment::constants::ConstantsApi
+		}
+		pub fn xcmp_queue(&self) -> xcmp_queue::constants::ConstantsApi {
+			xcmp_queue::constants::ConstantsApi
+		}
+		pub fn message_queue(&self) -> message_queue::constants::ConstantsApi {
+			message_queue::constants::ConstantsApi
 		}
 	}
 	pub struct StorageApi;
@@ -86,6 +1305,9 @@ pub mod api {
 		pub fn transaction_payment(&self) -> transaction_payment::storage::StorageApi {
 			transaction_payment::storage::StorageApi
 		}
+		pub fn sudo(&self) -> sudo::storage::StorageApi {
+			sudo::storage::StorageApi
+		}
 		pub fn authorship(&self) -> authorship::storage::StorageApi {
 			authorship::storage::StorageApi
 		}
@@ -107,11 +1329,8 @@ pub mod api {
 		pub fn polkadot_xcm(&self) -> polkadot_xcm::storage::StorageApi {
 			polkadot_xcm::storage::StorageApi
 		}
-		pub fn dmp_queue(&self) -> dmp_queue::storage::StorageApi {
-			dmp_queue::storage::StorageApi
-		}
-		pub fn sudo(&self) -> sudo::storage::StorageApi {
-			sudo::storage::StorageApi
+		pub fn message_queue(&self) -> message_queue::storage::StorageApi {
+			message_queue::storage::StorageApi
 		}
 	}
 	pub struct TransactionApi;
@@ -131,6 +1350,9 @@ pub mod api {
 		pub fn balances(&self) -> balances::calls::TransactionApi {
 			balances::calls::TransactionApi
 		}
+		pub fn sudo(&self) -> sudo::calls::TransactionApi {
+			sudo::calls::TransactionApi
+		}
 		pub fn collator_selection(&self) -> collator_selection::calls::TransactionApi {
 			collator_selection::calls::TransactionApi
 		}
@@ -146,11 +1368,8 @@ pub mod api {
 		pub fn cumulus_xcm(&self) -> cumulus_xcm::calls::TransactionApi {
 			cumulus_xcm::calls::TransactionApi
 		}
-		pub fn dmp_queue(&self) -> dmp_queue::calls::TransactionApi {
-			dmp_queue::calls::TransactionApi
-		}
-		pub fn sudo(&self) -> sudo::calls::TransactionApi {
-			sudo::calls::TransactionApi
+		pub fn message_queue(&self) -> message_queue::calls::TransactionApi {
+			message_queue::calls::TransactionApi
 		}
 	}
 	#[doc = r" check whether the metadata provided is aligned with this statically generated code."]
@@ -162,16 +1381,16 @@ pub mod api {
 			.hash();
 		runtime_metadata_hash ==
 			[
-				12u8, 121u8, 216u8, 192u8, 5u8, 45u8, 171u8, 150u8, 148u8, 202u8, 101u8, 51u8,
-				140u8, 93u8, 165u8, 115u8, 20u8, 228u8, 64u8, 240u8, 196u8, 222u8, 47u8, 250u8,
-				183u8, 253u8, 127u8, 4u8, 224u8, 61u8, 134u8, 189u8,
+				240u8, 109u8, 29u8, 187u8, 14u8, 111u8, 97u8, 120u8, 70u8, 37u8, 55u8, 91u8, 35u8,
+				95u8, 215u8, 197u8, 209u8, 211u8, 184u8, 246u8, 88u8, 254u8, 176u8, 222u8, 99u8,
+				93u8, 226u8, 68u8, 200u8, 216u8, 3u8, 173u8,
 			]
 	}
 	pub mod system {
 		use super::{root_mod, runtime_types};
 		#[doc = "Error for the System pallet"]
 		pub type Error = runtime_types::frame_system::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::frame_system::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -319,13 +1538,61 @@ pub mod api {
 					const PALLET: &'static str = "System";
 					const CALL: &'static str = "remark_with_event";
 				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct AuthorizeUpgrade {
+					pub code_hash: ::subxt::utils::H256,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for AuthorizeUpgrade {
+					const PALLET: &'static str = "System";
+					const CALL: &'static str = "authorize_upgrade";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct AuthorizeUpgradeWithoutChecks {
+					pub code_hash: ::subxt::utils::H256,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for AuthorizeUpgradeWithoutChecks {
+					const PALLET: &'static str = "System";
+					const CALL: &'static str = "authorize_upgrade_without_checks";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct ApplyAuthorizedUpgrade {
+					pub code: ::std::vec::Vec<::core::primitive::u8>,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for ApplyAuthorizedUpgrade {
+					const PALLET: &'static str = "System";
+					const CALL: &'static str = "apply_authorized_upgrade";
+				}
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Make some on-chain remark."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- `O(1)`"]
+				#[doc = "See [`Pallet::remark`]."]
 				pub fn remark(
 					&self,
 					remark: ::std::vec::Vec<::core::primitive::u8>,
@@ -342,7 +1609,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set the number of pages in the WebAssembly environment's heap."]
+				#[doc = "See [`Pallet::set_heap_pages`]."]
 				pub fn set_heap_pages(
 					&self,
 					pages: ::core::primitive::u64,
@@ -359,10 +1626,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set the new runtime code."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- `O(C + S)` where `C` length of `code` and `S` complexity of `can_set_code`"]
+				#[doc = "See [`Pallet::set_code`]."]
 				pub fn set_code(
 					&self,
 					code: ::std::vec::Vec<::core::primitive::u8>,
@@ -378,10 +1642,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set the new runtime code without doing any checks of the given `code`."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- `O(C)` where `C` length of `code`"]
+				#[doc = "See [`Pallet::set_code_without_checks`]."]
 				pub fn set_code_without_checks(
 					&self,
 					code: ::std::vec::Vec<::core::primitive::u8>,
@@ -398,7 +1659,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set some items of storage."]
+				#[doc = "See [`Pallet::set_storage`]."]
 				pub fn set_storage(
 					&self,
 					items: ::std::vec::Vec<(
@@ -418,7 +1679,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Kill some items from storage."]
+				#[doc = "See [`Pallet::kill_storage`]."]
 				pub fn kill_storage(
 					&self,
 					keys: ::std::vec::Vec<::std::vec::Vec<::core::primitive::u8>>,
@@ -435,10 +1696,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Kill all storage items with a key that starts with the given prefix."]
-				#[doc = ""]
-				#[doc = "**NOTE:** We rely on the Root origin to provide us the number of subkeys under"]
-				#[doc = "the prefix we are removing to accurately calculate the weight of this function."]
+				#[doc = "See [`Pallet::kill_prefix`]."]
 				pub fn kill_prefix(
 					&self,
 					prefix: ::std::vec::Vec<::core::primitive::u8>,
@@ -456,7 +1714,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Make some on-chain remark and emit event."]
+				#[doc = "See [`Pallet::remark_with_event`]."]
 				pub fn remark_with_event(
 					&self,
 					remark: ::std::vec::Vec<::core::primitive::u8>,
@@ -469,6 +1727,56 @@ pub mod api {
 							120u8, 120u8, 153u8, 92u8, 184u8, 85u8, 34u8, 2u8, 174u8, 206u8, 105u8,
 							228u8, 233u8, 130u8, 80u8, 246u8, 228u8, 59u8, 234u8, 240u8, 4u8, 49u8,
 							147u8, 170u8, 115u8, 91u8, 149u8, 200u8, 228u8, 181u8, 8u8, 154u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::authorize_upgrade`]."]
+				pub fn authorize_upgrade(
+					&self,
+					code_hash: ::subxt::utils::H256,
+				) -> ::subxt::tx::Payload<types::AuthorizeUpgrade> {
+					::subxt::tx::Payload::new_static(
+						"System",
+						"authorize_upgrade",
+						types::AuthorizeUpgrade { code_hash },
+						[
+							4u8, 14u8, 76u8, 107u8, 209u8, 129u8, 9u8, 39u8, 193u8, 17u8, 84u8,
+							254u8, 170u8, 214u8, 24u8, 155u8, 29u8, 184u8, 249u8, 241u8, 109u8,
+							58u8, 145u8, 131u8, 109u8, 63u8, 38u8, 165u8, 107u8, 215u8, 217u8,
+							172u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::authorize_upgrade_without_checks`]."]
+				pub fn authorize_upgrade_without_checks(
+					&self,
+					code_hash: ::subxt::utils::H256,
+				) -> ::subxt::tx::Payload<types::AuthorizeUpgradeWithoutChecks> {
+					::subxt::tx::Payload::new_static(
+						"System",
+						"authorize_upgrade_without_checks",
+						types::AuthorizeUpgradeWithoutChecks { code_hash },
+						[
+							126u8, 126u8, 55u8, 26u8, 47u8, 55u8, 66u8, 8u8, 167u8, 18u8, 29u8,
+							136u8, 146u8, 14u8, 189u8, 117u8, 16u8, 227u8, 162u8, 61u8, 149u8,
+							197u8, 104u8, 184u8, 185u8, 161u8, 99u8, 154u8, 80u8, 125u8, 181u8,
+							233u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::apply_authorized_upgrade`]."]
+				pub fn apply_authorized_upgrade(
+					&self,
+					code: ::std::vec::Vec<::core::primitive::u8>,
+				) -> ::subxt::tx::Payload<types::ApplyAuthorizedUpgrade> {
+					::subxt::tx::Payload::new_static(
+						"System",
+						"apply_authorized_upgrade",
+						types::ApplyAuthorizedUpgrade { code },
+						[
+							232u8, 107u8, 127u8, 38u8, 230u8, 29u8, 97u8, 4u8, 160u8, 191u8, 222u8,
+							156u8, 245u8, 102u8, 196u8, 141u8, 44u8, 163u8, 98u8, 68u8, 125u8,
+							32u8, 124u8, 101u8, 108u8, 93u8, 211u8, 52u8, 0u8, 231u8, 33u8, 227u8,
 						],
 					)
 				}
@@ -585,6 +1893,25 @@ pub mod api {
 			impl ::subxt::events::StaticEvent for Remarked {
 				const PALLET: &'static str = "System";
 				const EVENT: &'static str = "Remarked";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "An upgrade was authorized."]
+			pub struct UpgradeAuthorized {
+				pub code_hash: ::subxt::utils::H256,
+				pub check_version: ::core::primitive::bool,
+			}
+			impl ::subxt::events::StaticEvent for UpgradeAuthorized {
+				const PALLET: &'static str = "System";
+				const EVENT: &'static str = "UpgradeAuthorized";
 			}
 		}
 		pub mod storage {
@@ -871,7 +2198,7 @@ pub mod api {
 					::subxt::storage::address::StaticStorageMapKey,
 					::std::vec::Vec<
 						runtime_types::frame_system::EventRecord<
-							runtime_types::parachain_template_runtime::RuntimeEvent,
+							runtime_types::parachain_runtime::RuntimeEvent,
 							::subxt::utils::H256,
 						>,
 					>,
@@ -884,9 +2211,10 @@ pub mod api {
 						"Events",
 						vec![],
 						[
-							223u8, 108u8, 242u8, 15u8, 49u8, 229u8, 241u8, 182u8, 23u8, 3u8, 34u8,
-							253u8, 215u8, 77u8, 74u8, 19u8, 4u8, 106u8, 118u8, 200u8, 210u8, 60u8,
-							224u8, 72u8, 172u8, 95u8, 215u8, 163u8, 161u8, 153u8, 146u8, 218u8,
+							220u8, 68u8, 19u8, 163u8, 171u8, 229u8, 171u8, 124u8, 236u8, 181u8,
+							184u8, 204u8, 0u8, 97u8, 70u8, 235u8, 158u8, 107u8, 144u8, 165u8,
+							200u8, 125u8, 155u8, 238u8, 254u8, 164u8, 46u8, 25u8, 137u8, 224u8,
+							48u8, 194u8,
 						],
 					)
 				}
@@ -919,7 +2247,7 @@ pub mod api {
 				#[doc = " allows light-clients to leverage the changes trie storage tracking mechanism and"]
 				#[doc = " in case of changes fetch the list of events of interest."]
 				#[doc = ""]
-				#[doc = " The value has the type `(T::BlockNumber, EventIndex)` because if we used only just"]
+				#[doc = " The value has the type `(BlockNumberFor<T>, EventIndex)` because if we used only just"]
 				#[doc = " the `EventIndex` then in case if the topic has the same contents on the next block"]
 				#[doc = " no notification will be triggered thus the event might be lost."]
 				pub fn event_topics(
@@ -950,7 +2278,7 @@ pub mod api {
 				#[doc = " allows light-clients to leverage the changes trie storage tracking mechanism and"]
 				#[doc = " in case of changes fetch the list of events of interest."]
 				#[doc = ""]
-				#[doc = " The value has the type `(T::BlockNumber, EventIndex)` because if we used only just"]
+				#[doc = " The value has the type `(BlockNumberFor<T>, EventIndex)` because if we used only just"]
 				#[doc = " the `EventIndex` then in case if the topic has the same contents on the next block"]
 				#[doc = " no notification will be triggered thus the event might be lost."]
 				pub fn event_topics_root(
@@ -1059,6 +2387,27 @@ pub mod api {
 						],
 					)
 				}
+				#[doc = " `Some` if a code upgrade has been authorized."]
+				pub fn authorized_upgrade(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::frame_system::CodeUpgradeAuthorization,
+					::subxt::storage::address::Yes,
+					(),
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"System",
+						"AuthorizedUpgrade",
+						vec![],
+						[
+							165u8, 97u8, 27u8, 138u8, 2u8, 28u8, 55u8, 92u8, 96u8, 96u8, 168u8,
+							169u8, 55u8, 178u8, 44u8, 127u8, 58u8, 140u8, 206u8, 178u8, 1u8, 37u8,
+							214u8, 213u8, 251u8, 123u8, 5u8, 111u8, 90u8, 148u8, 217u8, 135u8,
+						],
+					)
+				}
 			}
 		}
 		pub mod constants {
@@ -1160,9 +2509,9 @@ pub mod api {
 	}
 	pub mod parachain_system {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+		#[doc = "The `Error` enum of this pallet."]
 		pub type Error = runtime_types::cumulus_pallet_parachain_system::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::cumulus_pallet_parachain_system::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -1242,15 +2591,7 @@ pub mod api {
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Set the current validation data."]
-				#[doc = ""]
-				#[doc = "This should be invoked exactly once per block. It will panic at the finalization"]
-				#[doc = "phase if the call was not invoked."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be `Inherent`"]
-				#[doc = ""]
-				#[doc = "As a side effect, this function upgrades the current validation function"]
-				#[doc = "if the appropriate time has come."]
+				#[doc = "See [`Pallet::set_validation_data`]."]
 				pub fn set_validation_data(
 					&self,
 					data : runtime_types :: cumulus_primitives_parachain_inherent :: ParachainInherentData,
@@ -1267,6 +2608,7 @@ pub mod api {
 						],
 					)
 				}
+				#[doc = "See [`Pallet::sudo_send_upward_message`]."]
 				pub fn sudo_send_upward_message(
 					&self,
 					message: ::std::vec::Vec<::core::primitive::u8>,
@@ -1282,14 +2624,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Authorize an upgrade to a given `code_hash` for the runtime. The runtime can be supplied"]
-				#[doc = "later."]
-				#[doc = ""]
-				#[doc = "The `check_version` parameter sets a boolean flag for whether or not the runtime's spec"]
-				#[doc = "version and name should be verified on upgrade. Since the authorization only has a hash,"]
-				#[doc = "it cannot actually perform the verification."]
-				#[doc = ""]
-				#[doc = "This call requires Root origin."]
+				#[doc = "See [`Pallet::authorize_upgrade`]."]
 				pub fn authorize_upgrade(
 					&self,
 					code_hash: ::subxt::utils::H256,
@@ -1307,15 +2642,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Provide the preimage (runtime binary) `code` for an upgrade that has been authorized."]
-				#[doc = ""]
-				#[doc = "If the authorization required a version check, this call will ensure the spec name"]
-				#[doc = "remains unchanged and that the spec version has increased."]
-				#[doc = ""]
-				#[doc = "Note that this function will not apply the new `code`, but only attempt to schedule the"]
-				#[doc = "upgrade with the Relay Chain."]
-				#[doc = ""]
-				#[doc = "All origins are allowed."]
+				#[doc = "See [`Pallet::enact_authorized_upgrade`]."]
 				pub fn enact_authorized_upgrade(
 					&self,
 					code: ::std::vec::Vec<::core::primitive::u8>,
@@ -1333,7 +2660,7 @@ pub mod api {
 				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::cumulus_pallet_parachain_system::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -1387,24 +2714,6 @@ pub mod api {
 			impl ::subxt::events::StaticEvent for ValidationFunctionDiscarded {
 				const PALLET: &'static str = "ParachainSystem";
 				const EVENT: &'static str = "ValidationFunctionDiscarded";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "An upgrade has been authorized."]
-			pub struct UpgradeAuthorized {
-				pub code_hash: ::subxt::utils::H256,
-			}
-			impl ::subxt::events::StaticEvent for UpgradeAuthorized {
-				const PALLET: &'static str = "ParachainSystem";
-				const EVENT: &'static str = "UpgradeAuthorized";
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: CompactAs,
@@ -1467,12 +2776,45 @@ pub mod api {
 			use super::runtime_types;
 			pub struct StorageApi;
 			impl StorageApi {
-				#[doc = " In case of a scheduled upgrade, this storage field contains the validation code to be applied."]
+				#[doc = " Latest included block descendants the runtime accepted. In other words, these are"]
+				#[doc = " ancestors of the currently executing block which have not been included in the observed"]
+				#[doc = " relay-chain state."]
 				#[doc = ""]
-				#[doc = " As soon as the relay chain gives us the go-ahead signal, we will overwrite the [`:code`][well_known_keys::CODE]"]
-				#[doc = " which will result the next block process with the new validation code. This concludes the upgrade process."]
+				#[doc = " The segment length is limited by the capacity returned from the [`ConsensusHook`] configured"]
+				#[doc = " in the pallet."]				pub fn unincluded_segment (& self ,) -> :: subxt :: storage :: address :: Address :: < :: subxt :: storage :: address :: StaticStorageMapKey , :: std :: vec :: Vec < runtime_types :: cumulus_pallet_parachain_system :: unincluded_segment :: Ancestor < :: subxt :: utils :: H256 > > , :: subxt :: storage :: address :: Yes , :: subxt :: storage :: address :: Yes , () >{
+					::subxt::storage::address::Address::new_static(
+						"ParachainSystem",
+						"UnincludedSegment",
+						vec![],
+						[
+							73u8, 83u8, 226u8, 16u8, 203u8, 233u8, 221u8, 109u8, 23u8, 114u8, 56u8,
+							154u8, 100u8, 116u8, 253u8, 10u8, 164u8, 22u8, 110u8, 73u8, 245u8,
+							226u8, 54u8, 146u8, 67u8, 109u8, 149u8, 142u8, 154u8, 218u8, 55u8,
+							178u8,
+						],
+					)
+				}
+				#[doc = " Storage field that keeps track of bandwidth used by the unincluded segment along with the"]
+				#[doc = " latest HRMP watermark. Used for limiting the acceptance of new blocks with"]
+				#[doc = " respect to relay chain constraints."]				pub fn aggregated_unincluded_segment (& self ,) -> :: subxt :: storage :: address :: Address :: < :: subxt :: storage :: address :: StaticStorageMapKey , runtime_types :: cumulus_pallet_parachain_system :: unincluded_segment :: SegmentTracker < :: subxt :: utils :: H256 > , :: subxt :: storage :: address :: Yes , () , () >{
+					::subxt::storage::address::Address::new_static(
+						"ParachainSystem",
+						"AggregatedUnincludedSegment",
+						vec![],
+						[
+							165u8, 51u8, 182u8, 156u8, 65u8, 114u8, 167u8, 133u8, 245u8, 52u8,
+							32u8, 119u8, 159u8, 65u8, 201u8, 108u8, 99u8, 43u8, 84u8, 63u8, 95u8,
+							182u8, 134u8, 163u8, 51u8, 202u8, 243u8, 82u8, 225u8, 192u8, 186u8,
+							2u8,
+						],
+					)
+				}
+				#[doc = " In case of a scheduled upgrade, this storage field contains the validation code to be"]
+				#[doc = " applied."]
 				#[doc = ""]
-				#[doc = " [well_known_keys::CODE]: sp_core::storage::well_known_keys::CODE"]
+				#[doc = " As soon as the relay chain gives us the go-ahead signal, we will overwrite the"]
+				#[doc = " [`:code`][sp_core::storage::well_known_keys::CODE] which will result the next block process"]
+				#[doc = " with the new validation code. This concludes the upgrade process."]
 				pub fn pending_validation_code(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -1525,7 +2867,7 @@ pub mod api {
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::polkadot_primitives::v4::PersistedValidationData<
+					runtime_types::polkadot_primitives::v6::PersistedValidationData<
 						::subxt::utils::H256,
 						::core::primitive::u32,
 					>,
@@ -1566,6 +2908,8 @@ pub mod api {
 					)
 				}
 				#[doc = " The relay chain block number associated with the last parachain block."]
+				#[doc = ""]
+				#[doc = " This is updated in `on_finalize`."]
 				pub fn last_relay_chain_block_number(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -1599,7 +2943,7 @@ pub mod api {
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
 					::core::option::Option<
-						runtime_types::polkadot_primitives::v4::UpgradeRestriction,
+						runtime_types::polkadot_primitives::v6::UpgradeRestriction,
 					>,
 					::subxt::storage::address::Yes,
 					::subxt::storage::address::Yes,
@@ -1613,6 +2957,31 @@ pub mod api {
 							235u8, 240u8, 37u8, 44u8, 181u8, 52u8, 7u8, 216u8, 20u8, 139u8, 69u8,
 							124u8, 21u8, 173u8, 237u8, 64u8, 105u8, 88u8, 49u8, 69u8, 123u8, 55u8,
 							181u8, 167u8, 112u8, 183u8, 190u8, 231u8, 231u8, 127u8, 77u8, 148u8,
+						],
+					)
+				}
+				#[doc = " Optional upgrade go-ahead signal from the relay-chain."]
+				#[doc = ""]
+				#[doc = " This storage item is a mirror of the corresponding value for the current parachain from the"]
+				#[doc = " relay-chain. This value is ephemeral which means it doesn't hit the storage. This value is"]
+				#[doc = " set after the inherent."]
+				pub fn upgrade_go_ahead(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					::core::option::Option<runtime_types::polkadot_primitives::v6::UpgradeGoAhead>,
+					::subxt::storage::address::Yes,
+					::subxt::storage::address::Yes,
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"ParachainSystem",
+						"UpgradeGoAhead",
+						vec![],
+						[
+							149u8, 144u8, 186u8, 88u8, 180u8, 34u8, 82u8, 226u8, 100u8, 148u8,
+							246u8, 55u8, 233u8, 97u8, 43u8, 0u8, 48u8, 31u8, 69u8, 154u8, 29u8,
+							147u8, 241u8, 91u8, 81u8, 126u8, 206u8, 117u8, 14u8, 149u8, 87u8, 88u8,
 						],
 					)
 				}
@@ -1655,9 +3024,10 @@ pub mod api {
 						"RelevantMessagingState",
 						vec![],
 						[
-							155u8, 67u8, 173u8, 168u8, 56u8, 190u8, 228u8, 128u8, 168u8, 197u8,
-							127u8, 187u8, 79u8, 48u8, 157u8, 247u8, 193u8, 75u8, 86u8, 12u8, 45u8,
-							38u8, 73u8, 187u8, 107u8, 49u8, 125u8, 145u8, 102u8, 40u8, 41u8, 128u8,
+							117u8, 166u8, 186u8, 126u8, 21u8, 174u8, 86u8, 253u8, 163u8, 90u8,
+							54u8, 226u8, 186u8, 253u8, 126u8, 168u8, 145u8, 45u8, 155u8, 32u8,
+							97u8, 110u8, 208u8, 125u8, 47u8, 113u8, 165u8, 199u8, 210u8, 118u8,
+							217u8, 73u8,
 						],
 					)
 				}
@@ -1671,7 +3041,7 @@ pub mod api {
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::polkadot_primitives::v4::AbridgedHostConfiguration,
+					runtime_types::polkadot_primitives::v6::AbridgedHostConfiguration,
 					::subxt::storage::address::Yes,
 					(),
 					(),
@@ -1681,10 +3051,9 @@ pub mod api {
 						"HostConfiguration",
 						vec![],
 						[
-							224u8, 81u8, 104u8, 216u8, 84u8, 180u8, 220u8, 34u8, 251u8, 192u8,
-							110u8, 151u8, 172u8, 254u8, 133u8, 68u8, 16u8, 230u8, 99u8, 164u8,
-							162u8, 159u8, 189u8, 125u8, 249u8, 187u8, 148u8, 253u8, 71u8, 64u8,
-							89u8, 88u8,
+							252u8, 23u8, 111u8, 189u8, 120u8, 204u8, 129u8, 223u8, 248u8, 179u8,
+							239u8, 173u8, 133u8, 61u8, 140u8, 2u8, 75u8, 32u8, 204u8, 178u8, 69u8,
+							21u8, 44u8, 227u8, 178u8, 179u8, 33u8, 26u8, 131u8, 156u8, 78u8, 85u8,
 						],
 					)
 				}
@@ -1721,7 +3090,7 @@ pub mod api {
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
 					::subxt::utils::KeyedVec<
-						runtime_types::polkadot_parachain::primitives::Id,
+						runtime_types::polkadot_parachain_primitives::primitives::Id,
 						runtime_types::cumulus_primitives_parachain_inherent::MessageQueueChain,
 					>,
 					::subxt::storage::address::Yes,
@@ -1794,7 +3163,7 @@ pub mod api {
 					::subxt::storage::address::StaticStorageMapKey,
 					::std::vec::Vec<
 						runtime_types::polkadot_core_primitives::OutboundHrmpMessage<
-							runtime_types::polkadot_parachain::primitives::Id,
+							runtime_types::polkadot_parachain_primitives::primitives::Id,
 						>,
 					>,
 					::subxt::storage::address::Yes,
@@ -1855,6 +3224,28 @@ pub mod api {
 							246u8, 226u8, 198u8, 214u8, 104u8, 187u8, 186u8, 13u8, 83u8, 194u8,
 							153u8, 29u8, 228u8, 109u8, 26u8, 18u8, 212u8, 151u8, 246u8, 24u8,
 							133u8, 216u8,
+						],
+					)
+				}
+				#[doc = " The factor to multiply the base delivery fee by for UMP."]
+				pub fn upward_delivery_fee_factor(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::sp_arithmetic::fixed_point::FixedU128,
+					::subxt::storage::address::Yes,
+					::subxt::storage::address::Yes,
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"ParachainSystem",
+						"UpwardDeliveryFeeFactor",
+						vec![],
+						[
+							40u8, 217u8, 164u8, 111u8, 151u8, 132u8, 69u8, 226u8, 163u8, 175u8,
+							43u8, 239u8, 179u8, 217u8, 136u8, 161u8, 13u8, 251u8, 163u8, 102u8,
+							24u8, 27u8, 168u8, 89u8, 221u8, 83u8, 93u8, 64u8, 96u8, 117u8, 146u8,
+							71u8,
 						],
 					)
 				}
@@ -1925,30 +3316,9 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = " The next authorized upgrade, if there is one."]
-				pub fn authorized_upgrade(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::cumulus_pallet_parachain_system::CodeUpgradeAuthorization,
-					::subxt::storage::address::Yes,
-					(),
-					(),
-				> {
-					::subxt::storage::address::Address::new_static(
-						"ParachainSystem",
-						"AuthorizedUpgrade",
-						vec![],
-						[
-							165u8, 97u8, 27u8, 138u8, 2u8, 28u8, 55u8, 92u8, 96u8, 96u8, 168u8,
-							169u8, 55u8, 178u8, 44u8, 127u8, 58u8, 140u8, 206u8, 178u8, 1u8, 37u8,
-							214u8, 213u8, 251u8, 123u8, 5u8, 111u8, 90u8, 148u8, 217u8, 135u8,
-						],
-					)
-				}
 				#[doc = " A custom head data that should be returned as result of `validate_block`."]
 				#[doc = ""]
-				#[doc = " See [`Pallet::set_custom_validation_head_data`] for more information."]
+				#[doc = " See `Pallet::set_custom_validation_head_data` for more information."]
 				pub fn custom_validation_head_data(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -1974,7 +3344,7 @@ pub mod api {
 	}
 	pub mod timestamp {
 		use super::{root_mod, runtime_types};
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::pallet_timestamp::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -2002,21 +3372,7 @@ pub mod api {
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Set the current time."]
-				#[doc = ""]
-				#[doc = "This call should be invoked exactly once per block. It will panic at the finalization"]
-				#[doc = "phase, if this call hasn't been invoked by that time."]
-				#[doc = ""]
-				#[doc = "The timestamp should be greater than the previous one by the amount specified by"]
-				#[doc = "`MinimumPeriod`."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be `Inherent`."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- `O(1)` (Note that implementations of `OnTimestampSet` must also be `O(1)`)"]
-				#[doc = "- 1 storage read and 1 storage mutation (codec `O(1)`). (because of `DidUpdate::take` in"]
-				#[doc = "  `on_finalize`)"]
-				#[doc = "- 1 event handler `on_timestamp_set`. Must be `O(1)`."]
+				#[doc = "See [`Pallet::set`]."]
 				pub fn set(&self, now: ::core::primitive::u64) -> ::subxt::tx::Payload<types::Set> {
 					::subxt::tx::Payload::new_static(
 						"Timestamp",
@@ -2035,7 +3391,7 @@ pub mod api {
 			use super::runtime_types;
 			pub struct StorageApi;
 			impl StorageApi {
-				#[doc = " Current time for the current block."]
+				#[doc = " The current time for the current block."]
 				pub fn now(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -2056,7 +3412,10 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = " Did the timestamp get updated in this block?"]
+				#[doc = " Whether the timestamp has been updated in this block."]
+				#[doc = ""]
+				#[doc = " This value is updated to `true` upon successful submission of a timestamp by a node."]
+				#[doc = " It is then checked at the end of each block execution in the `on_finalize` hook."]
 				pub fn did_update(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -2084,10 +3443,12 @@ pub mod api {
 			use super::runtime_types;
 			pub struct ConstantsApi;
 			impl ConstantsApi {
-				#[doc = " The minimum period between blocks. Beware that this is different to the *expected*"]
-				#[doc = " period that the block production apparatus provides. Your chosen consensus system will"]
-				#[doc = " generally work with this to determine a sensible block time. e.g. For Aura, it will be"]
-				#[doc = " double this period on default settings."]
+				#[doc = " The minimum period between blocks."]
+				#[doc = ""]
+				#[doc = " Be aware that this is different to the *expected* period that the block production"]
+				#[doc = " apparatus provides. Your chosen consensus system will generally work with this to"]
+				#[doc = " determine a sensible block time. For example, in the Aura pallet it will be double this"]
+				#[doc = " period on default settings."]
 				pub fn minimum_period(
 					&self,
 				) -> ::subxt::constants::Address<::core::primitive::u64> {
@@ -2107,8 +3468,8 @@ pub mod api {
 	}
 	pub mod parachain_info {
 		use super::{root_mod, runtime_types};
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
-		pub type Call = runtime_types::parachain_info::pallet::Call;
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
+		pub type Call = runtime_types::staging_parachain_info::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
@@ -2126,7 +3487,7 @@ pub mod api {
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::polkadot_parachain::primitives::Id,
+					runtime_types::polkadot_parachain_primitives::primitives::Id,
 					::subxt::storage::address::Yes,
 					::subxt::storage::address::Yes,
 					(),
@@ -2148,9 +3509,9 @@ pub mod api {
 	}
 	pub mod balances {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+		#[doc = "The `Error` enum of this pallet."]
 		pub type Error = runtime_types::pallet_balances::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::pallet_balances::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -2175,27 +3536,6 @@ pub mod api {
 				impl ::subxt::blocks::StaticExtrinsic for TransferAllowDeath {
 					const PALLET: &'static str = "Balances";
 					const CALL: &'static str = "transfer_allow_death";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct SetBalanceDeprecated {
-					pub who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-					#[codec(compact)]
-					pub new_free: ::core::primitive::u128,
-					#[codec(compact)]
-					pub old_reserved: ::core::primitive::u128,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for SetBalanceDeprecated {
-					const PALLET: &'static str = "Balances";
-					const CALL: &'static str = "set_balance_deprecated";
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -2299,25 +3639,6 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct Transfer {
-					pub dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-					#[codec(compact)]
-					pub value: ::core::primitive::u128,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for Transfer {
-					const PALLET: &'static str = "Balances";
-					const CALL: &'static str = "transfer";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 				pub struct ForceSetBalance {
 					pub who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 					#[codec(compact)]
@@ -2330,13 +3651,7 @@ pub mod api {
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Transfer some liquid free balance to another account."]
-				#[doc = ""]
-				#[doc = "`transfer_allow_death` will set the `FreeBalance` of the sender and receiver."]
-				#[doc = "If the sender's account is below the existential deposit as a result"]
-				#[doc = "of the transfer, the account will be reaped."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be `Signed` by the transactor."]
+				#[doc = "See [`Pallet::transfer_allow_death`]."]
 				pub fn transfer_allow_death(
 					&self,
 					dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -2354,31 +3669,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set the regular balance of a given account; it also takes a reserved balance but this"]
-				#[doc = "must be the same as the account's current reserved balance."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call is `root`."]
-				#[doc = ""]
-				#[doc = "WARNING: This call is DEPRECATED! Use `force_set_balance` instead."]
-				pub fn set_balance_deprecated(
-					&self,
-					who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-					new_free: ::core::primitive::u128,
-					old_reserved: ::core::primitive::u128,
-				) -> ::subxt::tx::Payload<types::SetBalanceDeprecated> {
-					::subxt::tx::Payload::new_static(
-						"Balances",
-						"set_balance_deprecated",
-						types::SetBalanceDeprecated { who, new_free, old_reserved },
-						[
-							125u8, 171u8, 21u8, 186u8, 108u8, 185u8, 241u8, 145u8, 125u8, 8u8,
-							12u8, 42u8, 96u8, 114u8, 80u8, 80u8, 227u8, 76u8, 20u8, 208u8, 93u8,
-							219u8, 36u8, 50u8, 209u8, 155u8, 70u8, 45u8, 6u8, 57u8, 156u8, 77u8,
-						],
-					)
-				}
-				#[doc = "Exactly as `transfer_allow_death`, except the origin must be root and the source account"]
-				#[doc = "may be specified."]
+				#[doc = "See [`Pallet::force_transfer`]."]
 				pub fn force_transfer(
 					&self,
 					source: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -2396,12 +3687,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Same as the [`transfer_allow_death`] call, but with a check that the transfer will not"]
-				#[doc = "kill the origin account."]
-				#[doc = ""]
-				#[doc = "99% of the time you want [`transfer_allow_death`] instead."]
-				#[doc = ""]
-				#[doc = "[`transfer_allow_death`]: struct.Pallet.html#method.transfer"]
+				#[doc = "See [`Pallet::transfer_keep_alive`]."]
 				pub fn transfer_keep_alive(
 					&self,
 					dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -2418,21 +3704,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Transfer the entire transferable balance from the caller account."]
-				#[doc = ""]
-				#[doc = "NOTE: This function only attempts to transfer _transferable_ balances. This means that"]
-				#[doc = "any locked, reserved, or existential deposits (when `keep_alive` is `true`), will not be"]
-				#[doc = "transferred by this function. To ensure that this function results in a killed account,"]
-				#[doc = "you might need to prepare the account by removing any reference counters, storage"]
-				#[doc = "deposits, etc..."]
-				#[doc = ""]
-				#[doc = "The dispatch origin of this call must be Signed."]
-				#[doc = ""]
-				#[doc = "- `dest`: The recipient of the transfer."]
-				#[doc = "- `keep_alive`: A boolean to determine if the `transfer_all` operation should send all"]
-				#[doc = "  of the funds the account has, causing the sender account to be killed (false), or"]
-				#[doc = "  transfer everything except at least the existential deposit, which will guarantee to"]
-				#[doc = "  keep the sender account alive (true)."]
+				#[doc = "See [`Pallet::transfer_all`]."]
 				pub fn transfer_all(
 					&self,
 					dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -2449,9 +3721,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Unreserve some balance from a user by force."]
-				#[doc = ""]
-				#[doc = "Can only be called by ROOT."]
+				#[doc = "See [`Pallet::force_unreserve`]."]
 				pub fn force_unreserve(
 					&self,
 					who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -2469,14 +3739,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Upgrade a specified account."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be `Signed`."]
-				#[doc = "- `who`: The account to be upgraded."]
-				#[doc = ""]
-				#[doc = "This will waive the transaction fee if at least all but 10% of the accounts needed to"]
-				#[doc = "be upgraded. (We let some not have to be upgraded just in order to allow for the"]
-				#[doc = "possibililty of churn)."]
+				#[doc = "See [`Pallet::upgrade_accounts`]."]
 				pub fn upgrade_accounts(
 					&self,
 					who: ::std::vec::Vec<::subxt::utils::AccountId32>,
@@ -2492,29 +3755,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Alias for `transfer_allow_death`, provided only for name-wise compatibility."]
-				#[doc = ""]
-				#[doc = "WARNING: DEPRECATED! Will be released in approximately 3 months."]
-				pub fn transfer(
-					&self,
-					dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-					value: ::core::primitive::u128,
-				) -> ::subxt::tx::Payload<types::Transfer> {
-					::subxt::tx::Payload::new_static(
-						"Balances",
-						"transfer",
-						types::Transfer { dest, value },
-						[
-							154u8, 145u8, 140u8, 54u8, 50u8, 123u8, 225u8, 249u8, 200u8, 217u8,
-							172u8, 110u8, 233u8, 198u8, 77u8, 198u8, 211u8, 89u8, 8u8, 13u8, 240u8,
-							94u8, 28u8, 13u8, 242u8, 217u8, 168u8, 23u8, 106u8, 254u8, 249u8,
-							120u8,
-						],
-					)
-				}
-				#[doc = "Set the regular balance of a given account."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call is `root`."]
+				#[doc = "See [`Pallet::force_set_balance`]."]
 				pub fn force_set_balance(
 					&self,
 					who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -2533,7 +3774,7 @@ pub mod api {
 				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::pallet_balances::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -2582,12 +3823,13 @@ pub mod api {
 				:: subxt :: ext :: scale_decode :: DecodeAsType,
 				:: subxt :: ext :: scale_encode :: EncodeAsType,
 				Debug,
+				PartialEq,
+				Eq,
 			)]
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Transfer succeeded."]
-			#[derive(PartialEq)]
 			pub struct Transfer {
 				pub from: ::subxt::utils::AccountId32,
 				pub to: ::subxt::utils::AccountId32,
@@ -3189,7 +4431,7 @@ pub mod api {
 					::subxt::storage::address::StaticStorageMapKey,
 					runtime_types::bounded_collections::bounded_vec::BoundedVec<
 						runtime_types::pallet_balances::types::IdAmount<
-							(),
+							runtime_types::parachain_runtime::RuntimeHoldReason,
 							::core::primitive::u128,
 						>,
 					>,
@@ -3202,10 +4444,9 @@ pub mod api {
 						"Holds",
 						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
 						[
-							53u8, 126u8, 215u8, 237u8, 42u8, 223u8, 188u8, 150u8, 230u8, 107u8,
-							95u8, 24u8, 26u8, 235u8, 158u8, 149u8, 193u8, 191u8, 10u8, 194u8,
-							231u8, 59u8, 35u8, 167u8, 186u8, 89u8, 43u8, 126u8, 215u8, 117u8, 1u8,
-							202u8,
+							37u8, 176u8, 2u8, 18u8, 109u8, 26u8, 66u8, 81u8, 28u8, 104u8, 149u8,
+							117u8, 119u8, 114u8, 196u8, 35u8, 172u8, 155u8, 66u8, 195u8, 98u8,
+							37u8, 134u8, 22u8, 106u8, 221u8, 215u8, 97u8, 25u8, 28u8, 21u8, 206u8,
 						],
 					)
 				}
@@ -3216,7 +4457,7 @@ pub mod api {
 					::subxt::storage::address::StaticStorageMapKey,
 					runtime_types::bounded_collections::bounded_vec::BoundedVec<
 						runtime_types::pallet_balances::types::IdAmount<
-							(),
+							runtime_types::parachain_runtime::RuntimeHoldReason,
 							::core::primitive::u128,
 						>,
 					>,
@@ -3229,10 +4470,9 @@ pub mod api {
 						"Holds",
 						Vec::new(),
 						[
-							53u8, 126u8, 215u8, 237u8, 42u8, 223u8, 188u8, 150u8, 230u8, 107u8,
-							95u8, 24u8, 26u8, 235u8, 158u8, 149u8, 193u8, 191u8, 10u8, 194u8,
-							231u8, 59u8, 35u8, 167u8, 186u8, 89u8, 43u8, 126u8, 215u8, 117u8, 1u8,
-							202u8,
+							37u8, 176u8, 2u8, 18u8, 109u8, 26u8, 66u8, 81u8, 28u8, 104u8, 149u8,
+							117u8, 119u8, 114u8, 196u8, 35u8, 172u8, 155u8, 66u8, 195u8, 98u8,
+							37u8, 134u8, 22u8, 106u8, 221u8, 215u8, 97u8, 25u8, 28u8, 21u8, 206u8,
 						],
 					)
 				}
@@ -3374,7 +4614,7 @@ pub mod api {
 	}
 	pub mod transaction_payment {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::pallet_transaction_payment::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -3452,10 +4692,10 @@ pub mod api {
 			use super::runtime_types;
 			pub struct ConstantsApi;
 			impl ConstantsApi {
-				#[doc = " A fee mulitplier for `Operational` extrinsics to compute \"virtual tip\" to boost their"]
+				#[doc = " A fee multiplier for `Operational` extrinsics to compute \"virtual tip\" to boost their"]
 				#[doc = " `priority`"]
 				#[doc = ""]
-				#[doc = " This value is multipled by the `final_fee` to obtain a \"virtual tip\" that is later"]
+				#[doc = " This value is multiplied by the `final_fee` to obtain a \"virtual tip\" that is later"]
 				#[doc = " added to a tip component in regular `priority` calculations."]
 				#[doc = " It means that a `Normal` transaction can front-run a similarly-sized `Operational`"]
 				#[doc = " extrinsic (with no tip), by including a tip value greater than the virtual tip."]
@@ -3484,6 +4724,296 @@ pub mod api {
 							28u8, 91u8, 221u8, 64u8, 4u8, 148u8, 201u8, 193u8, 185u8, 66u8, 226u8,
 							114u8, 97u8, 79u8, 62u8, 212u8, 202u8, 114u8, 237u8, 228u8, 183u8,
 							165u8,
+						],
+					)
+				}
+			}
+		}
+	}
+	pub mod sudo {
+		use super::{root_mod, runtime_types};
+		#[doc = "Error for the Sudo pallet."]
+		pub type Error = runtime_types::pallet_sudo::pallet::Error;
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
+		pub type Call = runtime_types::pallet_sudo::pallet::Call;
+		pub mod calls {
+			use super::{root_mod, runtime_types};
+			type DispatchError = runtime_types::sp_runtime::DispatchError;
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct Sudo {
+					pub call: ::std::boxed::Box<runtime_types::parachain_runtime::RuntimeCall>,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for Sudo {
+					const PALLET: &'static str = "Sudo";
+					const CALL: &'static str = "sudo";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct SudoUncheckedWeight {
+					pub call: ::std::boxed::Box<runtime_types::parachain_runtime::RuntimeCall>,
+					pub weight: runtime_types::sp_weights::weight_v2::Weight,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for SudoUncheckedWeight {
+					const PALLET: &'static str = "Sudo";
+					const CALL: &'static str = "sudo_unchecked_weight";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct SetKey {
+					pub new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for SetKey {
+					const PALLET: &'static str = "Sudo";
+					const CALL: &'static str = "set_key";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct SudoAs {
+					pub who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+					pub call: ::std::boxed::Box<runtime_types::parachain_runtime::RuntimeCall>,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for SudoAs {
+					const PALLET: &'static str = "Sudo";
+					const CALL: &'static str = "sudo_as";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct RemoveKey;
+				impl ::subxt::blocks::StaticExtrinsic for RemoveKey {
+					const PALLET: &'static str = "Sudo";
+					const CALL: &'static str = "remove_key";
+				}
+			}
+			pub struct TransactionApi;
+			impl TransactionApi {
+				#[doc = "See [`Pallet::sudo`]."]
+				pub fn sudo(
+					&self,
+					call: runtime_types::parachain_runtime::RuntimeCall,
+				) -> ::subxt::tx::Payload<types::Sudo> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"sudo",
+						types::Sudo { call: ::std::boxed::Box::new(call) },
+						[
+							128u8, 66u8, 27u8, 163u8, 222u8, 225u8, 164u8, 138u8, 32u8, 201u8,
+							61u8, 56u8, 203u8, 55u8, 252u8, 136u8, 222u8, 241u8, 244u8, 208u8,
+							181u8, 30u8, 161u8, 149u8, 29u8, 58u8, 228u8, 26u8, 190u8, 39u8, 108u8,
+							142u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::sudo_unchecked_weight`]."]
+				pub fn sudo_unchecked_weight(
+					&self,
+					call: runtime_types::parachain_runtime::RuntimeCall,
+					weight: runtime_types::sp_weights::weight_v2::Weight,
+				) -> ::subxt::tx::Payload<types::SudoUncheckedWeight> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"sudo_unchecked_weight",
+						types::SudoUncheckedWeight { call: ::std::boxed::Box::new(call), weight },
+						[
+							234u8, 25u8, 245u8, 234u8, 38u8, 215u8, 138u8, 192u8, 58u8, 102u8,
+							55u8, 195u8, 93u8, 202u8, 96u8, 168u8, 166u8, 204u8, 179u8, 229u8,
+							203u8, 229u8, 250u8, 116u8, 244u8, 97u8, 243u8, 58u8, 34u8, 165u8,
+							231u8, 70u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::set_key`]."]
+				pub fn set_key(
+					&self,
+					new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+				) -> ::subxt::tx::Payload<types::SetKey> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"set_key",
+						types::SetKey { new },
+						[
+							9u8, 73u8, 39u8, 205u8, 188u8, 127u8, 143u8, 54u8, 128u8, 94u8, 8u8,
+							227u8, 197u8, 44u8, 70u8, 93u8, 228u8, 196u8, 64u8, 165u8, 226u8,
+							158u8, 101u8, 192u8, 22u8, 193u8, 102u8, 84u8, 21u8, 35u8, 92u8, 198u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::sudo_as`]."]
+				pub fn sudo_as(
+					&self,
+					who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
+					call: runtime_types::parachain_runtime::RuntimeCall,
+				) -> ::subxt::tx::Payload<types::SudoAs> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"sudo_as",
+						types::SudoAs { who, call: ::std::boxed::Box::new(call) },
+						[
+							200u8, 237u8, 247u8, 73u8, 203u8, 19u8, 31u8, 17u8, 148u8, 21u8, 100u8,
+							232u8, 15u8, 209u8, 62u8, 34u8, 236u8, 206u8, 145u8, 128u8, 57u8,
+							225u8, 44u8, 133u8, 205u8, 37u8, 114u8, 229u8, 100u8, 200u8, 63u8,
+							59u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::remove_key`]."]
+				pub fn remove_key(&self) -> ::subxt::tx::Payload<types::RemoveKey> {
+					::subxt::tx::Payload::new_static(
+						"Sudo",
+						"remove_key",
+						types::RemoveKey {},
+						[
+							133u8, 253u8, 54u8, 175u8, 202u8, 239u8, 5u8, 198u8, 180u8, 138u8,
+							25u8, 28u8, 109u8, 40u8, 30u8, 56u8, 126u8, 100u8, 52u8, 205u8, 250u8,
+							191u8, 61u8, 195u8, 172u8, 142u8, 184u8, 239u8, 247u8, 10u8, 211u8,
+							79u8,
+						],
+					)
+				}
+			}
+		}
+		#[doc = "The `Event` enum of this pallet"]
+		pub type Event = runtime_types::pallet_sudo::pallet::Event;
+		pub mod events {
+			use super::runtime_types;
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "A sudo call just took place."]
+			pub struct Sudid {
+				pub sudo_result:
+					::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+			}
+			impl ::subxt::events::StaticEvent for Sudid {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "Sudid";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "The sudo key has been updated."]
+			pub struct KeyChanged {
+				pub old: ::core::option::Option<::subxt::utils::AccountId32>,
+				pub new: ::subxt::utils::AccountId32,
+			}
+			impl ::subxt::events::StaticEvent for KeyChanged {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "KeyChanged";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "The key was permanently removed."]
+			pub struct KeyRemoved;
+			impl ::subxt::events::StaticEvent for KeyRemoved {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "KeyRemoved";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "A [sudo_as](Pallet::sudo_as) call just took place."]
+			pub struct SudoAsDone {
+				pub sudo_result:
+					::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
+			}
+			impl ::subxt::events::StaticEvent for SudoAsDone {
+				const PALLET: &'static str = "Sudo";
+				const EVENT: &'static str = "SudoAsDone";
+			}
+		}
+		pub mod storage {
+			use super::runtime_types;
+			pub struct StorageApi;
+			impl StorageApi {
+				#[doc = " The `AccountId` of the sudo key."]
+				pub fn key(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					::subxt::utils::AccountId32,
+					::subxt::storage::address::Yes,
+					(),
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"Sudo",
+						"Key",
+						vec![],
+						[
+							72u8, 14u8, 225u8, 162u8, 205u8, 247u8, 227u8, 105u8, 116u8, 57u8, 4u8,
+							31u8, 84u8, 137u8, 227u8, 228u8, 133u8, 245u8, 206u8, 227u8, 117u8,
+							36u8, 252u8, 151u8, 107u8, 15u8, 180u8, 4u8, 4u8, 152u8, 195u8, 144u8,
 						],
 					)
 				}
@@ -3523,9 +5053,9 @@ pub mod api {
 	}
 	pub mod collator_selection {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+		#[doc = "The `Error` enum of this pallet."]
 		pub type Error = runtime_types::pallet_collator_selection::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::pallet_collator_selection::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -3615,10 +5145,80 @@ pub mod api {
 					const PALLET: &'static str = "CollatorSelection";
 					const CALL: &'static str = "leave_intent";
 				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct AddInvulnerable {
+					pub who: ::subxt::utils::AccountId32,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for AddInvulnerable {
+					const PALLET: &'static str = "CollatorSelection";
+					const CALL: &'static str = "add_invulnerable";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct RemoveInvulnerable {
+					pub who: ::subxt::utils::AccountId32,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for RemoveInvulnerable {
+					const PALLET: &'static str = "CollatorSelection";
+					const CALL: &'static str = "remove_invulnerable";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: CompactAs,
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct UpdateBond {
+					pub new_deposit: ::core::primitive::u128,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for UpdateBond {
+					const PALLET: &'static str = "CollatorSelection";
+					const CALL: &'static str = "update_bond";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct TakeCandidateSlot {
+					pub deposit: ::core::primitive::u128,
+					pub target: ::subxt::utils::AccountId32,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for TakeCandidateSlot {
+					const PALLET: &'static str = "CollatorSelection";
+					const CALL: &'static str = "take_candidate_slot";
+				}
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Set the list of invulnerable (fixed) collators."]
+				#[doc = "See [`Pallet::set_invulnerables`]."]
 				pub fn set_invulnerables(
 					&self,
 					new: ::std::vec::Vec<::subxt::utils::AccountId32>,
@@ -3634,9 +5234,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set the ideal number of collators (not including the invulnerables)."]
-				#[doc = "If lowering this number, then the number of running collators could be higher than this figure."]
-				#[doc = "Aside from that edge case, there should be no other way to have more collators than the desired number."]
+				#[doc = "See [`Pallet::set_desired_candidates`]."]
 				pub fn set_desired_candidates(
 					&self,
 					max: ::core::primitive::u32,
@@ -3652,7 +5250,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Set the candidacy bond amount."]
+				#[doc = "See [`Pallet::set_candidacy_bond`]."]
 				pub fn set_candidacy_bond(
 					&self,
 					bond: ::core::primitive::u128,
@@ -3669,10 +5267,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Register this account as a collator candidate. The account must (a) already have"]
-				#[doc = "registered session keys and (b) be able to reserve the `CandidacyBond`."]
-				#[doc = ""]
-				#[doc = "This call is not available to `Invulnerable` collators."]
+				#[doc = "See [`Pallet::register_as_candidate`]."]
 				pub fn register_as_candidate(
 					&self,
 				) -> ::subxt::tx::Payload<types::RegisterAsCandidate> {
@@ -3687,12 +5282,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Deregister `origin` as a collator candidate. Note that the collator can only leave on"]
-				#[doc = "session change. The `CandidacyBond` will be unreserved immediately."]
-				#[doc = ""]
-				#[doc = "This call will fail if the total number of candidates would drop below `MinCandidates`."]
-				#[doc = ""]
-				#[doc = "This call is not available to `Invulnerable` collators."]
+				#[doc = "See [`Pallet::leave_intent`]."]
 				pub fn leave_intent(&self) -> ::subxt::tx::Payload<types::LeaveIntent> {
 					::subxt::tx::Payload::new_static(
 						"CollatorSelection",
@@ -3706,9 +5296,74 @@ pub mod api {
 						],
 					)
 				}
+				#[doc = "See [`Pallet::add_invulnerable`]."]
+				pub fn add_invulnerable(
+					&self,
+					who: ::subxt::utils::AccountId32,
+				) -> ::subxt::tx::Payload<types::AddInvulnerable> {
+					::subxt::tx::Payload::new_static(
+						"CollatorSelection",
+						"add_invulnerable",
+						types::AddInvulnerable { who },
+						[
+							115u8, 109u8, 38u8, 19u8, 81u8, 194u8, 124u8, 140u8, 239u8, 23u8, 85u8,
+							62u8, 241u8, 83u8, 11u8, 241u8, 14u8, 34u8, 206u8, 63u8, 104u8, 78u8,
+							96u8, 182u8, 173u8, 198u8, 230u8, 107u8, 102u8, 6u8, 164u8, 75u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::remove_invulnerable`]."]
+				pub fn remove_invulnerable(
+					&self,
+					who: ::subxt::utils::AccountId32,
+				) -> ::subxt::tx::Payload<types::RemoveInvulnerable> {
+					::subxt::tx::Payload::new_static(
+						"CollatorSelection",
+						"remove_invulnerable",
+						types::RemoveInvulnerable { who },
+						[
+							103u8, 146u8, 23u8, 136u8, 61u8, 65u8, 172u8, 157u8, 216u8, 200u8,
+							119u8, 28u8, 189u8, 215u8, 13u8, 100u8, 102u8, 13u8, 94u8, 12u8, 78u8,
+							156u8, 149u8, 74u8, 126u8, 118u8, 127u8, 49u8, 129u8, 2u8, 12u8, 118u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::update_bond`]."]
+				pub fn update_bond(
+					&self,
+					new_deposit: ::core::primitive::u128,
+				) -> ::subxt::tx::Payload<types::UpdateBond> {
+					::subxt::tx::Payload::new_static(
+						"CollatorSelection",
+						"update_bond",
+						types::UpdateBond { new_deposit },
+						[
+							47u8, 184u8, 193u8, 220u8, 160u8, 1u8, 253u8, 203u8, 8u8, 142u8, 43u8,
+							151u8, 190u8, 138u8, 201u8, 174u8, 233u8, 112u8, 200u8, 247u8, 251u8,
+							94u8, 23u8, 224u8, 150u8, 179u8, 190u8, 140u8, 199u8, 50u8, 2u8, 249u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::take_candidate_slot`]."]
+				pub fn take_candidate_slot(
+					&self,
+					deposit: ::core::primitive::u128,
+					target: ::subxt::utils::AccountId32,
+				) -> ::subxt::tx::Payload<types::TakeCandidateSlot> {
+					::subxt::tx::Payload::new_static(
+						"CollatorSelection",
+						"take_candidate_slot",
+						types::TakeCandidateSlot { deposit, target },
+						[
+							48u8, 150u8, 189u8, 206u8, 199u8, 196u8, 173u8, 3u8, 206u8, 10u8, 50u8,
+							160u8, 15u8, 53u8, 189u8, 126u8, 154u8, 36u8, 90u8, 66u8, 235u8, 12u8,
+							107u8, 44u8, 117u8, 33u8, 207u8, 194u8, 251u8, 194u8, 224u8, 80u8,
+						],
+					)
+				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::pallet_collator_selection::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -3722,12 +5377,49 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "New Invulnerables were set."]
 			pub struct NewInvulnerables {
 				pub invulnerables: ::std::vec::Vec<::subxt::utils::AccountId32>,
 			}
 			impl ::subxt::events::StaticEvent for NewInvulnerables {
 				const PALLET: &'static str = "CollatorSelection";
 				const EVENT: &'static str = "NewInvulnerables";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "A new Invulnerable was added."]
+			pub struct InvulnerableAdded {
+				pub account_id: ::subxt::utils::AccountId32,
+			}
+			impl ::subxt::events::StaticEvent for InvulnerableAdded {
+				const PALLET: &'static str = "CollatorSelection";
+				const EVENT: &'static str = "InvulnerableAdded";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "An Invulnerable was removed."]
+			pub struct InvulnerableRemoved {
+				pub account_id: ::subxt::utils::AccountId32,
+			}
+			impl ::subxt::events::StaticEvent for InvulnerableRemoved {
+				const PALLET: &'static str = "CollatorSelection";
+				const EVENT: &'static str = "InvulnerableRemoved";
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: CompactAs,
@@ -3740,6 +5432,7 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "The number of desired candidates was set."]
 			pub struct NewDesiredCandidates {
 				pub desired_candidates: ::core::primitive::u32,
 			}
@@ -3758,6 +5451,7 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "The candidacy bond was set."]
 			pub struct NewCandidacyBond {
 				pub bond_amount: ::core::primitive::u128,
 			}
@@ -3775,6 +5469,7 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "A new candidate joined."]
 			pub struct CandidateAdded {
 				pub account_id: ::subxt::utils::AccountId32,
 				pub deposit: ::core::primitive::u128,
@@ -3793,6 +5488,26 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "Bond of a candidate updated."]
+			pub struct CandidateBondUpdated {
+				pub account_id: ::subxt::utils::AccountId32,
+				pub deposit: ::core::primitive::u128,
+			}
+			impl ::subxt::events::StaticEvent for CandidateBondUpdated {
+				const PALLET: &'static str = "CollatorSelection";
+				const EVENT: &'static str = "CandidateBondUpdated";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "A candidate was removed."]
 			pub struct CandidateRemoved {
 				pub account_id: ::subxt::utils::AccountId32,
 			}
@@ -3800,12 +5515,51 @@ pub mod api {
 				const PALLET: &'static str = "CollatorSelection";
 				const EVENT: &'static str = "CandidateRemoved";
 			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "An account was replaced in the candidate list by another one."]
+			pub struct CandidateReplaced {
+				pub old: ::subxt::utils::AccountId32,
+				pub new: ::subxt::utils::AccountId32,
+				pub deposit: ::core::primitive::u128,
+			}
+			impl ::subxt::events::StaticEvent for CandidateReplaced {
+				const PALLET: &'static str = "CollatorSelection";
+				const EVENT: &'static str = "CandidateReplaced";
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			#[doc = "An account was unable to be added to the Invulnerables because they did not have keys"]
+			#[doc = "registered. Other Invulnerables may have been set."]
+			pub struct InvalidInvulnerableSkipped {
+				pub account_id: ::subxt::utils::AccountId32,
+			}
+			impl ::subxt::events::StaticEvent for InvalidInvulnerableSkipped {
+				const PALLET: &'static str = "CollatorSelection";
+				const EVENT: &'static str = "InvalidInvulnerableSkipped";
+			}
 		}
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
 			impl StorageApi {
-				#[doc = " The invulnerable, fixed collators."]
+				#[doc = " The invulnerable, permissioned collators. This list must be sorted."]
 				pub fn invulnerables(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -3829,8 +5583,12 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = " The (community, limited) collation candidates."]
-				pub fn candidates(
+				#[doc = " The (community, limited) collation candidates. `Candidates` and `Invulnerables` should be"]
+				#[doc = " mutually exclusive."]
+				#[doc = ""]
+				#[doc = " This list is sorted in ascending order by deposit and when the deposits are equal, the least"]
+				#[doc = " recently updated is considered greater."]
+				pub fn candidate_list(
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
@@ -3846,13 +5604,12 @@ pub mod api {
 				> {
 					::subxt::storage::address::Address::new_static(
 						"CollatorSelection",
-						"Candidates",
+						"CandidateList",
 						vec![],
 						[
-							95u8, 142u8, 119u8, 195u8, 123u8, 1u8, 212u8, 104u8, 23u8, 112u8,
-							215u8, 11u8, 254u8, 30u8, 40u8, 19u8, 86u8, 187u8, 3u8, 179u8, 34u8,
-							255u8, 215u8, 181u8, 162u8, 57u8, 23u8, 220u8, 223u8, 55u8, 180u8,
-							88u8,
+							77u8, 195u8, 89u8, 139u8, 79u8, 111u8, 151u8, 215u8, 19u8, 152u8, 67u8,
+							49u8, 74u8, 76u8, 3u8, 60u8, 51u8, 140u8, 6u8, 134u8, 159u8, 55u8,
+							196u8, 57u8, 189u8, 31u8, 219u8, 218u8, 164u8, 189u8, 196u8, 60u8,
 						],
 					)
 				}
@@ -3954,7 +5711,7 @@ pub mod api {
 		use super::{root_mod, runtime_types};
 		#[doc = "Error for the session pallet."]
 		pub type Error = runtime_types::pallet_session::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::pallet_session::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -3972,7 +5729,7 @@ pub mod api {
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 				pub struct SetKeys {
-					pub keys: runtime_types::parachain_template_runtime::SessionKeys,
+					pub keys: runtime_types::parachain_runtime::SessionKeys,
 					pub proof: ::std::vec::Vec<::core::primitive::u8>,
 				}
 				impl ::subxt::blocks::StaticExtrinsic for SetKeys {
@@ -3997,18 +5754,10 @@ pub mod api {
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Sets the session key(s) of the function caller to `keys`."]
-				#[doc = "Allows an account to set its session key prior to becoming a validator."]
-				#[doc = "This doesn't take effect until the next session."]
-				#[doc = ""]
-				#[doc = "The dispatch origin of this function must be signed."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- `O(1)`. Actual cost depends on the number of length of `T::Keys::key_ids()` which is"]
-				#[doc = "  fixed."]
+				#[doc = "See [`Pallet::set_keys`]."]
 				pub fn set_keys(
 					&self,
-					keys: runtime_types::parachain_template_runtime::SessionKeys,
+					keys: runtime_types::parachain_runtime::SessionKeys,
 					proof: ::std::vec::Vec<::core::primitive::u8>,
 				) -> ::subxt::tx::Payload<types::SetKeys> {
 					::subxt::tx::Payload::new_static(
@@ -4023,18 +5772,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Removes any session key(s) of the function caller."]
-				#[doc = ""]
-				#[doc = "This doesn't take effect until the next session."]
-				#[doc = ""]
-				#[doc = "The dispatch origin of this function must be Signed and the account must be either be"]
-				#[doc = "convertible to a validator ID using the chain's typical addressing system (this usually"]
-				#[doc = "means being a controller account) or directly convertible into a validator ID (which"]
-				#[doc = "usually means being a stash account)."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- `O(1)` in number of key types. Actual cost depends on the number of length of"]
-				#[doc = "  `T::Keys::key_ids()` which is fixed."]
+				#[doc = "See [`Pallet::purge_keys`]."]
 				pub fn purge_keys(&self) -> ::subxt::tx::Payload<types::PurgeKeys> {
 					::subxt::tx::Payload::new_static(
 						"Session",
@@ -4050,7 +5788,7 @@ pub mod api {
 				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::pallet_session::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -4154,7 +5892,7 @@ pub mod api {
 					::subxt::storage::address::StaticStorageMapKey,
 					::std::vec::Vec<(
 						::subxt::utils::AccountId32,
-						runtime_types::parachain_template_runtime::SessionKeys,
+						runtime_types::parachain_runtime::SessionKeys,
 					)>,
 					::subxt::storage::address::Yes,
 					::subxt::storage::address::Yes,
@@ -4202,7 +5940,7 @@ pub mod api {
 					_0: impl ::std::borrow::Borrow<::subxt::utils::AccountId32>,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::parachain_template_runtime::SessionKeys,
+					runtime_types::parachain_runtime::SessionKeys,
 					::subxt::storage::address::Yes,
 					(),
 					::subxt::storage::address::Yes,
@@ -4223,7 +5961,7 @@ pub mod api {
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::parachain_template_runtime::SessionKeys,
+					runtime_types::parachain_runtime::SessionKeys,
 					(),
 					(),
 					::subxt::storage::address::Yes,
@@ -4356,8 +6094,8 @@ pub mod api {
 				#[doc = " Serves as cache for the authorities."]
 				#[doc = ""]
 				#[doc = " The authorities in AuRa are overwritten in `on_initialize` when we switch to a new session,"]
-				#[doc = " but we require the old authorities to verify the seal when validating a PoV. This will always"]
-				#[doc = " be updated to the latest AuRa authorities in `on_finalize`."]
+				#[doc = " but we require the old authorities to verify the seal when validating a PoV. This will"]
+				#[doc = " always be updated to the latest AuRa authorities in `on_finalize`."]
 				pub fn authorities(
 					&self,
 				) -> ::subxt::storage::address::Address<
@@ -4380,38 +6118,44 @@ pub mod api {
 						],
 					)
 				}
+				#[doc = " Current slot paired with a number of authored blocks."]
+				#[doc = ""]
+				#[doc = " Updated on each block initialization."]
+				pub fn slot_info(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					(runtime_types::sp_consensus_slots::Slot, ::core::primitive::u32),
+					::subxt::storage::address::Yes,
+					(),
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"AuraExt",
+						"SlotInfo",
+						vec![],
+						[
+							135u8, 135u8, 71u8, 123u8, 102u8, 223u8, 215u8, 76u8, 183u8, 169u8,
+							108u8, 60u8, 122u8, 5u8, 24u8, 201u8, 96u8, 59u8, 132u8, 95u8, 253u8,
+							100u8, 148u8, 184u8, 133u8, 146u8, 101u8, 201u8, 91u8, 30u8, 76u8,
+							169u8,
+						],
+					)
+				}
 			}
 		}
 	}
 	pub mod xcmp_queue {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+		#[doc = "The `Error` enum of this pallet."]
 		pub type Error = runtime_types::cumulus_pallet_xcmp_queue::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::cumulus_pallet_xcmp_queue::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
 			pub mod types {
 				use super::runtime_types;
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct ServiceOverweight {
-					pub index: ::core::primitive::u64,
-					pub weight_limit: runtime_types::sp_weights::weight_v2::Weight,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for ServiceOverweight {
-					const PALLET: &'static str = "XcmpQueue";
-					const CALL: &'static str = "service_overweight";
-				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
 					:: subxt :: ext :: codec :: Encode,
@@ -4496,93 +6240,10 @@ pub mod api {
 					const PALLET: &'static str = "XcmpQueue";
 					const CALL: &'static str = "update_resume_threshold";
 				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct UpdateThresholdWeight {
-					pub new: runtime_types::sp_weights::weight_v2::Weight,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for UpdateThresholdWeight {
-					const PALLET: &'static str = "XcmpQueue";
-					const CALL: &'static str = "update_threshold_weight";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct UpdateWeightRestrictDecay {
-					pub new: runtime_types::sp_weights::weight_v2::Weight,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for UpdateWeightRestrictDecay {
-					const PALLET: &'static str = "XcmpQueue";
-					const CALL: &'static str = "update_weight_restrict_decay";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct UpdateXcmpMaxIndividualWeight {
-					pub new: runtime_types::sp_weights::weight_v2::Weight,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for UpdateXcmpMaxIndividualWeight {
-					const PALLET: &'static str = "XcmpQueue";
-					const CALL: &'static str = "update_xcmp_max_individual_weight";
-				}
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Services a single overweight XCM."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `ExecuteOverweightOrigin`."]
-				#[doc = "- `index`: The index of the overweight XCM to service"]
-				#[doc = "- `weight_limit`: The amount of weight that XCM execution may take."]
-				#[doc = ""]
-				#[doc = "Errors:"]
-				#[doc = "- `BadOverweightIndex`: XCM under `index` is not found in the `Overweight` storage map."]
-				#[doc = "- `BadXcm`: XCM under `index` cannot be properly decoded into a valid XCM format."]
-				#[doc = "- `WeightOverLimit`: XCM execution may use greater `weight_limit`."]
-				#[doc = ""]
-				#[doc = "Events:"]
-				#[doc = "- `OverweightServiced`: On success."]
-				pub fn service_overweight(
-					&self,
-					index: ::core::primitive::u64,
-					weight_limit: runtime_types::sp_weights::weight_v2::Weight,
-				) -> ::subxt::tx::Payload<types::ServiceOverweight> {
-					::subxt::tx::Payload::new_static(
-						"XcmpQueue",
-						"service_overweight",
-						types::ServiceOverweight { index, weight_limit },
-						[
-							235u8, 203u8, 220u8, 162u8, 173u8, 117u8, 224u8, 194u8, 176u8, 125u8,
-							50u8, 74u8, 180u8, 37u8, 126u8, 227u8, 138u8, 213u8, 227u8, 35u8,
-							247u8, 18u8, 160u8, 231u8, 97u8, 149u8, 144u8, 49u8, 34u8, 146u8, 32u8,
-							7u8,
-						],
-					)
-				}
-				#[doc = "Suspends all XCM executions for the XCMP queue, regardless of the sender's origin."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `ControllerOrigin`."]
+				#[doc = "See [`Pallet::suspend_xcm_execution`]."]
 				pub fn suspend_xcm_execution(
 					&self,
 				) -> ::subxt::tx::Payload<types::SuspendXcmExecution> {
@@ -4597,11 +6258,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Resumes all XCM executions for the XCMP queue."]
-				#[doc = ""]
-				#[doc = "Note that this function doesn't change the status of the in/out bound channels."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `ControllerOrigin`."]
+				#[doc = "See [`Pallet::resume_xcm_execution`]."]
 				pub fn resume_xcm_execution(
 					&self,
 				) -> ::subxt::tx::Payload<types::ResumeXcmExecution> {
@@ -4616,11 +6273,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Overwrites the number of pages of messages which must be in the queue for the other side to be told to"]
-				#[doc = "suspend their sending."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `Root`."]
-				#[doc = "- `new`: Desired value for `QueueConfigData.suspend_value`"]
+				#[doc = "See [`Pallet::update_suspend_threshold`]."]
 				pub fn update_suspend_threshold(
 					&self,
 					new: ::core::primitive::u32,
@@ -4636,11 +6289,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Overwrites the number of pages of messages which must be in the queue after which we drop any further"]
-				#[doc = "messages from the channel."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `Root`."]
-				#[doc = "- `new`: Desired value for `QueueConfigData.drop_threshold`"]
+				#[doc = "See [`Pallet::update_drop_threshold`]."]
 				pub fn update_drop_threshold(
 					&self,
 					new: ::core::primitive::u32,
@@ -4656,11 +6305,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Overwrites the number of pages of messages which the queue must be reduced to before it signals that"]
-				#[doc = "message sending may recommence after it has been suspended."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `Root`."]
-				#[doc = "- `new`: Desired value for `QueueConfigData.resume_threshold`"]
+				#[doc = "See [`Pallet::update_resume_threshold`]."]
 				pub fn update_resume_threshold(
 					&self,
 					new: ::core::primitive::u32,
@@ -4676,70 +6321,9 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Overwrites the amount of remaining weight under which we stop processing messages."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `Root`."]
-				#[doc = "- `new`: Desired value for `QueueConfigData.threshold_weight`"]
-				pub fn update_threshold_weight(
-					&self,
-					new: runtime_types::sp_weights::weight_v2::Weight,
-				) -> ::subxt::tx::Payload<types::UpdateThresholdWeight> {
-					::subxt::tx::Payload::new_static(
-						"XcmpQueue",
-						"update_threshold_weight",
-						types::UpdateThresholdWeight { new },
-						[
-							79u8, 1u8, 102u8, 119u8, 93u8, 104u8, 197u8, 189u8, 248u8, 215u8, 30u8,
-							227u8, 83u8, 26u8, 149u8, 99u8, 174u8, 191u8, 97u8, 82u8, 168u8, 128u8,
-							130u8, 136u8, 185u8, 54u8, 104u8, 186u8, 231u8, 11u8, 66u8, 184u8,
-						],
-					)
-				}
-				#[doc = "Overwrites the speed to which the available weight approaches the maximum weight."]
-				#[doc = "A lower number results in a faster progression. A value of 1 makes the entire weight available initially."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `Root`."]
-				#[doc = "- `new`: Desired value for `QueueConfigData.weight_restrict_decay`."]
-				pub fn update_weight_restrict_decay(
-					&self,
-					new: runtime_types::sp_weights::weight_v2::Weight,
-				) -> ::subxt::tx::Payload<types::UpdateWeightRestrictDecay> {
-					::subxt::tx::Payload::new_static(
-						"XcmpQueue",
-						"update_weight_restrict_decay",
-						types::UpdateWeightRestrictDecay { new },
-						[
-							37u8, 210u8, 52u8, 253u8, 67u8, 66u8, 63u8, 238u8, 117u8, 80u8, 77u8,
-							102u8, 166u8, 103u8, 173u8, 135u8, 54u8, 139u8, 100u8, 225u8, 115u8,
-							214u8, 160u8, 228u8, 195u8, 221u8, 160u8, 62u8, 192u8, 105u8, 188u8,
-							139u8,
-						],
-					)
-				}
-				#[doc = "Overwrite the maximum amount of weight any individual message may consume."]
-				#[doc = "Messages above this weight go into the overweight queue and may only be serviced explicitly."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must pass `Root`."]
-				#[doc = "- `new`: Desired value for `QueueConfigData.xcmp_max_individual_weight`."]
-				pub fn update_xcmp_max_individual_weight(
-					&self,
-					new: runtime_types::sp_weights::weight_v2::Weight,
-				) -> ::subxt::tx::Payload<types::UpdateXcmpMaxIndividualWeight> {
-					::subxt::tx::Payload::new_static(
-						"XcmpQueue",
-						"update_xcmp_max_individual_weight",
-						types::UpdateXcmpMaxIndividualWeight { new },
-						[
-							185u8, 199u8, 32u8, 102u8, 179u8, 139u8, 101u8, 14u8, 48u8, 173u8,
-							123u8, 158u8, 161u8, 153u8, 81u8, 109u8, 196u8, 217u8, 235u8, 150u8,
-							176u8, 55u8, 168u8, 31u8, 34u8, 251u8, 128u8, 53u8, 160u8, 220u8,
-							140u8, 174u8,
-						],
-					)
-				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::cumulus_pallet_xcmp_queue::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -4753,141 +6337,33 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Some XCM was executed ok."]
-			pub struct Success {
-				pub message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-				pub weight: runtime_types::sp_weights::weight_v2::Weight,
-			}
-			impl ::subxt::events::StaticEvent for Success {
-				const PALLET: &'static str = "XcmpQueue";
-				const EVENT: &'static str = "Success";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Some XCM failed."]
-			pub struct Fail {
-				pub message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-				pub error: runtime_types::xcm::v3::traits::Error,
-				pub weight: runtime_types::sp_weights::weight_v2::Weight,
-			}
-			impl ::subxt::events::StaticEvent for Fail {
-				const PALLET: &'static str = "XcmpQueue";
-				const EVENT: &'static str = "Fail";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Bad XCM version used."]
-			pub struct BadVersion {
-				pub message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-			}
-			impl ::subxt::events::StaticEvent for BadVersion {
-				const PALLET: &'static str = "XcmpQueue";
-				const EVENT: &'static str = "BadVersion";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Bad XCM format used."]
-			pub struct BadFormat {
-				pub message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-			}
-			impl ::subxt::events::StaticEvent for BadFormat {
-				const PALLET: &'static str = "XcmpQueue";
-				const EVENT: &'static str = "BadFormat";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "An HRMP message was sent to a sibling parachain."]
 			pub struct XcmpMessageSent {
-				pub message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
+				pub message_hash: [::core::primitive::u8; 32usize],
 			}
 			impl ::subxt::events::StaticEvent for XcmpMessageSent {
 				const PALLET: &'static str = "XcmpQueue";
 				const EVENT: &'static str = "XcmpMessageSent";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "An XCM exceeded the individual message weight budget."]
-			pub struct OverweightEnqueued {
-				pub sender: runtime_types::polkadot_parachain::primitives::Id,
-				pub sent_at: ::core::primitive::u32,
-				pub index: ::core::primitive::u64,
-				pub required: runtime_types::sp_weights::weight_v2::Weight,
-			}
-			impl ::subxt::events::StaticEvent for OverweightEnqueued {
-				const PALLET: &'static str = "XcmpQueue";
-				const EVENT: &'static str = "OverweightEnqueued";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "An XCM from the overweight queue was executed with the given actual weight used."]
-			pub struct OverweightServiced {
-				pub index: ::core::primitive::u64,
-				pub used: runtime_types::sp_weights::weight_v2::Weight,
-			}
-			impl ::subxt::events::StaticEvent for OverweightServiced {
-				const PALLET: &'static str = "XcmpQueue";
-				const EVENT: &'static str = "OverweightServiced";
 			}
 		}
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
 			impl StorageApi {
-				#[doc = " Status of the inbound XCMP channels."]
-				pub fn inbound_xcmp_status(
+				#[doc = " The suspended inbound XCMP channels. All others are not suspended."]
+				#[doc = ""]
+				#[doc = " This is a `StorageValue` instead of a `StorageMap` since we expect multiple reads per block"]
+				#[doc = " to different keys with a one byte payload. The access to `BoundedBTreeSet` will be cached"]
+				#[doc = " within the block and therefore only included once in the proof size."]
+				#[doc = ""]
+				#[doc = " NOTE: The PoV benchmarking cannot know this and will over-estimate, but the actual proof"]
+				#[doc = " will be smaller."]
+				pub fn inbound_xcmp_suspended(
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					::std::vec::Vec<
-						runtime_types::cumulus_pallet_xcmp_queue::InboundChannelDetails,
+					runtime_types::bounded_collections::bounded_btree_set::BoundedBTreeSet<
+						runtime_types::polkadot_parachain_primitives::primitives::Id,
 					>,
 					::subxt::storage::address::Yes,
 					::subxt::storage::address::Yes,
@@ -4895,60 +6371,12 @@ pub mod api {
 				> {
 					::subxt::storage::address::Address::new_static(
 						"XcmpQueue",
-						"InboundXcmpStatus",
+						"InboundXcmpSuspended",
 						vec![],
 						[
-							216u8, 138u8, 138u8, 71u8, 210u8, 155u8, 255u8, 91u8, 44u8, 147u8,
-							80u8, 187u8, 203u8, 88u8, 34u8, 54u8, 80u8, 232u8, 249u8, 20u8, 169u8,
-							138u8, 123u8, 139u8, 182u8, 184u8, 0u8, 205u8, 101u8, 9u8, 194u8,
-							122u8,
-						],
-					)
-				}
-				#[doc = " Inbound aggregate XCMP messages. It can only be one per ParaId/block."]
-				pub fn inbound_xcmp_messages(
-					&self,
-					_0: impl ::std::borrow::Borrow<runtime_types::polkadot_parachain::primitives::Id>,
-					_1: impl ::std::borrow::Borrow<::core::primitive::u32>,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::std::vec::Vec<::core::primitive::u8>,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-				> {
-					::subxt::storage::address::Address::new_static(
-						"XcmpQueue",
-						"InboundXcmpMessages",
-						vec![
-							::subxt::storage::address::make_static_storage_map_key(_0.borrow()),
-							::subxt::storage::address::make_static_storage_map_key(_1.borrow()),
-						],
-						[
-							60u8, 227u8, 118u8, 144u8, 41u8, 170u8, 15u8, 80u8, 148u8, 229u8,
-							213u8, 6u8, 213u8, 186u8, 20u8, 199u8, 229u8, 159u8, 17u8, 39u8, 116u8,
-							85u8, 34u8, 82u8, 109u8, 100u8, 174u8, 85u8, 245u8, 247u8, 84u8, 116u8,
-						],
-					)
-				}
-				#[doc = " Inbound aggregate XCMP messages. It can only be one per ParaId/block."]
-				pub fn inbound_xcmp_messages_root(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::std::vec::Vec<::core::primitive::u8>,
-					(),
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-				> {
-					::subxt::storage::address::Address::new_static(
-						"XcmpQueue",
-						"InboundXcmpMessages",
-						Vec::new(),
-						[
-							60u8, 227u8, 118u8, 144u8, 41u8, 170u8, 15u8, 80u8, 148u8, 229u8,
-							213u8, 6u8, 213u8, 186u8, 20u8, 199u8, 229u8, 159u8, 17u8, 39u8, 116u8,
-							85u8, 34u8, 82u8, 109u8, 100u8, 174u8, 85u8, 245u8, 247u8, 84u8, 116u8,
+							110u8, 23u8, 239u8, 104u8, 136u8, 224u8, 179u8, 180u8, 40u8, 159u8,
+							54u8, 15u8, 55u8, 111u8, 75u8, 147u8, 131u8, 127u8, 9u8, 57u8, 133u8,
+							70u8, 175u8, 181u8, 232u8, 49u8, 13u8, 19u8, 59u8, 151u8, 179u8, 215u8,
 						],
 					)
 				}
@@ -4983,7 +6411,9 @@ pub mod api {
 				#[doc = " The messages outbound in a given XCMP channel."]
 				pub fn outbound_xcmp_messages(
 					&self,
-					_0: impl ::std::borrow::Borrow<runtime_types::polkadot_parachain::primitives::Id>,
+					_0: impl ::std::borrow::Borrow<
+						runtime_types::polkadot_parachain_primitives::primitives::Id,
+					>,
 					_1: impl ::std::borrow::Borrow<::core::primitive::u16>,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
@@ -5030,7 +6460,9 @@ pub mod api {
 				#[doc = " Any signal messages waiting to be sent."]
 				pub fn signal_messages(
 					&self,
-					_0: impl ::std::borrow::Borrow<runtime_types::polkadot_parachain::primitives::Id>,
+					_0: impl ::std::borrow::Borrow<
+						runtime_types::polkadot_parachain_primitives::primitives::Id,
+					>,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
 					::std::vec::Vec<::core::primitive::u8>,
@@ -5087,112 +6519,10 @@ pub mod api {
 						"QueueConfig",
 						vec![],
 						[
-							112u8, 136u8, 198u8, 133u8, 5u8, 66u8, 33u8, 29u8, 99u8, 72u8, 70u8,
-							56u8, 182u8, 57u8, 48u8, 10u8, 135u8, 63u8, 103u8, 13u8, 143u8, 121u8,
-							12u8, 126u8, 207u8, 56u8, 244u8, 63u8, 126u8, 51u8, 100u8, 69u8,
-						],
-					)
-				}
-				#[doc = " The messages that exceeded max individual message weight budget."]
-				#[doc = ""]
-				#[doc = " These message stay in this storage map until they are manually dispatched via"]
-				#[doc = " `service_overweight`."]
-				pub fn overweight(
-					&self,
-					_0: impl ::std::borrow::Borrow<::core::primitive::u64>,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					(
-						runtime_types::polkadot_parachain::primitives::Id,
-						::core::primitive::u32,
-						::std::vec::Vec<::core::primitive::u8>,
-					),
-					::subxt::storage::address::Yes,
-					(),
-					::subxt::storage::address::Yes,
-				> {
-					::subxt::storage::address::Address::new_static(
-						"XcmpQueue",
-						"Overweight",
-						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
-						[
-							4u8, 180u8, 123u8, 50u8, 174u8, 195u8, 68u8, 214u8, 187u8, 92u8, 131u8,
-							234u8, 166u8, 124u8, 19u8, 202u8, 0u8, 249u8, 246u8, 239u8, 199u8,
-							27u8, 129u8, 252u8, 22u8, 92u8, 206u8, 159u8, 136u8, 222u8, 238u8,
-							81u8,
-						],
-					)
-				}
-				#[doc = " The messages that exceeded max individual message weight budget."]
-				#[doc = ""]
-				#[doc = " These message stay in this storage map until they are manually dispatched via"]
-				#[doc = " `service_overweight`."]
-				pub fn overweight_root(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					(
-						runtime_types::polkadot_parachain::primitives::Id,
-						::core::primitive::u32,
-						::std::vec::Vec<::core::primitive::u8>,
-					),
-					(),
-					(),
-					::subxt::storage::address::Yes,
-				> {
-					::subxt::storage::address::Address::new_static(
-						"XcmpQueue",
-						"Overweight",
-						Vec::new(),
-						[
-							4u8, 180u8, 123u8, 50u8, 174u8, 195u8, 68u8, 214u8, 187u8, 92u8, 131u8,
-							234u8, 166u8, 124u8, 19u8, 202u8, 0u8, 249u8, 246u8, 239u8, 199u8,
-							27u8, 129u8, 252u8, 22u8, 92u8, 206u8, 159u8, 136u8, 222u8, 238u8,
-							81u8,
-						],
-					)
-				}
-				#[doc = "Counter for the related counted storage map"]
-				pub fn counter_for_overweight(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::core::primitive::u32,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-					(),
-				> {
-					::subxt::storage::address::Address::new_static(
-						"XcmpQueue",
-						"CounterForOverweight",
-						vec![],
-						[
-							44u8, 249u8, 133u8, 204u8, 169u8, 253u8, 23u8, 157u8, 132u8, 193u8,
-							28u8, 178u8, 156u8, 176u8, 206u8, 46u8, 79u8, 254u8, 174u8, 236u8,
-							143u8, 219u8, 59u8, 43u8, 36u8, 109u8, 244u8, 206u8, 48u8, 126u8,
-							247u8, 0u8,
-						],
-					)
-				}
-				#[doc = " The number of overweight messages ever recorded in `Overweight`. Also doubles as the next"]
-				#[doc = " available free overweight index."]
-				pub fn overweight_count(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::core::primitive::u64,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-					(),
-				> {
-					::subxt::storage::address::Address::new_static(
-						"XcmpQueue",
-						"OverweightCount",
-						vec![],
-						[
-							28u8, 72u8, 218u8, 167u8, 253u8, 30u8, 10u8, 51u8, 49u8, 101u8, 86u8,
-							26u8, 146u8, 2u8, 153u8, 232u8, 129u8, 38u8, 111u8, 105u8, 246u8, 84u8,
-							192u8, 157u8, 193u8, 57u8, 222u8, 122u8, 38u8, 160u8, 56u8, 39u8,
+							185u8, 67u8, 247u8, 243u8, 211u8, 232u8, 57u8, 240u8, 237u8, 181u8,
+							23u8, 114u8, 215u8, 128u8, 193u8, 1u8, 176u8, 53u8, 110u8, 195u8,
+							148u8, 80u8, 187u8, 143u8, 62u8, 30u8, 143u8, 34u8, 248u8, 109u8, 3u8,
+							141u8,
 						],
 					)
 				}
@@ -5217,14 +6547,84 @@ pub mod api {
 						],
 					)
 				}
+				#[doc = " The factor to multiply the base delivery fee by."]
+				pub fn delivery_fee_factor(
+					&self,
+					_0: impl ::std::borrow::Borrow<
+						runtime_types::polkadot_parachain_primitives::primitives::Id,
+					>,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::sp_arithmetic::fixed_point::FixedU128,
+					::subxt::storage::address::Yes,
+					::subxt::storage::address::Yes,
+					::subxt::storage::address::Yes,
+				> {
+					::subxt::storage::address::Address::new_static(
+						"XcmpQueue",
+						"DeliveryFeeFactor",
+						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
+						[
+							43u8, 5u8, 63u8, 235u8, 115u8, 155u8, 130u8, 27u8, 75u8, 216u8, 177u8,
+							135u8, 203u8, 147u8, 167u8, 95u8, 208u8, 188u8, 25u8, 14u8, 84u8, 63u8,
+							116u8, 41u8, 148u8, 110u8, 115u8, 215u8, 196u8, 36u8, 75u8, 102u8,
+						],
+					)
+				}
+				#[doc = " The factor to multiply the base delivery fee by."]
+				pub fn delivery_fee_factor_root(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::sp_arithmetic::fixed_point::FixedU128,
+					(),
+					::subxt::storage::address::Yes,
+					::subxt::storage::address::Yes,
+				> {
+					::subxt::storage::address::Address::new_static(
+						"XcmpQueue",
+						"DeliveryFeeFactor",
+						Vec::new(),
+						[
+							43u8, 5u8, 63u8, 235u8, 115u8, 155u8, 130u8, 27u8, 75u8, 216u8, 177u8,
+							135u8, 203u8, 147u8, 167u8, 95u8, 208u8, 188u8, 25u8, 14u8, 84u8, 63u8,
+							116u8, 41u8, 148u8, 110u8, 115u8, 215u8, 196u8, 36u8, 75u8, 102u8,
+						],
+					)
+				}
+			}
+		}
+		pub mod constants {
+			use super::runtime_types;
+			pub struct ConstantsApi;
+			impl ConstantsApi {
+				#[doc = " The maximum number of inbound XCMP channels that can be suspended simultaneously."]
+				#[doc = ""]
+				#[doc = " Any further channel suspensions will fail and messages may get dropped without further"]
+				#[doc = " notice. Choosing a high value (1000) is okay; the trade-off that is described in"]
+				#[doc = " [`InboundXcmpSuspended`] still applies at that scale."]
+				pub fn max_inbound_suspended(
+					&self,
+				) -> ::subxt::constants::Address<::core::primitive::u32> {
+					::subxt::constants::Address::new_static(
+						"XcmpQueue",
+						"MaxInboundSuspended",
+						[
+							98u8, 252u8, 116u8, 72u8, 26u8, 180u8, 225u8, 83u8, 200u8, 157u8,
+							125u8, 151u8, 53u8, 76u8, 168u8, 26u8, 10u8, 9u8, 98u8, 68u8, 9u8,
+							178u8, 197u8, 113u8, 31u8, 79u8, 200u8, 90u8, 203u8, 100u8, 41u8,
+							145u8,
+						],
+					)
+				}
 			}
 		}
 	}
 	pub mod polkadot_xcm {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+		#[doc = "The `Error` enum of this pallet."]
 		pub type Error = runtime_types::pallet_xcm::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::pallet_xcm::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -5318,9 +6718,10 @@ pub mod api {
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 				pub struct ForceXcmVersion {
-					pub location:
-						::std::boxed::Box<runtime_types::xcm::v3::multilocation::MultiLocation>,
-					pub xcm_version: ::core::primitive::u32,
+					pub location: ::std::boxed::Box<
+						runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+					>,
+					pub version: ::core::primitive::u32,
 				}
 				impl ::subxt::blocks::StaticExtrinsic for ForceXcmVersion {
 					const PALLET: &'static str = "PolkadotXcm";
@@ -5436,9 +6837,31 @@ pub mod api {
 					const PALLET: &'static str = "PolkadotXcm";
 					const CALL: &'static str = "force_suspension";
 				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct TransferAssets {
+					pub dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
+					pub beneficiary: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
+					pub assets: ::std::boxed::Box<runtime_types::xcm::VersionedMultiAssets>,
+					pub fee_asset_item: ::core::primitive::u32,
+					pub weight_limit: runtime_types::xcm::v3::WeightLimit,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for TransferAssets {
+					const PALLET: &'static str = "PolkadotXcm";
+					const CALL: &'static str = "transfer_assets";
+				}
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
+				#[doc = "See [`Pallet::send`]."]
 				pub fn send(
 					&self,
 					dest: runtime_types::xcm::VersionedMultiLocation,
@@ -5452,27 +6875,14 @@ pub mod api {
 							message: ::std::boxed::Box::new(message),
 						},
 						[
-							147u8, 255u8, 86u8, 82u8, 17u8, 159u8, 225u8, 145u8, 220u8, 89u8, 71u8,
-							23u8, 193u8, 249u8, 12u8, 70u8, 19u8, 140u8, 232u8, 97u8, 12u8, 220u8,
-							113u8, 65u8, 4u8, 255u8, 138u8, 10u8, 231u8, 122u8, 67u8, 105u8,
+							145u8, 12u8, 109u8, 216u8, 135u8, 198u8, 98u8, 133u8, 12u8, 38u8, 17u8,
+							105u8, 67u8, 120u8, 170u8, 96u8, 202u8, 234u8, 96u8, 157u8, 40u8,
+							213u8, 72u8, 21u8, 189u8, 220u8, 71u8, 194u8, 227u8, 243u8, 171u8,
+							229u8,
 						],
 					)
 				}
-				#[doc = "Teleport some assets from the local chain to some destination chain."]
-				#[doc = ""]
-				#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-				#[doc = "index `fee_asset_item`. The weight limit for fees is not provided and thus is unlimited,"]
-				#[doc = "with all fees taken as needed from the asset."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-				#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-				#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-				#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-				#[doc = "  an `AccountId32` value."]
-				#[doc = "- `assets`: The assets to be withdrawn. The first item should be the currency used to to pay the fee on the"]
-				#[doc = "  `dest` side. May not be empty."]
-				#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-				#[doc = "  fees."]
+				#[doc = "See [`Pallet::teleport_assets`]."]
 				pub fn teleport_assets(
 					&self,
 					dest: runtime_types::xcm::VersionedMultiLocation,
@@ -5490,28 +6900,14 @@ pub mod api {
 							fee_asset_item,
 						},
 						[
-							56u8, 144u8, 237u8, 60u8, 157u8, 5u8, 7u8, 129u8, 41u8, 149u8, 160u8,
-							100u8, 233u8, 102u8, 181u8, 140u8, 115u8, 213u8, 29u8, 132u8, 16u8,
-							30u8, 23u8, 82u8, 140u8, 134u8, 37u8, 87u8, 3u8, 99u8, 172u8, 42u8,
+							253u8, 2u8, 191u8, 130u8, 244u8, 135u8, 195u8, 160u8, 160u8, 196u8,
+							62u8, 195u8, 157u8, 228u8, 57u8, 59u8, 131u8, 69u8, 125u8, 44u8, 48u8,
+							120u8, 176u8, 53u8, 191u8, 69u8, 151u8, 77u8, 245u8, 97u8, 169u8,
+							117u8,
 						],
 					)
 				}
-				#[doc = "Transfer some assets from the local chain to the sovereign account of a destination"]
-				#[doc = "chain and forward a notification XCM."]
-				#[doc = ""]
-				#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-				#[doc = "index `fee_asset_item`. The weight limit for fees is not provided and thus is unlimited,"]
-				#[doc = "with all fees taken as needed from the asset."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-				#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-				#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-				#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-				#[doc = "  an `AccountId32` value."]
-				#[doc = "- `assets`: The assets to be withdrawn. This should include the assets used to pay the fee on the"]
-				#[doc = "  `dest` side."]
-				#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-				#[doc = "  fees."]
+				#[doc = "See [`Pallet::reserve_transfer_assets`]."]
 				pub fn reserve_transfer_assets(
 					&self,
 					dest: runtime_types::xcm::VersionedMultiLocation,
@@ -5529,23 +6925,13 @@ pub mod api {
 							fee_asset_item,
 						},
 						[
-							21u8, 167u8, 44u8, 22u8, 210u8, 73u8, 148u8, 7u8, 91u8, 108u8, 148u8,
-							205u8, 170u8, 243u8, 142u8, 224u8, 205u8, 119u8, 252u8, 22u8, 203u8,
-							32u8, 73u8, 200u8, 178u8, 14u8, 167u8, 147u8, 166u8, 55u8, 14u8, 231u8,
+							204u8, 40u8, 10u8, 224u8, 175u8, 80u8, 228u8, 202u8, 250u8, 27u8, 70u8,
+							126u8, 166u8, 36u8, 53u8, 125u8, 96u8, 107u8, 121u8, 130u8, 44u8,
+							214u8, 174u8, 80u8, 113u8, 45u8, 10u8, 194u8, 179u8, 4u8, 181u8, 70u8,
 						],
 					)
 				}
-				#[doc = "Execute an XCM message from a local, signed, origin."]
-				#[doc = ""]
-				#[doc = "An event is deposited indicating whether `msg` could be executed completely or only"]
-				#[doc = "partially."]
-				#[doc = ""]
-				#[doc = "No more than `max_weight` will be used in its attempted execution. If this is less than the"]
-				#[doc = "maximum amount of weight that the message could take to be executed, then no execution"]
-				#[doc = "attempt will be made."]
-				#[doc = ""]
-				#[doc = "NOTE: A successful return to this does *not* imply that the `msg` was executed successfully"]
-				#[doc = "to completion; only that *some* of it was executed."]
+				#[doc = "See [`Pallet::execute`]."]
 				pub fn execute(
 					&self,
 					message: runtime_types::xcm::VersionedXcm2,
@@ -5556,42 +6942,34 @@ pub mod api {
 						"execute",
 						types::Execute { message: ::std::boxed::Box::new(message), max_weight },
 						[
-							15u8, 97u8, 86u8, 111u8, 105u8, 116u8, 109u8, 206u8, 70u8, 8u8, 57u8,
-							232u8, 133u8, 132u8, 30u8, 219u8, 34u8, 69u8, 0u8, 213u8, 98u8, 241u8,
-							186u8, 93u8, 216u8, 39u8, 73u8, 24u8, 193u8, 87u8, 92u8, 31u8,
+							207u8, 172u8, 34u8, 97u8, 82u8, 80u8, 131u8, 47u8, 27u8, 79u8, 124u8,
+							134u8, 97u8, 106u8, 139u8, 230u8, 77u8, 85u8, 109u8, 40u8, 139u8, 56u8,
+							234u8, 181u8, 180u8, 31u8, 157u8, 135u8, 75u8, 218u8, 43u8, 157u8,
 						],
 					)
 				}
-				#[doc = "Extoll that a particular destination can be communicated with through a particular"]
-				#[doc = "version of XCM."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-				#[doc = "- `location`: The destination that is being described."]
-				#[doc = "- `xcm_version`: The latest version of XCM that `location` supports."]
+				#[doc = "See [`Pallet::force_xcm_version`]."]
 				pub fn force_xcm_version(
 					&self,
-					location: runtime_types::xcm::v3::multilocation::MultiLocation,
-					xcm_version: ::core::primitive::u32,
+					location: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+					version: ::core::primitive::u32,
 				) -> ::subxt::tx::Payload<types::ForceXcmVersion> {
 					::subxt::tx::Payload::new_static(
 						"PolkadotXcm",
 						"force_xcm_version",
 						types::ForceXcmVersion {
 							location: ::std::boxed::Box::new(location),
-							xcm_version,
+							version,
 						},
 						[
-							84u8, 212u8, 64u8, 161u8, 17u8, 129u8, 213u8, 129u8, 79u8, 86u8, 117u8,
-							246u8, 93u8, 1u8, 161u8, 23u8, 35u8, 171u8, 163u8, 200u8, 69u8, 157u8,
-							71u8, 8u8, 225u8, 149u8, 254u8, 124u8, 38u8, 250u8, 164u8, 218u8,
+							169u8, 8u8, 18u8, 107u8, 12u8, 180u8, 217u8, 141u8, 188u8, 250u8,
+							112u8, 51u8, 122u8, 138u8, 204u8, 44u8, 169u8, 166u8, 36u8, 84u8, 0u8,
+							95u8, 138u8, 137u8, 119u8, 226u8, 146u8, 85u8, 53u8, 65u8, 188u8,
+							169u8,
 						],
 					)
 				}
-				#[doc = "Set a safe XCM version (the version that XCM should be encoded with if the most recent"]
-				#[doc = "version a destination can accept is unknown)."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-				#[doc = "- `maybe_xcm_version`: The default XCM encoding version, or `None` to disable."]
+				#[doc = "See [`Pallet::force_default_xcm_version`]."]
 				pub fn force_default_xcm_version(
 					&self,
 					maybe_xcm_version: ::core::option::Option<::core::primitive::u32>,
@@ -5608,10 +6986,7 @@ pub mod api {
 						],
 					)
 				}
-				#[doc = "Ask a location to notify us regarding their XCM version and any changes to it."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-				#[doc = "- `location`: The location to which we should subscribe for XCM version notifications."]
+				#[doc = "See [`Pallet::force_subscribe_version_notify`]."]
 				pub fn force_subscribe_version_notify(
 					&self,
 					location: runtime_types::xcm::VersionedMultiLocation,
@@ -5623,18 +6998,13 @@ pub mod api {
 							location: ::std::boxed::Box::new(location),
 						},
 						[
-							112u8, 254u8, 138u8, 12u8, 203u8, 176u8, 251u8, 167u8, 223u8, 0u8,
-							71u8, 148u8, 19u8, 179u8, 47u8, 96u8, 188u8, 189u8, 14u8, 172u8, 1u8,
-							1u8, 192u8, 107u8, 137u8, 158u8, 22u8, 9u8, 138u8, 241u8, 32u8, 47u8,
+							79u8, 2u8, 202u8, 173u8, 179u8, 250u8, 48u8, 28u8, 168u8, 183u8, 59u8,
+							45u8, 193u8, 132u8, 141u8, 240u8, 65u8, 182u8, 31u8, 85u8, 98u8, 124u8,
+							21u8, 169u8, 133u8, 107u8, 221u8, 235u8, 230u8, 56u8, 81u8, 201u8,
 						],
 					)
 				}
-				#[doc = "Require that a particular destination should no longer notify us regarding any XCM"]
-				#[doc = "version changes."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-				#[doc = "- `location`: The location to which we are currently subscribed for XCM version"]
-				#[doc = "  notifications which we no longer desire."]
+				#[doc = "See [`Pallet::force_unsubscribe_version_notify`]."]
 				pub fn force_unsubscribe_version_notify(
 					&self,
 					location: runtime_types::xcm::VersionedMultiLocation,
@@ -5646,31 +7016,14 @@ pub mod api {
 							location: ::std::boxed::Box::new(location),
 						},
 						[
-							205u8, 143u8, 230u8, 143u8, 166u8, 184u8, 53u8, 252u8, 118u8, 184u8,
-							209u8, 227u8, 225u8, 184u8, 254u8, 244u8, 101u8, 56u8, 27u8, 128u8,
-							40u8, 159u8, 178u8, 62u8, 63u8, 164u8, 59u8, 236u8, 1u8, 168u8, 202u8,
-							42u8,
+							144u8, 180u8, 158u8, 178u8, 165u8, 54u8, 105u8, 207u8, 194u8, 105u8,
+							190u8, 142u8, 253u8, 133u8, 61u8, 83u8, 199u8, 147u8, 199u8, 69u8,
+							144u8, 22u8, 174u8, 138u8, 168u8, 131u8, 241u8, 221u8, 151u8, 148u8,
+							129u8, 22u8,
 						],
 					)
 				}
-				#[doc = "Transfer some assets from the local chain to the sovereign account of a destination"]
-				#[doc = "chain and forward a notification XCM."]
-				#[doc = ""]
-				#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-				#[doc = "index `fee_asset_item`, up to enough to pay for `weight_limit` of weight. If more weight"]
-				#[doc = "is needed than `weight_limit`, then the operation will fail and the assets send may be"]
-				#[doc = "at risk."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-				#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-				#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-				#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-				#[doc = "  an `AccountId32` value."]
-				#[doc = "- `assets`: The assets to be withdrawn. This should include the assets used to pay the fee on the"]
-				#[doc = "  `dest` side."]
-				#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-				#[doc = "  fees."]
-				#[doc = "- `weight_limit`: The remote-side weight limit, if any, for the XCM fee purchase."]
+				#[doc = "See [`Pallet::limited_reserve_transfer_assets`]."]
 				pub fn limited_reserve_transfer_assets(
 					&self,
 					dest: runtime_types::xcm::VersionedMultiLocation,
@@ -5690,30 +7043,14 @@ pub mod api {
 							weight_limit,
 						},
 						[
-							10u8, 139u8, 165u8, 239u8, 92u8, 178u8, 169u8, 62u8, 166u8, 236u8,
-							50u8, 12u8, 196u8, 3u8, 233u8, 209u8, 3u8, 159u8, 184u8, 234u8, 171u8,
-							46u8, 145u8, 134u8, 241u8, 155u8, 221u8, 173u8, 166u8, 94u8, 147u8,
-							88u8,
+							126u8, 160u8, 23u8, 48u8, 47u8, 7u8, 124u8, 99u8, 32u8, 91u8, 133u8,
+							116u8, 204u8, 133u8, 22u8, 216u8, 188u8, 247u8, 10u8, 41u8, 204u8,
+							182u8, 38u8, 200u8, 55u8, 117u8, 86u8, 119u8, 225u8, 133u8, 16u8,
+							129u8,
 						],
 					)
 				}
-				#[doc = "Teleport some assets from the local chain to some destination chain."]
-				#[doc = ""]
-				#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-				#[doc = "index `fee_asset_item`, up to enough to pay for `weight_limit` of weight. If more weight"]
-				#[doc = "is needed than `weight_limit`, then the operation will fail and the assets send may be"]
-				#[doc = "at risk."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-				#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-				#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-				#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-				#[doc = "  an `AccountId32` value."]
-				#[doc = "- `assets`: The assets to be withdrawn. The first item should be the currency used to to pay the fee on the"]
-				#[doc = "  `dest` side. May not be empty."]
-				#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-				#[doc = "  fees."]
-				#[doc = "- `weight_limit`: The remote-side weight limit, if any, for the XCM fee purchase."]
+				#[doc = "See [`Pallet::limited_teleport_assets`]."]
 				pub fn limited_teleport_assets(
 					&self,
 					dest: runtime_types::xcm::VersionedMultiLocation,
@@ -5733,17 +7070,13 @@ pub mod api {
 							weight_limit,
 						},
 						[
-							156u8, 205u8, 105u8, 18u8, 120u8, 130u8, 144u8, 67u8, 152u8, 188u8,
-							109u8, 121u8, 4u8, 240u8, 123u8, 112u8, 72u8, 153u8, 2u8, 111u8, 183u8,
-							170u8, 199u8, 82u8, 33u8, 117u8, 43u8, 133u8, 208u8, 44u8, 118u8,
-							107u8,
+							58u8, 84u8, 105u8, 56u8, 164u8, 58u8, 78u8, 24u8, 68u8, 83u8, 172u8,
+							145u8, 14u8, 85u8, 1u8, 52u8, 188u8, 81u8, 36u8, 60u8, 31u8, 203u8,
+							72u8, 195u8, 198u8, 128u8, 116u8, 197u8, 69u8, 15u8, 235u8, 252u8,
 						],
 					)
 				}
-				#[doc = "Set or unset the global suspension state of the XCM executor."]
-				#[doc = ""]
-				#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-				#[doc = "- `suspended`: `true` to suspend, `false` to resume."]
+				#[doc = "See [`Pallet::force_suspension`]."]
 				pub fn force_suspension(
 					&self,
 					suspended: ::core::primitive::bool,
@@ -5759,9 +7092,35 @@ pub mod api {
 						],
 					)
 				}
+				#[doc = "See [`Pallet::transfer_assets`]."]
+				pub fn transfer_assets(
+					&self,
+					dest: runtime_types::xcm::VersionedMultiLocation,
+					beneficiary: runtime_types::xcm::VersionedMultiLocation,
+					assets: runtime_types::xcm::VersionedMultiAssets,
+					fee_asset_item: ::core::primitive::u32,
+					weight_limit: runtime_types::xcm::v3::WeightLimit,
+				) -> ::subxt::tx::Payload<types::TransferAssets> {
+					::subxt::tx::Payload::new_static(
+						"PolkadotXcm",
+						"transfer_assets",
+						types::TransferAssets {
+							dest: ::std::boxed::Box::new(dest),
+							beneficiary: ::std::boxed::Box::new(beneficiary),
+							assets: ::std::boxed::Box::new(assets),
+							fee_asset_item,
+							weight_limit,
+						},
+						[
+							73u8, 16u8, 172u8, 19u8, 161u8, 78u8, 81u8, 191u8, 123u8, 205u8, 224u8,
+							69u8, 27u8, 180u8, 15u8, 230u8, 10u8, 218u8, 61u8, 81u8, 21u8, 192u8,
+							16u8, 158u8, 210u8, 186u8, 5u8, 68u8, 24u8, 204u8, 158u8, 171u8,
+						],
+					)
+				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::pallet_xcm::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -5776,9 +7135,9 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Execution of an XCM message was attempted."]
-			#[doc = ""]
-			#[doc = "\\[ outcome \\]"]
-			pub struct Attempted(pub runtime_types::xcm::v3::traits::Outcome);
+			pub struct Attempted {
+				pub outcome: runtime_types::xcm::v3::traits::Outcome,
+			}
 			impl ::subxt::events::StaticEvent for Attempted {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "Attempted";
@@ -5794,13 +7153,12 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "A XCM message was sent."]
-			#[doc = ""]
-			#[doc = "\\[ origin, destination, message \\]"]
-			pub struct Sent(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::v3::Xcm,
-			);
+			pub struct Sent {
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub message: runtime_types::xcm::v3::Xcm,
+				pub message_id: [::core::primitive::u8; 32usize],
+			}
 			impl ::subxt::events::StaticEvent for Sent {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "Sent";
@@ -5818,12 +7176,10 @@ pub mod api {
 			#[doc = "Query response received which does not match a registered query. This may be because a"]
 			#[doc = "matching query was never registered, it may be because it is a duplicate response, or"]
 			#[doc = "because the query timed out."]
-			#[doc = ""]
-			#[doc = "\\[ origin location, id \\]"]
-			pub struct UnexpectedResponse(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u64,
-			);
+			pub struct UnexpectedResponse {
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub query_id: ::core::primitive::u64,
+			}
 			impl ::subxt::events::StaticEvent for UnexpectedResponse {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "UnexpectedResponse";
@@ -5840,12 +7196,10 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Query response has been received and is ready for taking with `take_response`. There is"]
 			#[doc = "no registered notification call."]
-			#[doc = ""]
-			#[doc = "\\[ id, response \\]"]
-			pub struct ResponseReady(
-				pub ::core::primitive::u64,
-				pub runtime_types::xcm::v3::Response,
-			);
+			pub struct ResponseReady {
+				pub query_id: ::core::primitive::u64,
+				pub response: runtime_types::xcm::v3::Response,
+			}
 			impl ::subxt::events::StaticEvent for ResponseReady {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "ResponseReady";
@@ -5862,13 +7216,11 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Query response has been received and query is removed. The registered notification has"]
 			#[doc = "been dispatched and executed successfully."]
-			#[doc = ""]
-			#[doc = "\\[ id, pallet index, call index \\]"]
-			pub struct Notified(
-				pub ::core::primitive::u64,
-				pub ::core::primitive::u8,
-				pub ::core::primitive::u8,
-			);
+			pub struct Notified {
+				pub query_id: ::core::primitive::u64,
+				pub pallet_index: ::core::primitive::u8,
+				pub call_index: ::core::primitive::u8,
+			}
 			impl ::subxt::events::StaticEvent for Notified {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "Notified";
@@ -5883,18 +7235,16 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Query response has been received and query is removed. The registered notification could"]
-			#[doc = "not be dispatched because the dispatch weight is greater than the maximum weight"]
+			#[doc = "Query response has been received and query is removed. The registered notification"]
+			#[doc = "could not be dispatched because the dispatch weight is greater than the maximum weight"]
 			#[doc = "originally budgeted by this runtime for the query result."]
-			#[doc = ""]
-			#[doc = "\\[ id, pallet index, call index, actual weight, max budgeted weight \\]"]
-			pub struct NotifyOverweight(
-				pub ::core::primitive::u64,
-				pub ::core::primitive::u8,
-				pub ::core::primitive::u8,
-				pub runtime_types::sp_weights::weight_v2::Weight,
-				pub runtime_types::sp_weights::weight_v2::Weight,
-			);
+			pub struct NotifyOverweight {
+				pub query_id: ::core::primitive::u64,
+				pub pallet_index: ::core::primitive::u8,
+				pub call_index: ::core::primitive::u8,
+				pub actual_weight: runtime_types::sp_weights::weight_v2::Weight,
+				pub max_budgeted_weight: runtime_types::sp_weights::weight_v2::Weight,
+			}
 			impl ::subxt::events::StaticEvent for NotifyOverweight {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "NotifyOverweight";
@@ -5911,13 +7261,11 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Query response has been received and query is removed. There was a general error with"]
 			#[doc = "dispatching the notification call."]
-			#[doc = ""]
-			#[doc = "\\[ id, pallet index, call index \\]"]
-			pub struct NotifyDispatchError(
-				pub ::core::primitive::u64,
-				pub ::core::primitive::u8,
-				pub ::core::primitive::u8,
-			);
+			pub struct NotifyDispatchError {
+				pub query_id: ::core::primitive::u64,
+				pub pallet_index: ::core::primitive::u8,
+				pub call_index: ::core::primitive::u8,
+			}
 			impl ::subxt::events::StaticEvent for NotifyDispatchError {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "NotifyDispatchError";
@@ -5935,13 +7283,11 @@ pub mod api {
 			#[doc = "Query response has been received and query is removed. The dispatch was unable to be"]
 			#[doc = "decoded into a `Call`; this might be due to dispatch function having a signature which"]
 			#[doc = "is not `(origin, QueryId, Response)`."]
-			#[doc = ""]
-			#[doc = "\\[ id, pallet index, call index \\]"]
-			pub struct NotifyDecodeFailed(
-				pub ::core::primitive::u64,
-				pub ::core::primitive::u8,
-				pub ::core::primitive::u8,
-			);
+			pub struct NotifyDecodeFailed {
+				pub query_id: ::core::primitive::u64,
+				pub pallet_index: ::core::primitive::u8,
+				pub call_index: ::core::primitive::u8,
+			}
 			impl ::subxt::events::StaticEvent for NotifyDecodeFailed {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "NotifyDecodeFailed";
@@ -5959,13 +7305,13 @@ pub mod api {
 			#[doc = "Expected query response has been received but the origin location of the response does"]
 			#[doc = "not match that expected. The query remains registered for a later, valid, response to"]
 			#[doc = "be received and acted upon."]
-			#[doc = ""]
-			#[doc = "\\[ origin location, id, expected location \\]"]
-			pub struct InvalidResponder(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u64,
-				pub ::core::option::Option<runtime_types::xcm::v3::multilocation::MultiLocation>,
-			);
+			pub struct InvalidResponder {
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub query_id: ::core::primitive::u64,
+				pub expected_location: ::core::option::Option<
+					runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				>,
+			}
 			impl ::subxt::events::StaticEvent for InvalidResponder {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "InvalidResponder";
@@ -5987,12 +7333,10 @@ pub mod api {
 			#[doc = "runtime should be readable prior to query timeout) and dangerous since the possibly"]
 			#[doc = "valid response will be dropped. Manual governance intervention is probably going to be"]
 			#[doc = "needed."]
-			#[doc = ""]
-			#[doc = "\\[ origin location, id \\]"]
-			pub struct InvalidResponderVersion(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u64,
-			);
+			pub struct InvalidResponderVersion {
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub query_id: ::core::primitive::u64,
+			}
 			impl ::subxt::events::StaticEvent for InvalidResponderVersion {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "InvalidResponderVersion";
@@ -6009,9 +7353,9 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Received query response has been read and removed."]
-			#[doc = ""]
-			#[doc = "\\[ id \\]"]
-			pub struct ResponseTaken(pub ::core::primitive::u64);
+			pub struct ResponseTaken {
+				pub query_id: ::core::primitive::u64,
+			}
 			impl ::subxt::events::StaticEvent for ResponseTaken {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "ResponseTaken";
@@ -6027,13 +7371,11 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Some assets have been placed in an asset trap."]
-			#[doc = ""]
-			#[doc = "\\[ hash, origin, assets \\]"]
-			pub struct AssetsTrapped(
-				pub ::subxt::utils::H256,
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::VersionedMultiAssets,
-			);
+			pub struct AssetsTrapped {
+				pub hash: ::subxt::utils::H256,
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub assets: runtime_types::xcm::VersionedMultiAssets,
+			}
 			impl ::subxt::events::StaticEvent for AssetsTrapped {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "AssetsTrapped";
@@ -6051,13 +7393,12 @@ pub mod api {
 			#[doc = "An XCM version change notification message has been attempted to be sent."]
 			#[doc = ""]
 			#[doc = "The cost of sending it (borne by the chain) is included."]
-			#[doc = ""]
-			#[doc = "\\[ destination, result, cost \\]"]
-			pub struct VersionChangeNotified(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u32,
-				pub runtime_types::xcm::v3::multiasset::MultiAssets,
-			);
+			pub struct VersionChangeNotified {
+				pub destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub result: ::core::primitive::u32,
+				pub cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+				pub message_id: [::core::primitive::u8; 32usize],
+			}
 			impl ::subxt::events::StaticEvent for VersionChangeNotified {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "VersionChangeNotified";
@@ -6074,12 +7415,10 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "The supported version of a location has been changed. This might be through an"]
 			#[doc = "automatic notification or a manual intervention."]
-			#[doc = ""]
-			#[doc = "\\[ location, XCM version \\]"]
-			pub struct SupportedVersionChanged(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u32,
-			);
+			pub struct SupportedVersionChanged {
+				pub location: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub version: ::core::primitive::u32,
+			}
 			impl ::subxt::events::StaticEvent for SupportedVersionChanged {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "SupportedVersionChanged";
@@ -6096,13 +7435,11 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "A given location which had a version change subscription was dropped owing to an error"]
 			#[doc = "sending the notification to it."]
-			#[doc = ""]
-			#[doc = "\\[ location, query ID, error \\]"]
-			pub struct NotifyTargetSendFail(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u64,
-				pub runtime_types::xcm::v3::traits::Error,
-			);
+			pub struct NotifyTargetSendFail {
+				pub location: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub query_id: ::core::primitive::u64,
+				pub error: runtime_types::xcm::v3::traits::Error,
+			}
 			impl ::subxt::events::StaticEvent for NotifyTargetSendFail {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "NotifyTargetSendFail";
@@ -6119,12 +7456,10 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "A given location which had a version change subscription was dropped owing to an error"]
 			#[doc = "migrating the location to our new XCM format."]
-			#[doc = ""]
-			#[doc = "\\[ location, query ID \\]"]
-			pub struct NotifyTargetMigrationFail(
-				pub runtime_types::xcm::VersionedMultiLocation,
-				pub ::core::primitive::u64,
-			);
+			pub struct NotifyTargetMigrationFail {
+				pub location: runtime_types::xcm::VersionedMultiLocation,
+				pub query_id: ::core::primitive::u64,
+			}
 			impl ::subxt::events::StaticEvent for NotifyTargetMigrationFail {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "NotifyTargetMigrationFail";
@@ -6146,12 +7481,10 @@ pub mod api {
 			#[doc = "runtime should be readable prior to query timeout) and dangerous since the possibly"]
 			#[doc = "valid response will be dropped. Manual governance intervention is probably going to be"]
 			#[doc = "needed."]
-			#[doc = ""]
-			#[doc = "\\[ origin location, id \\]"]
-			pub struct InvalidQuerierVersion(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u64,
-			);
+			pub struct InvalidQuerierVersion {
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub query_id: ::core::primitive::u64,
+			}
 			impl ::subxt::events::StaticEvent for InvalidQuerierVersion {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "InvalidQuerierVersion";
@@ -6169,14 +7502,14 @@ pub mod api {
 			#[doc = "Expected query response has been received but the querier location of the response does"]
 			#[doc = "not match the expected. The query remains registered for a later, valid, response to"]
 			#[doc = "be received and acted upon."]
-			#[doc = ""]
-			#[doc = "\\[ origin location, id, expected querier, maybe actual querier \\]"]
-			pub struct InvalidQuerier(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::primitive::u64,
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub ::core::option::Option<runtime_types::xcm::v3::multilocation::MultiLocation>,
-			);
+			pub struct InvalidQuerier {
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub query_id: ::core::primitive::u64,
+				pub expected_querier: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub maybe_actual_querier: ::core::option::Option<
+					runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				>,
+			}
 			impl ::subxt::events::StaticEvent for InvalidQuerier {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "InvalidQuerier";
@@ -6193,12 +7526,11 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "A remote has requested XCM version change notification from us and we have honored it."]
 			#[doc = "A version information message is sent to them and its cost is included."]
-			#[doc = ""]
-			#[doc = "\\[ destination location, cost \\]"]
-			pub struct VersionNotifyStarted(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::v3::multiasset::MultiAssets,
-			);
+			pub struct VersionNotifyStarted {
+				pub destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+				pub message_id: [::core::primitive::u8; 32usize],
+			}
 			impl ::subxt::events::StaticEvent for VersionNotifyStarted {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "VersionNotifyStarted";
@@ -6213,13 +7545,12 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "We have requested that a remote chain sends us XCM version change notifications."]
-			#[doc = ""]
-			#[doc = "\\[ destination location, cost \\]"]
-			pub struct VersionNotifyRequested(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::v3::multiasset::MultiAssets,
-			);
+			#[doc = "We have requested that a remote chain send us XCM version change notifications."]
+			pub struct VersionNotifyRequested {
+				pub destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+				pub message_id: [::core::primitive::u8; 32usize],
+			}
 			impl ::subxt::events::StaticEvent for VersionNotifyRequested {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "VersionNotifyRequested";
@@ -6234,13 +7565,13 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "We have requested that a remote chain stops sending us XCM version change notifications."]
-			#[doc = ""]
-			#[doc = "\\[ destination location, cost \\]"]
-			pub struct VersionNotifyUnrequested(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::v3::multiasset::MultiAssets,
-			);
+			#[doc = "We have requested that a remote chain stops sending us XCM version change"]
+			#[doc = "notifications."]
+			pub struct VersionNotifyUnrequested {
+				pub destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+				pub message_id: [::core::primitive::u8; 32usize],
+			}
 			impl ::subxt::events::StaticEvent for VersionNotifyUnrequested {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "VersionNotifyUnrequested";
@@ -6256,12 +7587,10 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Fees were paid from a location for an operation (often for using `SendXcm`)."]
-			#[doc = ""]
-			#[doc = "\\[ paying location, fees \\]"]
-			pub struct FeesPaid(
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::v3::multiasset::MultiAssets,
-			);
+			pub struct FeesPaid {
+				pub paying: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub fees: runtime_types::xcm::v3::multiasset::MultiAssets,
+			}
 			impl ::subxt::events::StaticEvent for FeesPaid {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "FeesPaid";
@@ -6277,13 +7606,11 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			#[doc = "Some assets have been claimed from an asset trap"]
-			#[doc = ""]
-			#[doc = "\\[ hash, origin, assets \\]"]
-			pub struct AssetsClaimed(
-				pub ::subxt::utils::H256,
-				pub runtime_types::xcm::v3::multilocation::MultiLocation,
-				pub runtime_types::xcm::VersionedMultiAssets,
-			);
+			pub struct AssetsClaimed {
+				pub hash: ::subxt::utils::H256,
+				pub origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+				pub assets: runtime_types::xcm::VersionedMultiAssets,
+			}
 			impl ::subxt::events::StaticEvent for AssetsClaimed {
 				const PALLET: &'static str = "PolkadotXcm";
 				const EVENT: &'static str = "AssetsClaimed";
@@ -6331,9 +7658,9 @@ pub mod api {
 						"Queries",
 						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
 						[
-							119u8, 5u8, 12u8, 91u8, 117u8, 240u8, 52u8, 192u8, 135u8, 139u8, 220u8,
-							78u8, 207u8, 199u8, 71u8, 163u8, 100u8, 17u8, 6u8, 65u8, 200u8, 245u8,
-							191u8, 82u8, 232u8, 128u8, 126u8, 70u8, 39u8, 63u8, 148u8, 219u8,
+							68u8, 247u8, 165u8, 128u8, 238u8, 192u8, 246u8, 53u8, 248u8, 238u8,
+							7u8, 235u8, 89u8, 176u8, 223u8, 130u8, 45u8, 135u8, 235u8, 66u8, 24u8,
+							64u8, 116u8, 97u8, 2u8, 139u8, 89u8, 79u8, 87u8, 250u8, 229u8, 46u8,
 						],
 					)
 				}
@@ -6352,9 +7679,9 @@ pub mod api {
 						"Queries",
 						Vec::new(),
 						[
-							119u8, 5u8, 12u8, 91u8, 117u8, 240u8, 52u8, 192u8, 135u8, 139u8, 220u8,
-							78u8, 207u8, 199u8, 71u8, 163u8, 100u8, 17u8, 6u8, 65u8, 200u8, 245u8,
-							191u8, 82u8, 232u8, 128u8, 126u8, 70u8, 39u8, 63u8, 148u8, 219u8,
+							68u8, 247u8, 165u8, 128u8, 238u8, 192u8, 246u8, 53u8, 248u8, 238u8,
+							7u8, 235u8, 89u8, 176u8, 223u8, 130u8, 45u8, 135u8, 235u8, 66u8, 24u8,
+							64u8, 116u8, 97u8, 2u8, 139u8, 89u8, 79u8, 87u8, 250u8, 229u8, 46u8,
 						],
 					)
 				}
@@ -6450,9 +7777,10 @@ pub mod api {
 							::subxt::storage::address::make_static_storage_map_key(_1.borrow()),
 						],
 						[
-							144u8, 22u8, 91u8, 30u8, 139u8, 164u8, 95u8, 149u8, 97u8, 247u8, 12u8,
-							212u8, 96u8, 16u8, 134u8, 236u8, 74u8, 57u8, 244u8, 169u8, 68u8, 63u8,
-							111u8, 86u8, 65u8, 229u8, 104u8, 51u8, 44u8, 100u8, 47u8, 191u8,
+							76u8, 134u8, 202u8, 57u8, 10u8, 29u8, 58u8, 88u8, 141u8, 0u8, 189u8,
+							133u8, 140u8, 204u8, 126u8, 143u8, 71u8, 186u8, 9u8, 233u8, 188u8,
+							74u8, 184u8, 158u8, 40u8, 17u8, 223u8, 129u8, 144u8, 189u8, 211u8,
+							194u8,
 						],
 					)
 				}
@@ -6471,9 +7799,10 @@ pub mod api {
 						"SupportedVersion",
 						Vec::new(),
 						[
-							144u8, 22u8, 91u8, 30u8, 139u8, 164u8, 95u8, 149u8, 97u8, 247u8, 12u8,
-							212u8, 96u8, 16u8, 134u8, 236u8, 74u8, 57u8, 244u8, 169u8, 68u8, 63u8,
-							111u8, 86u8, 65u8, 229u8, 104u8, 51u8, 44u8, 100u8, 47u8, 191u8,
+							76u8, 134u8, 202u8, 57u8, 10u8, 29u8, 58u8, 88u8, 141u8, 0u8, 189u8,
+							133u8, 140u8, 204u8, 126u8, 143u8, 71u8, 186u8, 9u8, 233u8, 188u8,
+							74u8, 184u8, 158u8, 40u8, 17u8, 223u8, 129u8, 144u8, 189u8, 211u8,
+							194u8,
 						],
 					)
 				}
@@ -6497,9 +7826,9 @@ pub mod api {
 							::subxt::storage::address::make_static_storage_map_key(_1.borrow()),
 						],
 						[
-							49u8, 190u8, 73u8, 67u8, 91u8, 69u8, 121u8, 206u8, 25u8, 82u8, 29u8,
-							170u8, 157u8, 201u8, 168u8, 93u8, 181u8, 55u8, 226u8, 142u8, 136u8,
-							46u8, 117u8, 208u8, 130u8, 90u8, 129u8, 39u8, 151u8, 92u8, 118u8, 75u8,
+							212u8, 132u8, 8u8, 249u8, 16u8, 112u8, 47u8, 251u8, 73u8, 100u8, 218u8,
+							194u8, 197u8, 252u8, 146u8, 31u8, 196u8, 234u8, 187u8, 14u8, 126u8,
+							29u8, 7u8, 81u8, 30u8, 11u8, 167u8, 95u8, 46u8, 124u8, 66u8, 184u8,
 						],
 					)
 				}
@@ -6518,9 +7847,9 @@ pub mod api {
 						"VersionNotifiers",
 						Vec::new(),
 						[
-							49u8, 190u8, 73u8, 67u8, 91u8, 69u8, 121u8, 206u8, 25u8, 82u8, 29u8,
-							170u8, 157u8, 201u8, 168u8, 93u8, 181u8, 55u8, 226u8, 142u8, 136u8,
-							46u8, 117u8, 208u8, 130u8, 90u8, 129u8, 39u8, 151u8, 92u8, 118u8, 75u8,
+							212u8, 132u8, 8u8, 249u8, 16u8, 112u8, 47u8, 251u8, 73u8, 100u8, 218u8,
+							194u8, 197u8, 252u8, 146u8, 31u8, 196u8, 234u8, 187u8, 14u8, 126u8,
+							29u8, 7u8, 81u8, 30u8, 11u8, 167u8, 95u8, 46u8, 124u8, 66u8, 184u8,
 						],
 					)
 				}
@@ -6549,10 +7878,10 @@ pub mod api {
 							::subxt::storage::address::make_static_storage_map_key(_1.borrow()),
 						],
 						[
-							1u8, 195u8, 40u8, 83u8, 216u8, 175u8, 241u8, 95u8, 42u8, 7u8, 85u8,
-							253u8, 223u8, 241u8, 195u8, 41u8, 41u8, 21u8, 17u8, 171u8, 216u8,
-							150u8, 39u8, 165u8, 215u8, 194u8, 201u8, 225u8, 179u8, 12u8, 52u8,
-							173u8,
+							147u8, 115u8, 179u8, 91u8, 230u8, 102u8, 121u8, 203u8, 88u8, 26u8,
+							69u8, 115u8, 168u8, 176u8, 234u8, 155u8, 200u8, 220u8, 33u8, 49u8,
+							199u8, 97u8, 232u8, 9u8, 5u8, 2u8, 144u8, 58u8, 108u8, 236u8, 127u8,
+							130u8,
 						],
 					)
 				}
@@ -6576,10 +7905,10 @@ pub mod api {
 						"VersionNotifyTargets",
 						Vec::new(),
 						[
-							1u8, 195u8, 40u8, 83u8, 216u8, 175u8, 241u8, 95u8, 42u8, 7u8, 85u8,
-							253u8, 223u8, 241u8, 195u8, 41u8, 41u8, 21u8, 17u8, 171u8, 216u8,
-							150u8, 39u8, 165u8, 215u8, 194u8, 201u8, 225u8, 179u8, 12u8, 52u8,
-							173u8,
+							147u8, 115u8, 179u8, 91u8, 230u8, 102u8, 121u8, 203u8, 88u8, 26u8,
+							69u8, 115u8, 168u8, 176u8, 234u8, 155u8, 200u8, 220u8, 33u8, 49u8,
+							199u8, 97u8, 232u8, 9u8, 5u8, 2u8, 144u8, 58u8, 108u8, 236u8, 127u8,
+							130u8,
 						],
 					)
 				}
@@ -6603,9 +7932,10 @@ pub mod api {
 						"VersionDiscoveryQueue",
 						vec![],
 						[
-							110u8, 87u8, 102u8, 193u8, 125u8, 129u8, 0u8, 221u8, 218u8, 229u8,
-							101u8, 94u8, 74u8, 229u8, 246u8, 180u8, 113u8, 11u8, 15u8, 159u8, 98u8,
-							90u8, 30u8, 112u8, 164u8, 236u8, 151u8, 220u8, 19u8, 83u8, 67u8, 248u8,
+							139u8, 46u8, 46u8, 247u8, 93u8, 78u8, 193u8, 202u8, 133u8, 178u8,
+							213u8, 171u8, 145u8, 167u8, 119u8, 135u8, 255u8, 7u8, 34u8, 90u8,
+							208u8, 229u8, 49u8, 119u8, 12u8, 198u8, 46u8, 23u8, 119u8, 192u8,
+							255u8, 147u8,
 						],
 					)
 				}
@@ -6638,7 +7968,7 @@ pub mod api {
 					_2: impl ::std::borrow::Borrow<runtime_types::xcm::VersionedAssetId>,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::pallet_xcm::pallet::RemoteLockedFungibleRecord,
+					runtime_types::pallet_xcm::pallet::RemoteLockedFungibleRecord<()>,
 					::subxt::storage::address::Yes,
 					(),
 					::subxt::storage::address::Yes,
@@ -6652,10 +7982,9 @@ pub mod api {
 							::subxt::storage::address::make_static_storage_map_key(_2.borrow()),
 						],
 						[
-							236u8, 199u8, 155u8, 149u8, 81u8, 35u8, 254u8, 175u8, 66u8, 88u8,
-							159u8, 237u8, 4u8, 35u8, 26u8, 203u8, 40u8, 84u8, 66u8, 195u8, 243u8,
-							50u8, 165u8, 52u8, 100u8, 139u8, 124u8, 48u8, 248u8, 254u8, 162u8,
-							96u8,
+							179u8, 227u8, 131u8, 21u8, 47u8, 223u8, 117u8, 21u8, 16u8, 43u8, 225u8,
+							132u8, 222u8, 97u8, 158u8, 211u8, 8u8, 26u8, 157u8, 136u8, 92u8, 244u8,
+							158u8, 239u8, 94u8, 70u8, 8u8, 132u8, 53u8, 61u8, 212u8, 179u8,
 						],
 					)
 				}
@@ -6664,7 +7993,7 @@ pub mod api {
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::pallet_xcm::pallet::RemoteLockedFungibleRecord,
+					runtime_types::pallet_xcm::pallet::RemoteLockedFungibleRecord<()>,
 					(),
 					(),
 					::subxt::storage::address::Yes,
@@ -6674,10 +8003,9 @@ pub mod api {
 						"RemoteLockedFungibles",
 						Vec::new(),
 						[
-							236u8, 199u8, 155u8, 149u8, 81u8, 35u8, 254u8, 175u8, 66u8, 88u8,
-							159u8, 237u8, 4u8, 35u8, 26u8, 203u8, 40u8, 84u8, 66u8, 195u8, 243u8,
-							50u8, 165u8, 52u8, 100u8, 139u8, 124u8, 48u8, 248u8, 254u8, 162u8,
-							96u8,
+							179u8, 227u8, 131u8, 21u8, 47u8, 223u8, 117u8, 21u8, 16u8, 43u8, 225u8,
+							132u8, 222u8, 97u8, 158u8, 211u8, 8u8, 26u8, 157u8, 136u8, 92u8, 244u8,
+							158u8, 239u8, 94u8, 70u8, 8u8, 132u8, 53u8, 61u8, 212u8, 179u8,
 						],
 					)
 				}
@@ -6700,10 +8028,9 @@ pub mod api {
 						"LockedFungibles",
 						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
 						[
-							110u8, 220u8, 127u8, 176u8, 219u8, 23u8, 132u8, 36u8, 224u8, 187u8,
-							25u8, 103u8, 126u8, 99u8, 34u8, 105u8, 57u8, 182u8, 162u8, 69u8, 24u8,
-							67u8, 221u8, 103u8, 79u8, 139u8, 187u8, 162u8, 113u8, 109u8, 163u8,
-							35u8,
+							209u8, 60u8, 254u8, 70u8, 62u8, 118u8, 99u8, 28u8, 153u8, 68u8, 40u8,
+							239u8, 30u8, 90u8, 201u8, 178u8, 219u8, 37u8, 34u8, 153u8, 115u8, 99u8,
+							100u8, 240u8, 36u8, 110u8, 8u8, 2u8, 45u8, 58u8, 131u8, 137u8,
 						],
 					)
 				}
@@ -6725,10 +8052,9 @@ pub mod api {
 						"LockedFungibles",
 						Vec::new(),
 						[
-							110u8, 220u8, 127u8, 176u8, 219u8, 23u8, 132u8, 36u8, 224u8, 187u8,
-							25u8, 103u8, 126u8, 99u8, 34u8, 105u8, 57u8, 182u8, 162u8, 69u8, 24u8,
-							67u8, 221u8, 103u8, 79u8, 139u8, 187u8, 162u8, 113u8, 109u8, 163u8,
-							35u8,
+							209u8, 60u8, 254u8, 70u8, 62u8, 118u8, 99u8, 28u8, 153u8, 68u8, 40u8,
+							239u8, 30u8, 90u8, 201u8, 178u8, 219u8, 37u8, 34u8, 153u8, 115u8, 99u8,
+							100u8, 240u8, 36u8, 110u8, 8u8, 2u8, 45u8, 58u8, 131u8, 137u8,
 						],
 					)
 				}
@@ -6758,9 +8084,7 @@ pub mod api {
 	}
 	pub mod cumulus_xcm {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
-		pub type Error = runtime_types::cumulus_pallet_xcm::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 		pub type Call = runtime_types::cumulus_pallet_xcm::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
@@ -6771,7 +8095,7 @@ pub mod api {
 			pub struct TransactionApi;
 			impl TransactionApi {}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+		#[doc = "The `Event` enum of this pallet"]
 		pub type Event = runtime_types::cumulus_pallet_xcm::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
@@ -6831,12 +8155,12 @@ pub mod api {
 			}
 		}
 	}
-	pub mod dmp_queue {
+	pub mod message_queue {
 		use super::{root_mod, runtime_types};
-		#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
-		pub type Error = runtime_types::cumulus_pallet_dmp_queue::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
-		pub type Call = runtime_types::cumulus_pallet_dmp_queue::pallet::Call;
+		#[doc = "The `Error` enum of this pallet."]
+		pub type Error = runtime_types::pallet_message_queue::pallet::Error;
+		#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
+		pub type Call = runtime_types::pallet_message_queue::pallet::Call;
 		pub mod calls {
 			use super::{root_mod, runtime_types};
 			type DispatchError = runtime_types::sp_runtime::DispatchError;
@@ -6852,39 +8176,80 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct ServiceOverweight {
-					pub index: ::core::primitive::u64,
+				pub struct ReapPage {
+					pub message_origin:
+						runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					pub page_index: ::core::primitive::u32,
+				}
+				impl ::subxt::blocks::StaticExtrinsic for ReapPage {
+					const PALLET: &'static str = "MessageQueue";
+					const CALL: &'static str = "reap_page";
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct ExecuteOverweight {
+					pub message_origin:
+						runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					pub page: ::core::primitive::u32,
+					pub index: ::core::primitive::u32,
 					pub weight_limit: runtime_types::sp_weights::weight_v2::Weight,
 				}
-				impl ::subxt::blocks::StaticExtrinsic for ServiceOverweight {
-					const PALLET: &'static str = "DmpQueue";
-					const CALL: &'static str = "service_overweight";
+				impl ::subxt::blocks::StaticExtrinsic for ExecuteOverweight {
+					const PALLET: &'static str = "MessageQueue";
+					const CALL: &'static str = "execute_overweight";
 				}
 			}
 			pub struct TransactionApi;
 			impl TransactionApi {
-				#[doc = "Service a single overweight message."]
-				pub fn service_overweight(
+				#[doc = "See [`Pallet::reap_page`]."]
+				pub fn reap_page(
 					&self,
-					index: ::core::primitive::u64,
-					weight_limit: runtime_types::sp_weights::weight_v2::Weight,
-				) -> ::subxt::tx::Payload<types::ServiceOverweight> {
+					message_origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					page_index: ::core::primitive::u32,
+				) -> ::subxt::tx::Payload<types::ReapPage> {
 					::subxt::tx::Payload::new_static(
-						"DmpQueue",
-						"service_overweight",
-						types::ServiceOverweight { index, weight_limit },
+						"MessageQueue",
+						"reap_page",
+						types::ReapPage { message_origin, page_index },
 						[
-							235u8, 203u8, 220u8, 162u8, 173u8, 117u8, 224u8, 194u8, 176u8, 125u8,
-							50u8, 74u8, 180u8, 37u8, 126u8, 227u8, 138u8, 213u8, 227u8, 35u8,
-							247u8, 18u8, 160u8, 231u8, 97u8, 149u8, 144u8, 49u8, 34u8, 146u8, 32u8,
-							7u8,
+							116u8, 17u8, 120u8, 238u8, 117u8, 222u8, 10u8, 166u8, 132u8, 181u8,
+							114u8, 150u8, 242u8, 202u8, 31u8, 143u8, 212u8, 65u8, 145u8, 249u8,
+							27u8, 204u8, 137u8, 133u8, 220u8, 187u8, 137u8, 90u8, 112u8, 55u8,
+							104u8, 163u8,
+						],
+					)
+				}
+				#[doc = "See [`Pallet::execute_overweight`]."]
+				pub fn execute_overweight(
+					&self,
+					message_origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					page: ::core::primitive::u32,
+					index: ::core::primitive::u32,
+					weight_limit: runtime_types::sp_weights::weight_v2::Weight,
+				) -> ::subxt::tx::Payload<types::ExecuteOverweight> {
+					::subxt::tx::Payload::new_static(
+						"MessageQueue",
+						"execute_overweight",
+						types::ExecuteOverweight { message_origin, page, index, weight_limit },
+						[
+							177u8, 54u8, 82u8, 58u8, 94u8, 125u8, 241u8, 172u8, 52u8, 7u8, 236u8,
+							80u8, 66u8, 99u8, 42u8, 199u8, 38u8, 195u8, 65u8, 118u8, 166u8, 246u8,
+							239u8, 195u8, 144u8, 153u8, 155u8, 8u8, 224u8, 56u8, 106u8, 135u8,
 						],
 					)
 				}
 			}
 		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
-		pub type Event = runtime_types::cumulus_pallet_dmp_queue::pallet::Event;
+		#[doc = "The `Event` enum of this pallet"]
+		pub type Event = runtime_types::pallet_message_queue::pallet::Event;
 		pub mod events {
 			use super::runtime_types;
 			#[derive(
@@ -6897,31 +8262,15 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Downward message is invalid XCM."]
-			pub struct InvalidFormat {
-				pub message_id: [::core::primitive::u8; 32usize],
+			#[doc = "Message discarded due to an error in the `MessageProcessor` (usually a format error)."]
+			pub struct ProcessingFailed {
+				pub id: ::subxt::utils::H256,
+				pub origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+				pub error: runtime_types::frame_support::traits::messages::ProcessMessageError,
 			}
-			impl ::subxt::events::StaticEvent for InvalidFormat {
-				const PALLET: &'static str = "DmpQueue";
-				const EVENT: &'static str = "InvalidFormat";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Downward message is unsupported version of XCM."]
-			pub struct UnsupportedVersion {
-				pub message_id: [::core::primitive::u8; 32usize],
-			}
-			impl ::subxt::events::StaticEvent for UnsupportedVersion {
-				const PALLET: &'static str = "DmpQueue";
-				const EVENT: &'static str = "UnsupportedVersion";
+			impl ::subxt::events::StaticEvent for ProcessingFailed {
+				const PALLET: &'static str = "MessageQueue";
+				const EVENT: &'static str = "ProcessingFailed";
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -6933,34 +8282,16 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Downward message executed with the given outcome."]
-			pub struct ExecutedDownward {
-				pub message_id: [::core::primitive::u8; 32usize],
-				pub outcome: runtime_types::xcm::v3::traits::Outcome,
+			#[doc = "Message is processed."]
+			pub struct Processed {
+				pub id: ::subxt::utils::H256,
+				pub origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+				pub weight_used: runtime_types::sp_weights::weight_v2::Weight,
+				pub success: ::core::primitive::bool,
 			}
-			impl ::subxt::events::StaticEvent for ExecutedDownward {
-				const PALLET: &'static str = "DmpQueue";
-				const EVENT: &'static str = "ExecutedDownward";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "The weight limit for handling downward messages was reached."]
-			pub struct WeightExhausted {
-				pub message_id: [::core::primitive::u8; 32usize],
-				pub remaining_weight: runtime_types::sp_weights::weight_v2::Weight,
-				pub required_weight: runtime_types::sp_weights::weight_v2::Weight,
-			}
-			impl ::subxt::events::StaticEvent for WeightExhausted {
-				const PALLET: &'static str = "DmpQueue";
-				const EVENT: &'static str = "WeightExhausted";
+			impl ::subxt::events::StaticEvent for Processed {
+				const PALLET: &'static str = "MessageQueue";
+				const EVENT: &'static str = "Processed";
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -6972,14 +8303,15 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Downward message is overweight and was placed in the overweight queue."]
+			#[doc = "Message placed in overweight queue."]
 			pub struct OverweightEnqueued {
-				pub message_id: [::core::primitive::u8; 32usize],
-				pub overweight_index: ::core::primitive::u64,
-				pub required_weight: runtime_types::sp_weights::weight_v2::Weight,
+				pub id: [::core::primitive::u8; 32usize],
+				pub origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+				pub page_index: ::core::primitive::u32,
+				pub message_index: ::core::primitive::u32,
 			}
 			impl ::subxt::events::StaticEvent for OverweightEnqueued {
-				const PALLET: &'static str = "DmpQueue";
+				const PALLET: &'static str = "MessageQueue";
 				const EVENT: &'static str = "OverweightEnqueued";
 			}
 			#[derive(
@@ -6992,208 +8324,208 @@ pub mod api {
 			# [codec (crate = :: subxt :: ext :: codec)]
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "Downward message from the overweight queue was executed."]
-			pub struct OverweightServiced {
-				pub overweight_index: ::core::primitive::u64,
-				pub weight_used: runtime_types::sp_weights::weight_v2::Weight,
+			#[doc = "This page was reaped."]
+			pub struct PageReaped {
+				pub origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+				pub index: ::core::primitive::u32,
 			}
-			impl ::subxt::events::StaticEvent for OverweightServiced {
-				const PALLET: &'static str = "DmpQueue";
-				const EVENT: &'static str = "OverweightServiced";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "The maximum number of downward messages was."]
-			pub struct MaxMessagesExhausted {
-				pub message_id: [::core::primitive::u8; 32usize],
-			}
-			impl ::subxt::events::StaticEvent for MaxMessagesExhausted {
-				const PALLET: &'static str = "DmpQueue";
-				const EVENT: &'static str = "MaxMessagesExhausted";
+			impl ::subxt::events::StaticEvent for PageReaped {
+				const PALLET: &'static str = "MessageQueue";
+				const EVENT: &'static str = "PageReaped";
 			}
 		}
 		pub mod storage {
 			use super::runtime_types;
 			pub struct StorageApi;
 			impl StorageApi {
-				#[doc = " The configuration."]
-				pub fn configuration(
+				#[doc = " The index of the first and last (non-empty) pages."]
+				pub fn book_state_for(
 					&self,
+					_0: impl ::std::borrow::Borrow<
+						runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					>,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::cumulus_pallet_dmp_queue::ConfigData,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-					(),
-				> {
-					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
-						"Configuration",
-						vec![],
-						[
-							28u8, 58u8, 57u8, 84u8, 115u8, 69u8, 158u8, 234u8, 180u8, 37u8, 138u8,
-							120u8, 182u8, 145u8, 109u8, 203u8, 62u8, 102u8, 168u8, 56u8, 236u8,
-							10u8, 236u8, 104u8, 232u8, 245u8, 107u8, 143u8, 247u8, 232u8, 135u8,
-							131u8,
-						],
-					)
-				}
-				#[doc = " The page index."]
-				pub fn page_index(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					runtime_types::cumulus_pallet_dmp_queue::PageIndexData,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-					(),
-				> {
-					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
-						"PageIndex",
-						vec![],
-						[
-							246u8, 129u8, 111u8, 255u8, 168u8, 54u8, 121u8, 21u8, 159u8, 142u8,
-							252u8, 173u8, 3u8, 191u8, 202u8, 158u8, 86u8, 26u8, 76u8, 134u8, 201u8,
-							138u8, 103u8, 75u8, 223u8, 57u8, 36u8, 45u8, 171u8, 190u8, 21u8, 60u8,
-						],
-					)
-				}
-				#[doc = " The queue pages."]
-				pub fn pages(
-					&self,
-					_0: impl ::std::borrow::Borrow<::core::primitive::u32>,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::std::vec::Vec<(
-						::core::primitive::u32,
-						::std::vec::Vec<::core::primitive::u8>,
-					)>,
+					runtime_types::pallet_message_queue::BookState<
+						runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					>,
 					::subxt::storage::address::Yes,
 					::subxt::storage::address::Yes,
 					::subxt::storage::address::Yes,
 				> {
 					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
-						"Pages",
+						"MessageQueue",
+						"BookStateFor",
 						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
 						[
-							24u8, 215u8, 210u8, 131u8, 23u8, 56u8, 71u8, 143u8, 35u8, 151u8, 223u8,
-							133u8, 42u8, 32u8, 180u8, 85u8, 146u8, 166u8, 6u8, 168u8, 227u8, 128u8,
-							30u8, 108u8, 103u8, 16u8, 169u8, 235u8, 238u8, 224u8, 247u8, 233u8,
+							33u8, 240u8, 235u8, 59u8, 150u8, 42u8, 91u8, 248u8, 235u8, 52u8, 170u8,
+							52u8, 195u8, 129u8, 6u8, 174u8, 57u8, 242u8, 30u8, 220u8, 232u8, 4u8,
+							246u8, 218u8, 162u8, 174u8, 102u8, 95u8, 210u8, 92u8, 133u8, 143u8,
 						],
 					)
 				}
-				#[doc = " The queue pages."]
+				#[doc = " The index of the first and last (non-empty) pages."]
+				pub fn book_state_for_root(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::pallet_message_queue::BookState<
+						runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					>,
+					(),
+					::subxt::storage::address::Yes,
+					::subxt::storage::address::Yes,
+				> {
+					::subxt::storage::address::Address::new_static(
+						"MessageQueue",
+						"BookStateFor",
+						Vec::new(),
+						[
+							33u8, 240u8, 235u8, 59u8, 150u8, 42u8, 91u8, 248u8, 235u8, 52u8, 170u8,
+							52u8, 195u8, 129u8, 6u8, 174u8, 57u8, 242u8, 30u8, 220u8, 232u8, 4u8,
+							246u8, 218u8, 162u8, 174u8, 102u8, 95u8, 210u8, 92u8, 133u8, 143u8,
+						],
+					)
+				}
+				#[doc = " The origin at which we should begin servicing."]
+				pub fn service_head(
+					&self,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					::subxt::storage::address::Yes,
+					(),
+					(),
+				> {
+					::subxt::storage::address::Address::new_static(
+						"MessageQueue",
+						"ServiceHead",
+						vec![],
+						[
+							104u8, 146u8, 240u8, 41u8, 171u8, 68u8, 20u8, 147u8, 212u8, 155u8,
+							59u8, 39u8, 174u8, 186u8, 97u8, 250u8, 41u8, 247u8, 67u8, 190u8, 252u8,
+							167u8, 234u8, 36u8, 124u8, 239u8, 163u8, 72u8, 223u8, 82u8, 82u8,
+							171u8,
+						],
+					)
+				}
+				#[doc = " The map of page indices to pages."]
+				pub fn pages(
+					&self,
+					_0: impl ::std::borrow::Borrow<
+						runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+					>,
+					_1: impl ::std::borrow::Borrow<::core::primitive::u32>,
+				) -> ::subxt::storage::address::Address<
+					::subxt::storage::address::StaticStorageMapKey,
+					runtime_types::pallet_message_queue::Page<::core::primitive::u32>,
+					::subxt::storage::address::Yes,
+					(),
+					::subxt::storage::address::Yes,
+				> {
+					::subxt::storage::address::Address::new_static(
+						"MessageQueue",
+						"Pages",
+						vec![
+							::subxt::storage::address::make_static_storage_map_key(_0.borrow()),
+							::subxt::storage::address::make_static_storage_map_key(_1.borrow()),
+						],
+						[
+							45u8, 202u8, 18u8, 128u8, 31u8, 194u8, 175u8, 173u8, 99u8, 81u8, 161u8,
+							44u8, 32u8, 183u8, 238u8, 181u8, 110u8, 240u8, 203u8, 12u8, 152u8,
+							58u8, 239u8, 190u8, 144u8, 168u8, 210u8, 33u8, 121u8, 250u8, 137u8,
+							142u8,
+						],
+					)
+				}
+				#[doc = " The map of page indices to pages."]
 				pub fn pages_root(
 					&self,
 				) -> ::subxt::storage::address::Address<
 					::subxt::storage::address::StaticStorageMapKey,
-					::std::vec::Vec<(
-						::core::primitive::u32,
-						::std::vec::Vec<::core::primitive::u8>,
-					)>,
+					runtime_types::pallet_message_queue::Page<::core::primitive::u32>,
 					(),
-					::subxt::storage::address::Yes,
+					(),
 					::subxt::storage::address::Yes,
 				> {
 					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
+						"MessageQueue",
 						"Pages",
 						Vec::new(),
 						[
-							24u8, 215u8, 210u8, 131u8, 23u8, 56u8, 71u8, 143u8, 35u8, 151u8, 223u8,
-							133u8, 42u8, 32u8, 180u8, 85u8, 146u8, 166u8, 6u8, 168u8, 227u8, 128u8,
-							30u8, 108u8, 103u8, 16u8, 169u8, 235u8, 238u8, 224u8, 247u8, 233u8,
+							45u8, 202u8, 18u8, 128u8, 31u8, 194u8, 175u8, 173u8, 99u8, 81u8, 161u8,
+							44u8, 32u8, 183u8, 238u8, 181u8, 110u8, 240u8, 203u8, 12u8, 152u8,
+							58u8, 239u8, 190u8, 144u8, 168u8, 210u8, 33u8, 121u8, 250u8, 137u8,
+							142u8,
 						],
 					)
 				}
-				#[doc = " The overweight messages."]
-				pub fn overweight(
-					&self,
-					_0: impl ::std::borrow::Borrow<::core::primitive::u64>,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					(::core::primitive::u32, ::std::vec::Vec<::core::primitive::u8>),
-					::subxt::storage::address::Yes,
-					(),
-					::subxt::storage::address::Yes,
-				> {
-					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
-						"Overweight",
-						vec![::subxt::storage::address::make_static_storage_map_key(_0.borrow())],
+			}
+		}
+		pub mod constants {
+			use super::runtime_types;
+			pub struct ConstantsApi;
+			impl ConstantsApi {
+				#[doc = " The size of the page; this implies the maximum message size which can be sent."]
+				#[doc = ""]
+				#[doc = " A good value depends on the expected message sizes, their weights, the weight that is"]
+				#[doc = " available for processing them and the maximal needed message size. The maximal message"]
+				#[doc = " size is slightly lower than this as defined by [`MaxMessageLenOf`]."]
+				pub fn heap_size(&self) -> ::subxt::constants::Address<::core::primitive::u32> {
+					::subxt::constants::Address::new_static(
+						"MessageQueue",
+						"HeapSize",
 						[
-							86u8, 97u8, 243u8, 7u8, 134u8, 189u8, 7u8, 126u8, 8u8, 108u8, 152u8,
-							48u8, 230u8, 8u8, 71u8, 83u8, 151u8, 125u8, 18u8, 168u8, 38u8, 38u8,
-							117u8, 85u8, 143u8, 187u8, 122u8, 13u8, 104u8, 52u8, 198u8, 138u8,
+							98u8, 252u8, 116u8, 72u8, 26u8, 180u8, 225u8, 83u8, 200u8, 157u8,
+							125u8, 151u8, 53u8, 76u8, 168u8, 26u8, 10u8, 9u8, 98u8, 68u8, 9u8,
+							178u8, 197u8, 113u8, 31u8, 79u8, 200u8, 90u8, 203u8, 100u8, 41u8,
+							145u8,
 						],
 					)
 				}
-				#[doc = " The overweight messages."]
-				pub fn overweight_root(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					(::core::primitive::u32, ::std::vec::Vec<::core::primitive::u8>),
-					(),
-					(),
-					::subxt::storage::address::Yes,
-				> {
-					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
-						"Overweight",
-						Vec::new(),
+				#[doc = " The maximum number of stale pages (i.e. of overweight messages) allowed before culling"]
+				#[doc = " can happen. Once there are more stale pages than this, then historical pages may be"]
+				#[doc = " dropped, even if they contain unprocessed overweight messages."]
+				pub fn max_stale(&self) -> ::subxt::constants::Address<::core::primitive::u32> {
+					::subxt::constants::Address::new_static(
+						"MessageQueue",
+						"MaxStale",
 						[
-							86u8, 97u8, 243u8, 7u8, 134u8, 189u8, 7u8, 126u8, 8u8, 108u8, 152u8,
-							48u8, 230u8, 8u8, 71u8, 83u8, 151u8, 125u8, 18u8, 168u8, 38u8, 38u8,
-							117u8, 85u8, 143u8, 187u8, 122u8, 13u8, 104u8, 52u8, 198u8, 138u8,
+							98u8, 252u8, 116u8, 72u8, 26u8, 180u8, 225u8, 83u8, 200u8, 157u8,
+							125u8, 151u8, 53u8, 76u8, 168u8, 26u8, 10u8, 9u8, 98u8, 68u8, 9u8,
+							178u8, 197u8, 113u8, 31u8, 79u8, 200u8, 90u8, 203u8, 100u8, 41u8,
+							145u8,
 						],
 					)
 				}
-				#[doc = "Counter for the related counted storage map"]
-				pub fn counter_for_overweight(
+				#[doc = " The amount of weight (if any) which should be provided to the message queue for"]
+				#[doc = " servicing enqueued items."]
+				#[doc = ""]
+				#[doc = " This may be legitimately `None` in the case that you will call"]
+				#[doc = " `ServiceQueues::service_queues` manually."]
+				pub fn service_weight(
 					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::core::primitive::u32,
-					::subxt::storage::address::Yes,
-					::subxt::storage::address::Yes,
-					(),
+				) -> ::subxt::constants::Address<
+					::core::option::Option<runtime_types::sp_weights::weight_v2::Weight>,
 				> {
-					::subxt::storage::address::Address::new_static(
-						"DmpQueue",
-						"CounterForOverweight",
-						vec![],
+					::subxt::constants::Address::new_static(
+						"MessageQueue",
+						"ServiceWeight",
 						[
-							44u8, 249u8, 133u8, 204u8, 169u8, 253u8, 23u8, 157u8, 132u8, 193u8,
-							28u8, 178u8, 156u8, 176u8, 206u8, 46u8, 79u8, 254u8, 174u8, 236u8,
-							143u8, 219u8, 59u8, 43u8, 36u8, 109u8, 244u8, 206u8, 48u8, 126u8,
-							247u8, 0u8,
+							204u8, 140u8, 63u8, 167u8, 49u8, 8u8, 148u8, 163u8, 190u8, 224u8, 15u8,
+							103u8, 86u8, 153u8, 248u8, 117u8, 223u8, 117u8, 210u8, 80u8, 205u8,
+							155u8, 40u8, 11u8, 59u8, 63u8, 129u8, 156u8, 17u8, 83u8, 177u8, 250u8,
 						],
 					)
 				}
 			}
 		}
 	}
-	pub mod sudo {
-		use super::{root_mod, runtime_types};
-		#[doc = "Error for the Sudo pallet"]
-		pub type Error = runtime_types::pallet_sudo::pallet::Error;
-		#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
-		pub type Call = runtime_types::pallet_sudo::pallet::Call;
-		pub mod calls {
-			use super::{root_mod, runtime_types};
-			type DispatchError = runtime_types::sp_runtime::DispatchError;
-			pub mod types {
+	pub mod runtime_types {
+		use super::runtime_types;
+		pub mod bounded_collections {
+			use super::runtime_types;
+			pub mod bounded_btree_set {
 				use super::runtime_types;
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -7205,260 +8537,8 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct Sudo {
-					pub call:
-						::std::boxed::Box<runtime_types::parachain_template_runtime::RuntimeCall>,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for Sudo {
-					const PALLET: &'static str = "Sudo";
-					const CALL: &'static str = "sudo";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct SudoUncheckedWeight {
-					pub call:
-						::std::boxed::Box<runtime_types::parachain_template_runtime::RuntimeCall>,
-					pub weight: runtime_types::sp_weights::weight_v2::Weight,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for SudoUncheckedWeight {
-					const PALLET: &'static str = "Sudo";
-					const CALL: &'static str = "sudo_unchecked_weight";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct SetKey {
-					pub new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for SetKey {
-					const PALLET: &'static str = "Sudo";
-					const CALL: &'static str = "set_key";
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct SudoAs {
-					pub who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-					pub call:
-						::std::boxed::Box<runtime_types::parachain_template_runtime::RuntimeCall>,
-				}
-				impl ::subxt::blocks::StaticExtrinsic for SudoAs {
-					const PALLET: &'static str = "Sudo";
-					const CALL: &'static str = "sudo_as";
-				}
+				pub struct BoundedBTreeSet<_0>(pub ::std::vec::Vec<_0>);
 			}
-			pub struct TransactionApi;
-			impl TransactionApi {
-				#[doc = "Authenticates the sudo key and dispatches a function call with `Root` origin."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be _Signed_."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- O(1)."]
-				pub fn sudo(
-					&self,
-					call: runtime_types::parachain_template_runtime::RuntimeCall,
-				) -> ::subxt::tx::Payload<types::Sudo> {
-					::subxt::tx::Payload::new_static(
-						"Sudo",
-						"sudo",
-						types::Sudo { call: ::std::boxed::Box::new(call) },
-						[
-							136u8, 159u8, 34u8, 113u8, 203u8, 172u8, 111u8, 92u8, 3u8, 124u8,
-							106u8, 193u8, 100u8, 253u8, 135u8, 246u8, 239u8, 137u8, 111u8, 80u8,
-							43u8, 105u8, 128u8, 42u8, 239u8, 239u8, 208u8, 57u8, 245u8, 202u8,
-							44u8, 29u8,
-						],
-					)
-				}
-				#[doc = "Authenticates the sudo key and dispatches a function call with `Root` origin."]
-				#[doc = "This function does not check the weight of the call, and instead allows the"]
-				#[doc = "Sudo user to specify the weight of the call."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be _Signed_."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- O(1)."]
-				pub fn sudo_unchecked_weight(
-					&self,
-					call: runtime_types::parachain_template_runtime::RuntimeCall,
-					weight: runtime_types::sp_weights::weight_v2::Weight,
-				) -> ::subxt::tx::Payload<types::SudoUncheckedWeight> {
-					::subxt::tx::Payload::new_static(
-						"Sudo",
-						"sudo_unchecked_weight",
-						types::SudoUncheckedWeight { call: ::std::boxed::Box::new(call), weight },
-						[
-							155u8, 4u8, 242u8, 228u8, 12u8, 124u8, 228u8, 208u8, 132u8, 83u8, 33u8,
-							45u8, 190u8, 153u8, 98u8, 67u8, 220u8, 248u8, 34u8, 224u8, 246u8,
-							247u8, 205u8, 139u8, 242u8, 207u8, 103u8, 30u8, 133u8, 153u8, 46u8,
-							61u8,
-						],
-					)
-				}
-				#[doc = "Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo"]
-				#[doc = "key."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be _Signed_."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- O(1)."]
-				pub fn set_key(
-					&self,
-					new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-				) -> ::subxt::tx::Payload<types::SetKey> {
-					::subxt::tx::Payload::new_static(
-						"Sudo",
-						"set_key",
-						types::SetKey { new },
-						[
-							9u8, 73u8, 39u8, 205u8, 188u8, 127u8, 143u8, 54u8, 128u8, 94u8, 8u8,
-							227u8, 197u8, 44u8, 70u8, 93u8, 228u8, 196u8, 64u8, 165u8, 226u8,
-							158u8, 101u8, 192u8, 22u8, 193u8, 102u8, 84u8, 21u8, 35u8, 92u8, 198u8,
-						],
-					)
-				}
-				#[doc = "Authenticates the sudo key and dispatches a function call with `Signed` origin from"]
-				#[doc = "a given account."]
-				#[doc = ""]
-				#[doc = "The dispatch origin for this call must be _Signed_."]
-				#[doc = ""]
-				#[doc = "## Complexity"]
-				#[doc = "- O(1)."]
-				pub fn sudo_as(
-					&self,
-					who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-					call: runtime_types::parachain_template_runtime::RuntimeCall,
-				) -> ::subxt::tx::Payload<types::SudoAs> {
-					::subxt::tx::Payload::new_static(
-						"Sudo",
-						"sudo_as",
-						types::SudoAs { who, call: ::std::boxed::Box::new(call) },
-						[
-							93u8, 181u8, 114u8, 40u8, 202u8, 124u8, 92u8, 10u8, 121u8, 254u8, 21u8,
-							130u8, 206u8, 204u8, 168u8, 103u8, 74u8, 143u8, 108u8, 66u8, 52u8,
-							16u8, 171u8, 182u8, 169u8, 251u8, 190u8, 76u8, 57u8, 113u8, 62u8,
-							220u8,
-						],
-					)
-				}
-			}
-		}
-		#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
-		pub type Event = runtime_types::pallet_sudo::pallet::Event;
-		pub mod events {
-			use super::runtime_types;
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "A sudo just took place. \\[result\\]"]
-			pub struct Sudid {
-				pub sudo_result:
-					::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
-			}
-			impl ::subxt::events::StaticEvent for Sudid {
-				const PALLET: &'static str = "Sudo";
-				const EVENT: &'static str = "Sudid";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "The \\[sudoer\\] just switched identity; the old key is supplied if one existed."]
-			pub struct KeyChanged {
-				pub old_sudoer: ::core::option::Option<::subxt::utils::AccountId32>,
-			}
-			impl ::subxt::events::StaticEvent for KeyChanged {
-				const PALLET: &'static str = "Sudo";
-				const EVENT: &'static str = "KeyChanged";
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			#[doc = "A sudo just took place. \\[result\\]"]
-			pub struct SudoAsDone {
-				pub sudo_result:
-					::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
-			}
-			impl ::subxt::events::StaticEvent for SudoAsDone {
-				const PALLET: &'static str = "Sudo";
-				const EVENT: &'static str = "SudoAsDone";
-			}
-		}
-		pub mod storage {
-			use super::runtime_types;
-			pub struct StorageApi;
-			impl StorageApi {
-				#[doc = " The `AccountId` of the sudo key."]
-				pub fn key(
-					&self,
-				) -> ::subxt::storage::address::Address<
-					::subxt::storage::address::StaticStorageMapKey,
-					::subxt::utils::AccountId32,
-					::subxt::storage::address::Yes,
-					(),
-					(),
-				> {
-					::subxt::storage::address::Address::new_static(
-						"Sudo",
-						"Key",
-						vec![],
-						[
-							72u8, 14u8, 225u8, 162u8, 205u8, 247u8, 227u8, 105u8, 116u8, 57u8, 4u8,
-							31u8, 84u8, 137u8, 227u8, 228u8, 133u8, 245u8, 206u8, 227u8, 117u8,
-							36u8, 252u8, 151u8, 107u8, 15u8, 180u8, 4u8, 4u8, 152u8, 195u8, 144u8,
-						],
-					)
-				}
-			}
-		}
-	}
-	pub mod runtime_types {
-		use super::runtime_types;
-		pub mod bounded_collections {
-			use super::runtime_types;
 			pub mod bounded_vec {
 				use super::runtime_types;
 				#[derive(
@@ -7488,126 +8568,6 @@ pub mod api {
 				pub struct WeakBoundedVec<_0>(pub ::std::vec::Vec<_0>);
 			}
 		}
-		pub mod cumulus_pallet_dmp_queue {
-			use super::runtime_types;
-			pub mod pallet {
-				use super::runtime_types;
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
-				pub enum Call {
-					#[codec(index = 0)]
-					#[doc = "Service a single overweight message."]
-					service_overweight {
-						index: ::core::primitive::u64,
-						weight_limit: runtime_types::sp_weights::weight_v2::Weight,
-					},
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
-				pub enum Error {
-					#[codec(index = 0)]
-					#[doc = "The message index given is unknown."]
-					Unknown,
-					#[codec(index = 1)]
-					#[doc = "The amount of weight given is possibly not enough for executing the message."]
-					OverLimit,
-				}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
-				pub enum Event {
-					#[codec(index = 0)]
-					#[doc = "Downward message is invalid XCM."]
-					InvalidFormat { message_id: [::core::primitive::u8; 32usize] },
-					#[codec(index = 1)]
-					#[doc = "Downward message is unsupported version of XCM."]
-					UnsupportedVersion { message_id: [::core::primitive::u8; 32usize] },
-					#[codec(index = 2)]
-					#[doc = "Downward message executed with the given outcome."]
-					ExecutedDownward {
-						message_id: [::core::primitive::u8; 32usize],
-						outcome: runtime_types::xcm::v3::traits::Outcome,
-					},
-					#[codec(index = 3)]
-					#[doc = "The weight limit for handling downward messages was reached."]
-					WeightExhausted {
-						message_id: [::core::primitive::u8; 32usize],
-						remaining_weight: runtime_types::sp_weights::weight_v2::Weight,
-						required_weight: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 4)]
-					#[doc = "Downward message is overweight and was placed in the overweight queue."]
-					OverweightEnqueued {
-						message_id: [::core::primitive::u8; 32usize],
-						overweight_index: ::core::primitive::u64,
-						required_weight: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 5)]
-					#[doc = "Downward message from the overweight queue was executed."]
-					OverweightServiced {
-						overweight_index: ::core::primitive::u64,
-						weight_used: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 6)]
-					#[doc = "The maximum number of downward messages was."]
-					MaxMessagesExhausted { message_id: [::core::primitive::u8; 32usize] },
-				}
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			pub struct ConfigData {
-				pub max_individual: runtime_types::sp_weights::weight_v2::Weight,
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			pub struct PageIndexData {
-				pub begin_used: ::core::primitive::u32,
-				pub end_used: ::core::primitive::u32,
-				pub overweight_count: ::core::primitive::u64,
-			}
-		}
 		pub mod cumulus_pallet_parachain_system {
 			use super::runtime_types;
 			pub mod pallet {
@@ -7622,9 +8582,9 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
-					# [codec (index = 0)] # [doc = "Set the current validation data."] # [doc = ""] # [doc = "This should be invoked exactly once per block. It will panic at the finalization"] # [doc = "phase if the call was not invoked."] # [doc = ""] # [doc = "The dispatch origin for this call must be `Inherent`"] # [doc = ""] # [doc = "As a side effect, this function upgrades the current validation function"] # [doc = "if the appropriate time has come."] set_validation_data { data : runtime_types :: cumulus_primitives_parachain_inherent :: ParachainInherentData , } , # [codec (index = 1)] sudo_send_upward_message { message : :: std :: vec :: Vec < :: core :: primitive :: u8 > , } , # [codec (index = 2)] # [doc = "Authorize an upgrade to a given `code_hash` for the runtime. The runtime can be supplied"] # [doc = "later."] # [doc = ""] # [doc = "The `check_version` parameter sets a boolean flag for whether or not the runtime's spec"] # [doc = "version and name should be verified on upgrade. Since the authorization only has a hash,"] # [doc = "it cannot actually perform the verification."] # [doc = ""] # [doc = "This call requires Root origin."] authorize_upgrade { code_hash : :: subxt :: utils :: H256 , check_version : :: core :: primitive :: bool , } , # [codec (index = 3)] # [doc = "Provide the preimage (runtime binary) `code` for an upgrade that has been authorized."] # [doc = ""] # [doc = "If the authorization required a version check, this call will ensure the spec name"] # [doc = "remains unchanged and that the spec version has increased."] # [doc = ""] # [doc = "Note that this function will not apply the new `code`, but only attempt to schedule the"] # [doc = "upgrade with the Relay Chain."] # [doc = ""] # [doc = "All origins are allowed."] enact_authorized_upgrade { code : :: std :: vec :: Vec < :: core :: primitive :: u8 > , } , }
+					# [codec (index = 0)] # [doc = "See [`Pallet::set_validation_data`]."] set_validation_data { data : runtime_types :: cumulus_primitives_parachain_inherent :: ParachainInherentData , } , # [codec (index = 1)] # [doc = "See [`Pallet::sudo_send_upward_message`]."] sudo_send_upward_message { message : :: std :: vec :: Vec < :: core :: primitive :: u8 > , } , # [codec (index = 2)] # [doc = "See [`Pallet::authorize_upgrade`]."] authorize_upgrade { code_hash : :: subxt :: utils :: H256 , check_version : :: core :: primitive :: bool , } , # [codec (index = 3)] # [doc = "See [`Pallet::enact_authorized_upgrade`]."] enact_authorized_upgrade { code : :: std :: vec :: Vec < :: core :: primitive :: u8 > , } , }
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
 					:: subxt :: ext :: codec :: Encode,
@@ -7635,7 +8595,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+				#[doc = "The `Error` enum of this pallet."]
 				pub enum Error {
 					#[codec(index = 0)]
 					#[doc = "Attempt to upgrade validation function while existing upgrade pending."]
@@ -7673,7 +8633,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
 					#[doc = "The validation function has been scheduled to apply."]
@@ -7685,18 +8645,15 @@ pub mod api {
 					#[doc = "The relay-chain aborted the upgrade process."]
 					ValidationFunctionDiscarded,
 					#[codec(index = 3)]
-					#[doc = "An upgrade has been authorized."]
-					UpgradeAuthorized { code_hash: ::subxt::utils::H256 },
-					#[codec(index = 4)]
 					#[doc = "Some downward messages have been received and will be processed."]
 					DownwardMessagesReceived { count: ::core::primitive::u32 },
-					#[codec(index = 5)]
+					#[codec(index = 4)]
 					#[doc = "Downward messages were processed using the given weight."]
 					DownwardMessagesProcessed {
 						weight_used: runtime_types::sp_weights::weight_v2::Weight,
 						dmq_head: ::subxt::utils::H256,
 					},
-					#[codec(index = 6)]
+					#[codec(index = 5)]
 					#[doc = "An upward message was sent to the relay chain."]
 					UpwardMessageSent {
 						message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
@@ -7715,32 +8672,71 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct MessagingStateSnapshot {
-					pub dmq_mqc_head: ::subxt::utils::H256,
-					pub relay_dispatch_queue_size: (::core::primitive::u32, ::core::primitive::u32),
-					pub ingress_channels: ::std::vec::Vec<(
-						runtime_types::polkadot_parachain::primitives::Id,
-						runtime_types::polkadot_primitives::v4::AbridgedHrmpChannel,
-					)>,
-					pub egress_channels: ::std::vec::Vec<(
-						runtime_types::polkadot_parachain::primitives::Id,
-						runtime_types::polkadot_primitives::v4::AbridgedHrmpChannel,
-					)>,
+				pub struct MessagingStateSnapshot { pub dmq_mqc_head : :: subxt :: utils :: H256 , pub relay_dispatch_queue_remaining_capacity : runtime_types :: cumulus_pallet_parachain_system :: relay_state_snapshot :: RelayDispatchQueueRemainingCapacity , pub ingress_channels : :: std :: vec :: Vec < (runtime_types :: polkadot_parachain_primitives :: primitives :: Id , runtime_types :: polkadot_primitives :: v6 :: AbridgedHrmpChannel ,) > , pub egress_channels : :: std :: vec :: Vec < (runtime_types :: polkadot_parachain_primitives :: primitives :: Id , runtime_types :: polkadot_primitives :: v6 :: AbridgedHrmpChannel ,) > , }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct RelayDispatchQueueRemainingCapacity {
+					pub remaining_count: ::core::primitive::u32,
+					pub remaining_size: ::core::primitive::u32,
 				}
 			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			pub struct CodeUpgradeAuthorization {
-				pub code_hash: ::subxt::utils::H256,
-				pub check_version: ::core::primitive::bool,
+			pub mod unincluded_segment {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct Ancestor < _0 > { pub used_bandwidth : runtime_types :: cumulus_pallet_parachain_system :: unincluded_segment :: UsedBandwidth , pub para_head_hash : :: core :: option :: Option < _0 > , pub consumed_go_ahead_signal : :: core :: option :: Option < runtime_types :: polkadot_primitives :: v6 :: UpgradeGoAhead > , }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct HrmpChannelUpdate {
+					pub msg_count: ::core::primitive::u32,
+					pub total_bytes: ::core::primitive::u32,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct SegmentTracker < _0 > { pub used_bandwidth : runtime_types :: cumulus_pallet_parachain_system :: unincluded_segment :: UsedBandwidth , pub hrmp_watermark : :: core :: option :: Option < :: core :: primitive :: u32 > , pub consumed_go_ahead_signal : :: core :: option :: Option < runtime_types :: polkadot_primitives :: v6 :: UpgradeGoAhead > , # [codec (skip)] pub __subxt_unused_type_params : :: core :: marker :: PhantomData < _0 > }
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct UsedBandwidth { pub ump_msg_count : :: core :: primitive :: u32 , pub ump_total_bytes : :: core :: primitive :: u32 , pub hrmp_outgoing : :: subxt :: utils :: KeyedVec < runtime_types :: polkadot_parachain_primitives :: primitives :: Id , runtime_types :: cumulus_pallet_parachain_system :: unincluded_segment :: HrmpChannelUpdate > , }
 			}
 		}
 		pub mod cumulus_pallet_xcm {
@@ -7757,7 +8753,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -7769,19 +8765,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
-				pub enum Error {}
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
 					#[doc = "Downward message is invalid XCM."]
@@ -7815,83 +8799,23 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
-					#[codec(index = 0)]
-					#[doc = "Services a single overweight XCM."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `ExecuteOverweightOrigin`."]
-					#[doc = "- `index`: The index of the overweight XCM to service"]
-					#[doc = "- `weight_limit`: The amount of weight that XCM execution may take."]
-					#[doc = ""]
-					#[doc = "Errors:"]
-					#[doc = "- `BadOverweightIndex`: XCM under `index` is not found in the `Overweight` storage map."]
-					#[doc = "- `BadXcm`: XCM under `index` cannot be properly decoded into a valid XCM format."]
-					#[doc = "- `WeightOverLimit`: XCM execution may use greater `weight_limit`."]
-					#[doc = ""]
-					#[doc = "Events:"]
-					#[doc = "- `OverweightServiced`: On success."]
-					service_overweight {
-						index: ::core::primitive::u64,
-						weight_limit: runtime_types::sp_weights::weight_v2::Weight,
-					},
 					#[codec(index = 1)]
-					#[doc = "Suspends all XCM executions for the XCMP queue, regardless of the sender's origin."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `ControllerOrigin`."]
+					#[doc = "See [`Pallet::suspend_xcm_execution`]."]
 					suspend_xcm_execution,
 					#[codec(index = 2)]
-					#[doc = "Resumes all XCM executions for the XCMP queue."]
-					#[doc = ""]
-					#[doc = "Note that this function doesn't change the status of the in/out bound channels."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `ControllerOrigin`."]
+					#[doc = "See [`Pallet::resume_xcm_execution`]."]
 					resume_xcm_execution,
 					#[codec(index = 3)]
-					#[doc = "Overwrites the number of pages of messages which must be in the queue for the other side to be told to"]
-					#[doc = "suspend their sending."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `Root`."]
-					#[doc = "- `new`: Desired value for `QueueConfigData.suspend_value`"]
+					#[doc = "See [`Pallet::update_suspend_threshold`]."]
 					update_suspend_threshold { new: ::core::primitive::u32 },
 					#[codec(index = 4)]
-					#[doc = "Overwrites the number of pages of messages which must be in the queue after which we drop any further"]
-					#[doc = "messages from the channel."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `Root`."]
-					#[doc = "- `new`: Desired value for `QueueConfigData.drop_threshold`"]
+					#[doc = "See [`Pallet::update_drop_threshold`]."]
 					update_drop_threshold { new: ::core::primitive::u32 },
 					#[codec(index = 5)]
-					#[doc = "Overwrites the number of pages of messages which the queue must be reduced to before it signals that"]
-					#[doc = "message sending may recommence after it has been suspended."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `Root`."]
-					#[doc = "- `new`: Desired value for `QueueConfigData.resume_threshold`"]
+					#[doc = "See [`Pallet::update_resume_threshold`]."]
 					update_resume_threshold { new: ::core::primitive::u32 },
-					#[codec(index = 6)]
-					#[doc = "Overwrites the amount of remaining weight under which we stop processing messages."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `Root`."]
-					#[doc = "- `new`: Desired value for `QueueConfigData.threshold_weight`"]
-					update_threshold_weight { new: runtime_types::sp_weights::weight_v2::Weight },
-					#[codec(index = 7)]
-					#[doc = "Overwrites the speed to which the available weight approaches the maximum weight."]
-					#[doc = "A lower number results in a faster progression. A value of 1 makes the entire weight available initially."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `Root`."]
-					#[doc = "- `new`: Desired value for `QueueConfigData.weight_restrict_decay`."]
-					update_weight_restrict_decay {
-						new: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 8)]
-					#[doc = "Overwrite the maximum amount of weight any individual message may consume."]
-					#[doc = "Messages above this weight go into the overweight queue and may only be serviced explicitly."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must pass `Root`."]
-					#[doc = "- `new`: Desired value for `QueueConfigData.xcmp_max_individual_weight`."]
-					update_xcmp_max_individual_weight {
-						new: runtime_types::sp_weights::weight_v2::Weight,
-					},
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -7903,23 +8827,17 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+				#[doc = "The `Error` enum of this pallet."]
 				pub enum Error {
 					#[codec(index = 0)]
-					#[doc = "Failed to send XCM message."]
-					FailedToSend,
+					#[doc = "Setting the queue config failed since one of its values was invalid."]
+					BadQueueConfig,
 					#[codec(index = 1)]
-					#[doc = "Bad XCM origin."]
-					BadXcmOrigin,
+					#[doc = "The execution is already suspended."]
+					AlreadySuspended,
 					#[codec(index = 2)]
-					#[doc = "Bad XCM data."]
-					BadXcm,
-					#[codec(index = 3)]
-					#[doc = "Bad overweight index."]
-					BadOverweightIndex,
-					#[codec(index = 4)]
-					#[doc = "Provided weight is possibly not enough to execute the message."]
-					WeightOverLimit,
+					#[doc = "The execution is already resumed."]
+					AlreadyResumed,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -7931,85 +8849,12 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
-					#[doc = "Some XCM was executed ok."]
-					Success {
-						message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-						weight: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 1)]
-					#[doc = "Some XCM failed."]
-					Fail {
-						message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-						error: runtime_types::xcm::v3::traits::Error,
-						weight: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 2)]
-					#[doc = "Bad XCM version used."]
-					BadVersion {
-						message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-					},
-					#[codec(index = 3)]
-					#[doc = "Bad XCM format used."]
-					BadFormat {
-						message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-					},
-					#[codec(index = 4)]
 					#[doc = "An HRMP message was sent to a sibling parachain."]
-					XcmpMessageSent {
-						message_hash: ::core::option::Option<[::core::primitive::u8; 32usize]>,
-					},
-					#[codec(index = 5)]
-					#[doc = "An XCM exceeded the individual message weight budget."]
-					OverweightEnqueued {
-						sender: runtime_types::polkadot_parachain::primitives::Id,
-						sent_at: ::core::primitive::u32,
-						index: ::core::primitive::u64,
-						required: runtime_types::sp_weights::weight_v2::Weight,
-					},
-					#[codec(index = 6)]
-					#[doc = "An XCM from the overweight queue was executed with the given actual weight used."]
-					OverweightServiced {
-						index: ::core::primitive::u64,
-						used: runtime_types::sp_weights::weight_v2::Weight,
-					},
+					XcmpMessageSent { message_hash: [::core::primitive::u8; 32usize] },
 				}
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			pub struct InboundChannelDetails {
-				pub sender: runtime_types::polkadot_parachain::primitives::Id,
-				pub state: runtime_types::cumulus_pallet_xcmp_queue::InboundState,
-				pub message_metadata: ::std::vec::Vec<(
-					::core::primitive::u32,
-					runtime_types::polkadot_parachain::primitives::XcmpMessageFormat,
-				)>,
-			}
-			#[derive(
-				:: subxt :: ext :: codec :: Decode,
-				:: subxt :: ext :: codec :: Encode,
-				:: subxt :: ext :: scale_decode :: DecodeAsType,
-				:: subxt :: ext :: scale_encode :: EncodeAsType,
-				Debug,
-			)]
-			# [codec (crate = :: subxt :: ext :: codec)]
-			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-			pub enum InboundState {
-				#[codec(index = 0)]
-				Ok,
-				#[codec(index = 1)]
-				Suspended,
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -8022,7 +8867,7 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			pub struct OutboundChannelDetails {
-				pub recipient: runtime_types::polkadot_parachain::primitives::Id,
+				pub recipient: runtime_types::polkadot_parachain_primitives::primitives::Id,
 				pub state: runtime_types::cumulus_pallet_xcmp_queue::OutboundState,
 				pub signals_exist: ::core::primitive::bool,
 				pub first_index: ::core::primitive::u16,
@@ -8058,9 +8903,51 @@ pub mod api {
 				pub suspend_threshold: ::core::primitive::u32,
 				pub drop_threshold: ::core::primitive::u32,
 				pub resume_threshold: ::core::primitive::u32,
-				pub threshold_weight: runtime_types::sp_weights::weight_v2::Weight,
-				pub weight_restrict_decay: runtime_types::sp_weights::weight_v2::Weight,
-				pub xcmp_max_individual_weight: runtime_types::sp_weights::weight_v2::Weight,
+			}
+		}
+		pub mod cumulus_primitives_core {
+			use super::runtime_types;
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub enum AggregateMessageOrigin {
+				#[codec(index = 0)]
+				Here,
+				#[codec(index = 1)]
+				Parent,
+				#[codec(index = 2)]
+				Sibling(runtime_types::polkadot_parachain_primitives::primitives::Id),
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct CollationInfo {
+				pub upward_messages: ::std::vec::Vec<::std::vec::Vec<::core::primitive::u8>>,
+				pub horizontal_messages: ::std::vec::Vec<
+					runtime_types::polkadot_core_primitives::OutboundHrmpMessage<
+						runtime_types::polkadot_parachain_primitives::primitives::Id,
+					>,
+				>,
+				pub new_validation_code: ::core::option::Option<
+					runtime_types::polkadot_parachain_primitives::primitives::ValidationCode,
+				>,
+				pub processed_downward_messages: ::core::primitive::u32,
+				pub hrmp_watermark: ::core::primitive::u32,
+				pub head_data: runtime_types::polkadot_parachain_primitives::primitives::HeadData,
 			}
 		}
 		pub mod cumulus_primitives_parachain_inherent {
@@ -8088,7 +8975,7 @@ pub mod api {
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			pub struct ParachainInherentData {
 				pub validation_data:
-					runtime_types::polkadot_primitives::v4::PersistedValidationData<
+					runtime_types::polkadot_primitives::v6::PersistedValidationData<
 						::subxt::utils::H256,
 						::core::primitive::u32,
 					>,
@@ -8099,7 +8986,7 @@ pub mod api {
 					>,
 				>,
 				pub horizontal_messages: ::subxt::utils::KeyedVec<
-					runtime_types::polkadot_parachain::primitives::Id,
+					runtime_types::polkadot_parachain_primitives::primitives::Id,
 					::std::vec::Vec<
 						runtime_types::polkadot_core_primitives::InboundHrmpMessage<
 							::core::primitive::u32,
@@ -8179,6 +9066,31 @@ pub mod api {
 			}
 			pub mod traits {
 				use super::runtime_types;
+				pub mod messages {
+					use super::runtime_types;
+					#[derive(
+						:: subxt :: ext :: codec :: Decode,
+						:: subxt :: ext :: codec :: Encode,
+						:: subxt :: ext :: scale_decode :: DecodeAsType,
+						:: subxt :: ext :: scale_encode :: EncodeAsType,
+						Debug,
+					)]
+					# [codec (crate = :: subxt :: ext :: codec)]
+					#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+					pub enum ProcessMessageError {
+						#[codec(index = 0)]
+						BadFormat,
+						#[codec(index = 1)]
+						Corrupt,
+						#[codec(index = 2)]
+						Unsupported,
+						#[codec(index = 3)]
+						Overweight(runtime_types::sp_weights::weight_v2::Weight),
+						#[codec(index = 4)]
+						Yield,
+					}
+				}
 				pub mod tokens {
 					use super::runtime_types;
 					pub mod misc {
@@ -8372,31 +9284,22 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
-					#[doc = "Make some on-chain remark."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- `O(1)`"]
+					#[doc = "See [`Pallet::remark`]."]
 					remark { remark: ::std::vec::Vec<::core::primitive::u8> },
 					#[codec(index = 1)]
-					#[doc = "Set the number of pages in the WebAssembly environment's heap."]
+					#[doc = "See [`Pallet::set_heap_pages`]."]
 					set_heap_pages { pages: ::core::primitive::u64 },
 					#[codec(index = 2)]
-					#[doc = "Set the new runtime code."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- `O(C + S)` where `C` length of `code` and `S` complexity of `can_set_code`"]
+					#[doc = "See [`Pallet::set_code`]."]
 					set_code { code: ::std::vec::Vec<::core::primitive::u8> },
 					#[codec(index = 3)]
-					#[doc = "Set the new runtime code without doing any checks of the given `code`."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- `O(C)` where `C` length of `code`"]
+					#[doc = "See [`Pallet::set_code_without_checks`]."]
 					set_code_without_checks { code: ::std::vec::Vec<::core::primitive::u8> },
 					#[codec(index = 4)]
-					#[doc = "Set some items of storage."]
+					#[doc = "See [`Pallet::set_storage`]."]
 					set_storage {
 						items: ::std::vec::Vec<(
 							::std::vec::Vec<::core::primitive::u8>,
@@ -8404,20 +9307,26 @@ pub mod api {
 						)>,
 					},
 					#[codec(index = 5)]
-					#[doc = "Kill some items from storage."]
+					#[doc = "See [`Pallet::kill_storage`]."]
 					kill_storage { keys: ::std::vec::Vec<::std::vec::Vec<::core::primitive::u8>> },
 					#[codec(index = 6)]
-					#[doc = "Kill all storage items with a key that starts with the given prefix."]
-					#[doc = ""]
-					#[doc = "**NOTE:** We rely on the Root origin to provide us the number of subkeys under"]
-					#[doc = "the prefix we are removing to accurately calculate the weight of this function."]
+					#[doc = "See [`Pallet::kill_prefix`]."]
 					kill_prefix {
 						prefix: ::std::vec::Vec<::core::primitive::u8>,
 						subkeys: ::core::primitive::u32,
 					},
 					#[codec(index = 7)]
-					#[doc = "Make some on-chain remark and emit event."]
+					#[doc = "See [`Pallet::remark_with_event`]."]
 					remark_with_event { remark: ::std::vec::Vec<::core::primitive::u8> },
+					#[codec(index = 9)]
+					#[doc = "See [`Pallet::authorize_upgrade`]."]
+					authorize_upgrade { code_hash: ::subxt::utils::H256 },
+					#[codec(index = 10)]
+					#[doc = "See [`Pallet::authorize_upgrade_without_checks`]."]
+					authorize_upgrade_without_checks { code_hash: ::subxt::utils::H256 },
+					#[codec(index = 11)]
+					#[doc = "See [`Pallet::apply_authorized_upgrade`]."]
+					apply_authorized_upgrade { code: ::std::vec::Vec<::core::primitive::u8> },
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -8453,6 +9362,12 @@ pub mod api {
 					#[codec(index = 5)]
 					#[doc = "The origin filter prevent the call to be dispatched."]
 					CallFiltered,
+					#[codec(index = 6)]
+					#[doc = "No upgrade authorized."]
+					NothingAuthorized,
+					#[codec(index = 7)]
+					#[doc = "The submitted code is not authorized."]
+					Unauthorized,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -8489,6 +9404,12 @@ pub mod api {
 					#[codec(index = 5)]
 					#[doc = "On on-chain remark happened."]
 					Remarked { sender: ::subxt::utils::AccountId32, hash: ::subxt::utils::H256 },
+					#[codec(index = 6)]
+					#[doc = "An upgrade was authorized."]
+					UpgradeAuthorized {
+						code_hash: ::subxt::utils::H256,
+						check_version: ::core::primitive::bool,
+					},
 				}
 			}
 			#[derive(
@@ -8507,6 +9428,20 @@ pub mod api {
 				pub providers: ::core::primitive::u32,
 				pub sufficients: ::core::primitive::u32,
 				pub data: _1,
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct CodeUpgradeAuthorization {
+				pub code_hash: ::subxt::utils::H256,
+				pub check_version: ::core::primitive::bool,
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -8571,38 +9506,17 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
-					#[doc = "Transfer some liquid free balance to another account."]
-					#[doc = ""]
-					#[doc = "`transfer_allow_death` will set the `FreeBalance` of the sender and receiver."]
-					#[doc = "If the sender's account is below the existential deposit as a result"]
-					#[doc = "of the transfer, the account will be reaped."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call must be `Signed` by the transactor."]
+					#[doc = "See [`Pallet::transfer_allow_death`]."]
 					transfer_allow_death {
 						dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 						#[codec(compact)]
 						value: ::core::primitive::u128,
 					},
-					#[codec(index = 1)]
-					#[doc = "Set the regular balance of a given account; it also takes a reserved balance but this"]
-					#[doc = "must be the same as the account's current reserved balance."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call is `root`."]
-					#[doc = ""]
-					#[doc = "WARNING: This call is DEPRECATED! Use `force_set_balance` instead."]
-					set_balance_deprecated {
-						who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-						#[codec(compact)]
-						new_free: ::core::primitive::u128,
-						#[codec(compact)]
-						old_reserved: ::core::primitive::u128,
-					},
 					#[codec(index = 2)]
-					#[doc = "Exactly as `transfer_allow_death`, except the origin must be root and the source account"]
-					#[doc = "may be specified."]
+					#[doc = "See [`Pallet::force_transfer`]."]
 					force_transfer {
 						source: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 						dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
@@ -8610,68 +9524,29 @@ pub mod api {
 						value: ::core::primitive::u128,
 					},
 					#[codec(index = 3)]
-					#[doc = "Same as the [`transfer_allow_death`] call, but with a check that the transfer will not"]
-					#[doc = "kill the origin account."]
-					#[doc = ""]
-					#[doc = "99% of the time you want [`transfer_allow_death`] instead."]
-					#[doc = ""]
-					#[doc = "[`transfer_allow_death`]: struct.Pallet.html#method.transfer"]
+					#[doc = "See [`Pallet::transfer_keep_alive`]."]
 					transfer_keep_alive {
 						dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 						#[codec(compact)]
 						value: ::core::primitive::u128,
 					},
 					#[codec(index = 4)]
-					#[doc = "Transfer the entire transferable balance from the caller account."]
-					#[doc = ""]
-					#[doc = "NOTE: This function only attempts to transfer _transferable_ balances. This means that"]
-					#[doc = "any locked, reserved, or existential deposits (when `keep_alive` is `true`), will not be"]
-					#[doc = "transferred by this function. To ensure that this function results in a killed account,"]
-					#[doc = "you might need to prepare the account by removing any reference counters, storage"]
-					#[doc = "deposits, etc..."]
-					#[doc = ""]
-					#[doc = "The dispatch origin of this call must be Signed."]
-					#[doc = ""]
-					#[doc = "- `dest`: The recipient of the transfer."]
-					#[doc = "- `keep_alive`: A boolean to determine if the `transfer_all` operation should send all"]
-					#[doc = "  of the funds the account has, causing the sender account to be killed (false), or"]
-					#[doc = "  transfer everything except at least the existential deposit, which will guarantee to"]
-					#[doc = "  keep the sender account alive (true)."]
+					#[doc = "See [`Pallet::transfer_all`]."]
 					transfer_all {
 						dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 						keep_alive: ::core::primitive::bool,
 					},
 					#[codec(index = 5)]
-					#[doc = "Unreserve some balance from a user by force."]
-					#[doc = ""]
-					#[doc = "Can only be called by ROOT."]
+					#[doc = "See [`Pallet::force_unreserve`]."]
 					force_unreserve {
 						who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 						amount: ::core::primitive::u128,
 					},
 					#[codec(index = 6)]
-					#[doc = "Upgrade a specified account."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be `Signed`."]
-					#[doc = "- `who`: The account to be upgraded."]
-					#[doc = ""]
-					#[doc = "This will waive the transaction fee if at least all but 10% of the accounts needed to"]
-					#[doc = "be upgraded. (We let some not have to be upgraded just in order to allow for the"]
-					#[doc = "possibililty of churn)."]
+					#[doc = "See [`Pallet::upgrade_accounts`]."]
 					upgrade_accounts { who: ::std::vec::Vec<::subxt::utils::AccountId32> },
-					#[codec(index = 7)]
-					#[doc = "Alias for `transfer_allow_death`, provided only for name-wise compatibility."]
-					#[doc = ""]
-					#[doc = "WARNING: DEPRECATED! Will be released in approximately 3 months."]
-					transfer {
-						dest: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-						#[codec(compact)]
-						value: ::core::primitive::u128,
-					},
 					#[codec(index = 8)]
-					#[doc = "Set the regular balance of a given account."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call is `root`."]
+					#[doc = "See [`Pallet::force_set_balance`]."]
 					force_set_balance {
 						who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
 						#[codec(compact)]
@@ -8688,7 +9563,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+				#[doc = "The `Error` enum of this pallet."]
 				pub enum Error {
 					#[codec(index = 0)]
 					#[doc = "Vesting balance too high to send value."]
@@ -8731,7 +9606,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
 					#[doc = "An account was created with some free balance."]
@@ -8923,33 +9798,38 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
-					#[doc = "Set the list of invulnerable (fixed) collators."]
+					#[doc = "See [`Pallet::set_invulnerables`]."]
 					set_invulnerables { new: ::std::vec::Vec<::subxt::utils::AccountId32> },
 					#[codec(index = 1)]
-					#[doc = "Set the ideal number of collators (not including the invulnerables)."]
-					#[doc = "If lowering this number, then the number of running collators could be higher than this figure."]
-					#[doc = "Aside from that edge case, there should be no other way to have more collators than the desired number."]
+					#[doc = "See [`Pallet::set_desired_candidates`]."]
 					set_desired_candidates { max: ::core::primitive::u32 },
 					#[codec(index = 2)]
-					#[doc = "Set the candidacy bond amount."]
+					#[doc = "See [`Pallet::set_candidacy_bond`]."]
 					set_candidacy_bond { bond: ::core::primitive::u128 },
 					#[codec(index = 3)]
-					#[doc = "Register this account as a collator candidate. The account must (a) already have"]
-					#[doc = "registered session keys and (b) be able to reserve the `CandidacyBond`."]
-					#[doc = ""]
-					#[doc = "This call is not available to `Invulnerable` collators."]
+					#[doc = "See [`Pallet::register_as_candidate`]."]
 					register_as_candidate,
 					#[codec(index = 4)]
-					#[doc = "Deregister `origin` as a collator candidate. Note that the collator can only leave on"]
-					#[doc = "session change. The `CandidacyBond` will be unreserved immediately."]
-					#[doc = ""]
-					#[doc = "This call will fail if the total number of candidates would drop below `MinCandidates`."]
-					#[doc = ""]
-					#[doc = "This call is not available to `Invulnerable` collators."]
+					#[doc = "See [`Pallet::leave_intent`]."]
 					leave_intent,
+					#[codec(index = 5)]
+					#[doc = "See [`Pallet::add_invulnerable`]."]
+					add_invulnerable { who: ::subxt::utils::AccountId32 },
+					#[codec(index = 6)]
+					#[doc = "See [`Pallet::remove_invulnerable`]."]
+					remove_invulnerable { who: ::subxt::utils::AccountId32 },
+					#[codec(index = 7)]
+					#[doc = "See [`Pallet::update_bond`]."]
+					update_bond { new_deposit: ::core::primitive::u128 },
+					#[codec(index = 8)]
+					#[doc = "See [`Pallet::take_candidate_slot`]."]
+					take_candidate_slot {
+						deposit: ::core::primitive::u128,
+						target: ::subxt::utils::AccountId32,
+					},
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -8975,38 +9855,59 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+				#[doc = "The `Error` enum of this pallet."]
 				pub enum Error {
 					#[codec(index = 0)]
-					#[doc = "Too many candidates"]
+					#[doc = "The pallet has too many candidates."]
 					TooManyCandidates,
 					#[codec(index = 1)]
-					#[doc = "Too few candidates"]
-					TooFewCandidates,
+					#[doc = "Leaving would result in too few candidates."]
+					TooFewEligibleCollators,
 					#[codec(index = 2)]
-					#[doc = "Unknown error"]
-					Unknown,
-					#[codec(index = 3)]
-					#[doc = "Permission issue"]
-					Permission,
-					#[codec(index = 4)]
-					#[doc = "User is already a candidate"]
+					#[doc = "Account is already a candidate."]
 					AlreadyCandidate,
-					#[codec(index = 5)]
-					#[doc = "User is not a candidate"]
+					#[codec(index = 3)]
+					#[doc = "Account is not a candidate."]
 					NotCandidate,
-					#[codec(index = 6)]
-					#[doc = "Too many invulnerables"]
+					#[codec(index = 4)]
+					#[doc = "There are too many Invulnerables."]
 					TooManyInvulnerables,
-					#[codec(index = 7)]
-					#[doc = "User is already an Invulnerable"]
+					#[codec(index = 5)]
+					#[doc = "Account is already an Invulnerable."]
 					AlreadyInvulnerable,
-					#[codec(index = 8)]
-					#[doc = "Account has no associated validator ID"]
+					#[codec(index = 6)]
+					#[doc = "Account is not an Invulnerable."]
+					NotInvulnerable,
+					#[codec(index = 7)]
+					#[doc = "Account has no associated validator ID."]
 					NoAssociatedValidatorId,
-					#[codec(index = 9)]
-					#[doc = "Validator ID is not yet registered"]
+					#[codec(index = 8)]
+					#[doc = "Validator ID is not yet registered."]
 					ValidatorNotRegistered,
+					#[codec(index = 9)]
+					#[doc = "Could not insert in the candidate list."]
+					InsertToCandidateListFailed,
+					#[codec(index = 10)]
+					#[doc = "Could not remove from the candidate list."]
+					RemoveFromCandidateListFailed,
+					#[codec(index = 11)]
+					#[doc = "New deposit amount would be below the minimum candidacy bond."]
+					DepositTooLow,
+					#[codec(index = 12)]
+					#[doc = "Could not update the candidate list."]
+					UpdateCandidateListFailed,
+					#[codec(index = 13)]
+					#[doc = "Deposit amount is too low to take the target's slot in the candidate list."]
+					InsufficientBond,
+					#[codec(index = 14)]
+					#[doc = "The target account to be replaced in the candidate list is not a candidate."]
+					TargetIsNotCandidate,
+					#[codec(index = 15)]
+					#[doc = "The updated deposit amount is equal to the amount already reserved."]
+					IdenticalDeposit,
+					#[codec(index = 16)]
+					#[doc = "Cannot lower candidacy bond while occupying a future collator slot in the list."]
+					InvalidUnreserve,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -9018,22 +9919,226 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
+					#[doc = "New Invulnerables were set."]
 					NewInvulnerables { invulnerables: ::std::vec::Vec<::subxt::utils::AccountId32> },
 					#[codec(index = 1)]
-					NewDesiredCandidates { desired_candidates: ::core::primitive::u32 },
+					#[doc = "A new Invulnerable was added."]
+					InvulnerableAdded { account_id: ::subxt::utils::AccountId32 },
 					#[codec(index = 2)]
-					NewCandidacyBond { bond_amount: ::core::primitive::u128 },
+					#[doc = "An Invulnerable was removed."]
+					InvulnerableRemoved { account_id: ::subxt::utils::AccountId32 },
 					#[codec(index = 3)]
+					#[doc = "The number of desired candidates was set."]
+					NewDesiredCandidates { desired_candidates: ::core::primitive::u32 },
+					#[codec(index = 4)]
+					#[doc = "The candidacy bond was set."]
+					NewCandidacyBond { bond_amount: ::core::primitive::u128 },
+					#[codec(index = 5)]
+					#[doc = "A new candidate joined."]
 					CandidateAdded {
 						account_id: ::subxt::utils::AccountId32,
 						deposit: ::core::primitive::u128,
 					},
-					#[codec(index = 4)]
+					#[codec(index = 6)]
+					#[doc = "Bond of a candidate updated."]
+					CandidateBondUpdated {
+						account_id: ::subxt::utils::AccountId32,
+						deposit: ::core::primitive::u128,
+					},
+					#[codec(index = 7)]
+					#[doc = "A candidate was removed."]
 					CandidateRemoved { account_id: ::subxt::utils::AccountId32 },
+					#[codec(index = 8)]
+					#[doc = "An account was replaced in the candidate list by another one."]
+					CandidateReplaced {
+						old: ::subxt::utils::AccountId32,
+						new: ::subxt::utils::AccountId32,
+						deposit: ::core::primitive::u128,
+					},
+					#[codec(index = 9)]
+					#[doc = "An account was unable to be added to the Invulnerables because they did not have keys"]
+					#[doc = "registered. Other Invulnerables may have been set."]
+					InvalidInvulnerableSkipped { account_id: ::subxt::utils::AccountId32 },
 				}
+			}
+		}
+		pub mod pallet_message_queue {
+			use super::runtime_types;
+			pub mod pallet {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
+				pub enum Call {
+					#[codec(index = 0)]
+					#[doc = "See [`Pallet::reap_page`]."]
+					reap_page {
+						message_origin:
+							runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+						page_index: ::core::primitive::u32,
+					},
+					#[codec(index = 1)]
+					#[doc = "See [`Pallet::execute_overweight`]."]
+					execute_overweight {
+						message_origin:
+							runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+						page: ::core::primitive::u32,
+						index: ::core::primitive::u32,
+						weight_limit: runtime_types::sp_weights::weight_v2::Weight,
+					},
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				#[doc = "The `Error` enum of this pallet."]
+				pub enum Error {
+					#[codec(index = 0)]
+					#[doc = "Page is not reapable because it has items remaining to be processed and is not old"]
+					#[doc = "enough."]
+					NotReapable,
+					#[codec(index = 1)]
+					#[doc = "Page to be reaped does not exist."]
+					NoPage,
+					#[codec(index = 2)]
+					#[doc = "The referenced message could not be found."]
+					NoMessage,
+					#[codec(index = 3)]
+					#[doc = "The message was already processed and cannot be processed again."]
+					AlreadyProcessed,
+					#[codec(index = 4)]
+					#[doc = "The message is queued for future execution."]
+					Queued,
+					#[codec(index = 5)]
+					#[doc = "There is temporarily not enough weight to continue servicing messages."]
+					InsufficientWeight,
+					#[codec(index = 6)]
+					#[doc = "This message is temporarily unprocessable."]
+					#[doc = ""]
+					#[doc = "Such errors are expected, but not guaranteed, to resolve themselves eventually through"]
+					#[doc = "retrying."]
+					TemporarilyUnprocessable,
+					#[codec(index = 7)]
+					#[doc = "The queue is paused and no message can be executed from it."]
+					#[doc = ""]
+					#[doc = "This can change at any time and may resolve in the future by re-trying."]
+					QueuePaused,
+					#[codec(index = 8)]
+					#[doc = "Another call is in progress and needs to finish before this call can happen."]
+					RecursiveDisallowed,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				#[doc = "The `Event` enum of this pallet"]
+				pub enum Event {
+					#[codec(index = 0)]
+					#[doc = "Message discarded due to an error in the `MessageProcessor` (usually a format error)."]
+					ProcessingFailed {
+						id: ::subxt::utils::H256,
+						origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+						error: runtime_types::frame_support::traits::messages::ProcessMessageError,
+					},
+					#[codec(index = 1)]
+					#[doc = "Message is processed."]
+					Processed {
+						id: ::subxt::utils::H256,
+						origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+						weight_used: runtime_types::sp_weights::weight_v2::Weight,
+						success: ::core::primitive::bool,
+					},
+					#[codec(index = 2)]
+					#[doc = "Message placed in overweight queue."]
+					OverweightEnqueued {
+						id: [::core::primitive::u8; 32usize],
+						origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+						page_index: ::core::primitive::u32,
+						message_index: ::core::primitive::u32,
+					},
+					#[codec(index = 3)]
+					#[doc = "This page was reaped."]
+					PageReaped {
+						origin: runtime_types::cumulus_primitives_core::AggregateMessageOrigin,
+						index: ::core::primitive::u32,
+					},
+				}
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct BookState<_0> {
+				pub begin: ::core::primitive::u32,
+				pub end: ::core::primitive::u32,
+				pub count: ::core::primitive::u32,
+				pub ready_neighbours:
+					::core::option::Option<runtime_types::pallet_message_queue::Neighbours<_0>>,
+				pub message_count: ::core::primitive::u64,
+				pub size: ::core::primitive::u64,
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct Neighbours<_0> {
+				pub prev: _0,
+				pub next: _0,
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct Page<_0> {
+				pub remaining: _0,
+				pub remaining_size: _0,
+				pub first_index: _0,
+				pub first: _0,
+				pub last: _0,
+				pub heap: runtime_types::bounded_collections::bounded_vec::BoundedVec<
+					::core::primitive::u8,
+				>,
 			}
 		}
 		pub mod pallet_session {
@@ -9050,35 +10155,16 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
-					#[doc = "Sets the session key(s) of the function caller to `keys`."]
-					#[doc = "Allows an account to set its session key prior to becoming a validator."]
-					#[doc = "This doesn't take effect until the next session."]
-					#[doc = ""]
-					#[doc = "The dispatch origin of this function must be signed."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- `O(1)`. Actual cost depends on the number of length of `T::Keys::key_ids()` which is"]
-					#[doc = "  fixed."]
+					#[doc = "See [`Pallet::set_keys`]."]
 					set_keys {
-						keys: runtime_types::parachain_template_runtime::SessionKeys,
+						keys: runtime_types::parachain_runtime::SessionKeys,
 						proof: ::std::vec::Vec<::core::primitive::u8>,
 					},
 					#[codec(index = 1)]
-					#[doc = "Removes any session key(s) of the function caller."]
-					#[doc = ""]
-					#[doc = "This doesn't take effect until the next session."]
-					#[doc = ""]
-					#[doc = "The dispatch origin of this function must be Signed and the account must be either be"]
-					#[doc = "convertible to a validator ID using the chain's typical addressing system (this usually"]
-					#[doc = "means being a controller account) or directly convertible into a validator ID (which"]
-					#[doc = "usually means being a stash account)."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- `O(1)` in number of key types. Actual cost depends on the number of length of"]
-					#[doc = "  `T::Keys::key_ids()` which is fixed."]
+					#[doc = "See [`Pallet::purge_keys`]."]
 					purge_keys,
 				}
 				#[derive(
@@ -9119,7 +10205,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
 					#[doc = "New session has happened. Note that the argument is the session index, not the"]
@@ -9142,58 +10228,29 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
-					#[doc = "Authenticates the sudo key and dispatches a function call with `Root` origin."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call must be _Signed_."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- O(1)."]
-					sudo {
-						call: ::std::boxed::Box<
-							runtime_types::parachain_template_runtime::RuntimeCall,
-						>,
-					},
+					#[doc = "See [`Pallet::sudo`]."]
+					sudo { call: ::std::boxed::Box<runtime_types::parachain_runtime::RuntimeCall> },
 					#[codec(index = 1)]
-					#[doc = "Authenticates the sudo key and dispatches a function call with `Root` origin."]
-					#[doc = "This function does not check the weight of the call, and instead allows the"]
-					#[doc = "Sudo user to specify the weight of the call."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call must be _Signed_."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- O(1)."]
+					#[doc = "See [`Pallet::sudo_unchecked_weight`]."]
 					sudo_unchecked_weight {
-						call: ::std::boxed::Box<
-							runtime_types::parachain_template_runtime::RuntimeCall,
-						>,
+						call: ::std::boxed::Box<runtime_types::parachain_runtime::RuntimeCall>,
 						weight: runtime_types::sp_weights::weight_v2::Weight,
 					},
 					#[codec(index = 2)]
-					#[doc = "Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo"]
-					#[doc = "key."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call must be _Signed_."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- O(1)."]
+					#[doc = "See [`Pallet::set_key`]."]
 					set_key { new: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()> },
 					#[codec(index = 3)]
-					#[doc = "Authenticates the sudo key and dispatches a function call with `Signed` origin from"]
-					#[doc = "a given account."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call must be _Signed_."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- O(1)."]
+					#[doc = "See [`Pallet::sudo_as`]."]
 					sudo_as {
 						who: ::subxt::utils::MultiAddress<::subxt::utils::AccountId32, ()>,
-						call: ::std::boxed::Box<
-							runtime_types::parachain_template_runtime::RuntimeCall,
-						>,
+						call: ::std::boxed::Box<runtime_types::parachain_runtime::RuntimeCall>,
 					},
+					#[codec(index = 4)]
+					#[doc = "See [`Pallet::remove_key`]."]
+					remove_key,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -9205,10 +10262,10 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Error for the Sudo pallet"]
+				#[doc = "Error for the Sudo pallet."]
 				pub enum Error {
 					#[codec(index = 0)]
-					#[doc = "Sender must be the Sudo account"]
+					#[doc = "Sender must be the Sudo account."]
 					RequireSudo,
 				}
 				#[derive(
@@ -9221,19 +10278,25 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
-					#[doc = "A sudo just took place. \\[result\\]"]
+					#[doc = "A sudo call just took place."]
 					Sudid {
 						sudo_result:
 							::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
 					},
 					#[codec(index = 1)]
-					#[doc = "The \\[sudoer\\] just switched identity; the old key is supplied if one existed."]
-					KeyChanged { old_sudoer: ::core::option::Option<::subxt::utils::AccountId32> },
+					#[doc = "The sudo key has been updated."]
+					KeyChanged {
+						old: ::core::option::Option<::subxt::utils::AccountId32>,
+						new: ::subxt::utils::AccountId32,
+					},
 					#[codec(index = 2)]
-					#[doc = "A sudo just took place. \\[result\\]"]
+					#[doc = "The key was permanently removed."]
+					KeyRemoved,
+					#[codec(index = 3)]
+					#[doc = "A [sudo_as](Pallet::sudo_as) call just took place."]
 					SudoAsDone {
 						sudo_result:
 							::core::result::Result<(), runtime_types::sp_runtime::DispatchError>,
@@ -9255,24 +10318,10 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
-					#[doc = "Set the current time."]
-					#[doc = ""]
-					#[doc = "This call should be invoked exactly once per block. It will panic at the finalization"]
-					#[doc = "phase, if this call hasn't been invoked by that time."]
-					#[doc = ""]
-					#[doc = "The timestamp should be greater than the previous one by the amount specified by"]
-					#[doc = "`MinimumPeriod`."]
-					#[doc = ""]
-					#[doc = "The dispatch origin for this call must be `Inherent`."]
-					#[doc = ""]
-					#[doc = "## Complexity"]
-					#[doc = "- `O(1)` (Note that implementations of `OnTimestampSet` must also be `O(1)`)"]
-					#[doc = "- 1 storage read and 1 storage mutation (codec `O(1)`). (because of `DidUpdate::take` in"]
-					#[doc = "  `on_finalize`)"]
-					#[doc = "- 1 event handler `on_timestamp_set`. Must be `O(1)`."]
+					#[doc = "See [`Pallet::set`]."]
 					set {
 						#[codec(compact)]
 						now: ::core::primitive::u64,
@@ -9294,7 +10343,7 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
 					#[doc = "A transaction fee `actual_fee`, of which `tip` was added to the minimum inclusion fee,"]
@@ -9304,6 +10353,55 @@ pub mod api {
 						actual_fee: ::core::primitive::u128,
 						tip: ::core::primitive::u128,
 					},
+				}
+			}
+			pub mod types {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct FeeDetails<_0> {
+					pub inclusion_fee: ::core::option::Option<
+						runtime_types::pallet_transaction_payment::types::InclusionFee<_0>,
+					>,
+					pub tip: _0,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct InclusionFee<_0> {
+					pub base_fee: _0,
+					pub len_fee: _0,
+					pub adjusted_weight_fee: _0,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct RuntimeDispatchInfo<_0, _1> {
+					pub weight: _1,
+					pub class: runtime_types::frame_support::dispatch::DispatchClass,
+					pub partial_fee: _0,
 				}
 			}
 			#[derive(
@@ -9348,29 +10446,16 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
 				pub enum Call {
 					#[codec(index = 0)]
+					#[doc = "See [`Pallet::send`]."]
 					send {
 						dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 						message: ::std::boxed::Box<runtime_types::xcm::VersionedXcm>,
 					},
 					#[codec(index = 1)]
-					#[doc = "Teleport some assets from the local chain to some destination chain."]
-					#[doc = ""]
-					#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-					#[doc = "index `fee_asset_item`. The weight limit for fees is not provided and thus is unlimited,"]
-					#[doc = "with all fees taken as needed from the asset."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-					#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-					#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-					#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-					#[doc = "  an `AccountId32` value."]
-					#[doc = "- `assets`: The assets to be withdrawn. The first item should be the currency used to to pay the fee on the"]
-					#[doc = "  `dest` side. May not be empty."]
-					#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-					#[doc = "  fees."]
+					#[doc = "See [`Pallet::teleport_assets`]."]
 					teleport_assets {
 						dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 						beneficiary: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
@@ -9378,22 +10463,7 @@ pub mod api {
 						fee_asset_item: ::core::primitive::u32,
 					},
 					#[codec(index = 2)]
-					#[doc = "Transfer some assets from the local chain to the sovereign account of a destination"]
-					#[doc = "chain and forward a notification XCM."]
-					#[doc = ""]
-					#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-					#[doc = "index `fee_asset_item`. The weight limit for fees is not provided and thus is unlimited,"]
-					#[doc = "with all fees taken as needed from the asset."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-					#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-					#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-					#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-					#[doc = "  an `AccountId32` value."]
-					#[doc = "- `assets`: The assets to be withdrawn. This should include the assets used to pay the fee on the"]
-					#[doc = "  `dest` side."]
-					#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-					#[doc = "  fees."]
+					#[doc = "See [`Pallet::reserve_transfer_assets`]."]
 					reserve_transfer_assets {
 						dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 						beneficiary: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
@@ -9401,79 +10471,36 @@ pub mod api {
 						fee_asset_item: ::core::primitive::u32,
 					},
 					#[codec(index = 3)]
-					#[doc = "Execute an XCM message from a local, signed, origin."]
-					#[doc = ""]
-					#[doc = "An event is deposited indicating whether `msg` could be executed completely or only"]
-					#[doc = "partially."]
-					#[doc = ""]
-					#[doc = "No more than `max_weight` will be used in its attempted execution. If this is less than the"]
-					#[doc = "maximum amount of weight that the message could take to be executed, then no execution"]
-					#[doc = "attempt will be made."]
-					#[doc = ""]
-					#[doc = "NOTE: A successful return to this does *not* imply that the `msg` was executed successfully"]
-					#[doc = "to completion; only that *some* of it was executed."]
+					#[doc = "See [`Pallet::execute`]."]
 					execute {
 						message: ::std::boxed::Box<runtime_types::xcm::VersionedXcm2>,
 						max_weight: runtime_types::sp_weights::weight_v2::Weight,
 					},
 					#[codec(index = 4)]
-					#[doc = "Extoll that a particular destination can be communicated with through a particular"]
-					#[doc = "version of XCM."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-					#[doc = "- `location`: The destination that is being described."]
-					#[doc = "- `xcm_version`: The latest version of XCM that `location` supports."]
+					#[doc = "See [`Pallet::force_xcm_version`]."]
 					force_xcm_version {
-						location:
-							::std::boxed::Box<runtime_types::xcm::v3::multilocation::MultiLocation>,
-						xcm_version: ::core::primitive::u32,
+						location: ::std::boxed::Box<
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						>,
+						version: ::core::primitive::u32,
 					},
 					#[codec(index = 5)]
-					#[doc = "Set a safe XCM version (the version that XCM should be encoded with if the most recent"]
-					#[doc = "version a destination can accept is unknown)."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-					#[doc = "- `maybe_xcm_version`: The default XCM encoding version, or `None` to disable."]
+					#[doc = "See [`Pallet::force_default_xcm_version`]."]
 					force_default_xcm_version {
 						maybe_xcm_version: ::core::option::Option<::core::primitive::u32>,
 					},
 					#[codec(index = 6)]
-					#[doc = "Ask a location to notify us regarding their XCM version and any changes to it."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-					#[doc = "- `location`: The location to which we should subscribe for XCM version notifications."]
+					#[doc = "See [`Pallet::force_subscribe_version_notify`]."]
 					force_subscribe_version_notify {
 						location: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 					},
 					#[codec(index = 7)]
-					#[doc = "Require that a particular destination should no longer notify us regarding any XCM"]
-					#[doc = "version changes."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-					#[doc = "- `location`: The location to which we are currently subscribed for XCM version"]
-					#[doc = "  notifications which we no longer desire."]
+					#[doc = "See [`Pallet::force_unsubscribe_version_notify`]."]
 					force_unsubscribe_version_notify {
 						location: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 					},
 					#[codec(index = 8)]
-					#[doc = "Transfer some assets from the local chain to the sovereign account of a destination"]
-					#[doc = "chain and forward a notification XCM."]
-					#[doc = ""]
-					#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-					#[doc = "index `fee_asset_item`, up to enough to pay for `weight_limit` of weight. If more weight"]
-					#[doc = "is needed than `weight_limit`, then the operation will fail and the assets send may be"]
-					#[doc = "at risk."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-					#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-					#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-					#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-					#[doc = "  an `AccountId32` value."]
-					#[doc = "- `assets`: The assets to be withdrawn. This should include the assets used to pay the fee on the"]
-					#[doc = "  `dest` side."]
-					#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-					#[doc = "  fees."]
-					#[doc = "- `weight_limit`: The remote-side weight limit, if any, for the XCM fee purchase."]
+					#[doc = "See [`Pallet::limited_reserve_transfer_assets`]."]
 					limited_reserve_transfer_assets {
 						dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 						beneficiary: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
@@ -9482,23 +10509,7 @@ pub mod api {
 						weight_limit: runtime_types::xcm::v3::WeightLimit,
 					},
 					#[codec(index = 9)]
-					#[doc = "Teleport some assets from the local chain to some destination chain."]
-					#[doc = ""]
-					#[doc = "Fee payment on the destination side is made from the asset in the `assets` vector of"]
-					#[doc = "index `fee_asset_item`, up to enough to pay for `weight_limit` of weight. If more weight"]
-					#[doc = "is needed than `weight_limit`, then the operation will fail and the assets send may be"]
-					#[doc = "at risk."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be capable of withdrawing the `assets` and executing XCM."]
-					#[doc = "- `dest`: Destination context for the assets. Will typically be `X2(Parent, Parachain(..))` to send"]
-					#[doc = "  from parachain to parachain, or `X1(Parachain(..))` to send from relay to parachain."]
-					#[doc = "- `beneficiary`: A beneficiary location for the assets in the context of `dest`. Will generally be"]
-					#[doc = "  an `AccountId32` value."]
-					#[doc = "- `assets`: The assets to be withdrawn. The first item should be the currency used to to pay the fee on the"]
-					#[doc = "  `dest` side. May not be empty."]
-					#[doc = "- `fee_asset_item`: The index into `assets` of the item which should be used to pay"]
-					#[doc = "  fees."]
-					#[doc = "- `weight_limit`: The remote-side weight limit, if any, for the XCM fee purchase."]
+					#[doc = "See [`Pallet::limited_teleport_assets`]."]
 					limited_teleport_assets {
 						dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
 						beneficiary: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
@@ -9507,11 +10518,17 @@ pub mod api {
 						weight_limit: runtime_types::xcm::v3::WeightLimit,
 					},
 					#[codec(index = 10)]
-					#[doc = "Set or unset the global suspension state of the XCM executor."]
-					#[doc = ""]
-					#[doc = "- `origin`: Must be an origin specified by AdminOrigin."]
-					#[doc = "- `suspended`: `true` to suspend, `false` to resume."]
+					#[doc = "See [`Pallet::force_suspension`]."]
 					force_suspension { suspended: ::core::primitive::bool },
+					#[codec(index = 11)]
+					#[doc = "See [`Pallet::transfer_assets`]."]
+					transfer_assets {
+						dest: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
+						beneficiary: ::std::boxed::Box<runtime_types::xcm::VersionedMultiLocation>,
+						assets: ::std::boxed::Box<runtime_types::xcm::VersionedMultiAssets>,
+						fee_asset_item: ::core::primitive::u32,
+						weight_limit: runtime_types::xcm::v3::WeightLimit,
+					},
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -9523,15 +10540,15 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tCustom [dispatch errors](https://docs.substrate.io/main-docs/build/events-errors/)\n\t\t\tof this pallet.\n\t\t\t"]
+				#[doc = "The `Error` enum of this pallet."]
 				pub enum Error {
 					#[codec(index = 0)]
 					#[doc = "The desired destination was unreachable, generally because there is a no way of routing"]
 					#[doc = "to it."]
 					Unreachable,
 					#[codec(index = 1)]
-					#[doc = "There was some other issue (i.e. not to do with routing) in sending the message. Perhaps"]
-					#[doc = "a lack of space for buffering the message."]
+					#[doc = "There was some other issue (i.e. not to do with routing) in sending the message."]
+					#[doc = "Perhaps a lack of space for buffering the message."]
 					SendFailure,
 					#[codec(index = 2)]
 					#[doc = "The message execution fails the filter."]
@@ -9568,8 +10585,8 @@ pub mod api {
 					#[doc = "The location is invalid since it already has a subscription from us."]
 					AlreadySubscribed,
 					#[codec(index = 13)]
-					#[doc = "Invalid asset for the operation."]
-					InvalidAsset,
+					#[doc = "Could not check-out the assets for teleportation to the destination chain."]
+					CannotCheckOutTeleport,
 					#[codec(index = 14)]
 					#[doc = "The owner does not own (all) of the asset that they wish to do the operation on."]
 					LowBalance,
@@ -9586,8 +10603,23 @@ pub mod api {
 					#[doc = "A remote lock with the corresponding data could not be found."]
 					LockNotFound,
 					#[codec(index = 19)]
-					#[doc = "The unlock operation cannot succeed because there are still users of the lock."]
+					#[doc = "The unlock operation cannot succeed because there are still consumers of the lock."]
 					InUse,
+					#[codec(index = 20)]
+					#[doc = "Invalid non-concrete asset."]
+					InvalidAssetNotConcrete,
+					#[codec(index = 21)]
+					#[doc = "Invalid asset, reserve chain could not be determined for it."]
+					InvalidAssetUnknownReserve,
+					#[codec(index = 22)]
+					#[doc = "Invalid asset, do not support remote asset reserves with different fees reserves."]
+					InvalidAssetUnsupportedReserve,
+					#[codec(index = 23)]
+					#[doc = "Too many assets with different reserve locations have been attempted for transfer."]
+					TooManyReserves,
+					#[codec(index = 24)]
+					#[doc = "Local XCM execution incomplete."]
+					LocalExecutionIncomplete,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -9599,91 +10631,81 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "\n\t\t\tThe [event](https://docs.substrate.io/main-docs/build/events-errors/) emitted\n\t\t\tby this pallet.\n\t\t\t"]
+				#[doc = "The `Event` enum of this pallet"]
 				pub enum Event {
 					#[codec(index = 0)]
 					#[doc = "Execution of an XCM message was attempted."]
-					#[doc = ""]
-					#[doc = "\\[ outcome \\]"]
-					Attempted(runtime_types::xcm::v3::traits::Outcome),
+					Attempted { outcome: runtime_types::xcm::v3::traits::Outcome },
 					#[codec(index = 1)]
 					#[doc = "A XCM message was sent."]
-					#[doc = ""]
-					#[doc = "\\[ origin, destination, message \\]"]
-					Sent(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::v3::Xcm,
-					),
+					Sent {
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						message: runtime_types::xcm::v3::Xcm,
+						message_id: [::core::primitive::u8; 32usize],
+					},
 					#[codec(index = 2)]
 					#[doc = "Query response received which does not match a registered query. This may be because a"]
 					#[doc = "matching query was never registered, it may be because it is a duplicate response, or"]
 					#[doc = "because the query timed out."]
-					#[doc = ""]
-					#[doc = "\\[ origin location, id \\]"]
-					UnexpectedResponse(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u64,
-					),
+					UnexpectedResponse {
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						query_id: ::core::primitive::u64,
+					},
 					#[codec(index = 3)]
 					#[doc = "Query response has been received and is ready for taking with `take_response`. There is"]
 					#[doc = "no registered notification call."]
-					#[doc = ""]
-					#[doc = "\\[ id, response \\]"]
-					ResponseReady(::core::primitive::u64, runtime_types::xcm::v3::Response),
+					ResponseReady {
+						query_id: ::core::primitive::u64,
+						response: runtime_types::xcm::v3::Response,
+					},
 					#[codec(index = 4)]
 					#[doc = "Query response has been received and query is removed. The registered notification has"]
 					#[doc = "been dispatched and executed successfully."]
-					#[doc = ""]
-					#[doc = "\\[ id, pallet index, call index \\]"]
-					Notified(::core::primitive::u64, ::core::primitive::u8, ::core::primitive::u8),
+					Notified {
+						query_id: ::core::primitive::u64,
+						pallet_index: ::core::primitive::u8,
+						call_index: ::core::primitive::u8,
+					},
 					#[codec(index = 5)]
-					#[doc = "Query response has been received and query is removed. The registered notification could"]
-					#[doc = "not be dispatched because the dispatch weight is greater than the maximum weight"]
+					#[doc = "Query response has been received and query is removed. The registered notification"]
+					#[doc = "could not be dispatched because the dispatch weight is greater than the maximum weight"]
 					#[doc = "originally budgeted by this runtime for the query result."]
-					#[doc = ""]
-					#[doc = "\\[ id, pallet index, call index, actual weight, max budgeted weight \\]"]
-					NotifyOverweight(
-						::core::primitive::u64,
-						::core::primitive::u8,
-						::core::primitive::u8,
-						runtime_types::sp_weights::weight_v2::Weight,
-						runtime_types::sp_weights::weight_v2::Weight,
-					),
+					NotifyOverweight {
+						query_id: ::core::primitive::u64,
+						pallet_index: ::core::primitive::u8,
+						call_index: ::core::primitive::u8,
+						actual_weight: runtime_types::sp_weights::weight_v2::Weight,
+						max_budgeted_weight: runtime_types::sp_weights::weight_v2::Weight,
+					},
 					#[codec(index = 6)]
 					#[doc = "Query response has been received and query is removed. There was a general error with"]
 					#[doc = "dispatching the notification call."]
-					#[doc = ""]
-					#[doc = "\\[ id, pallet index, call index \\]"]
-					NotifyDispatchError(
-						::core::primitive::u64,
-						::core::primitive::u8,
-						::core::primitive::u8,
-					),
+					NotifyDispatchError {
+						query_id: ::core::primitive::u64,
+						pallet_index: ::core::primitive::u8,
+						call_index: ::core::primitive::u8,
+					},
 					#[codec(index = 7)]
 					#[doc = "Query response has been received and query is removed. The dispatch was unable to be"]
 					#[doc = "decoded into a `Call`; this might be due to dispatch function having a signature which"]
 					#[doc = "is not `(origin, QueryId, Response)`."]
-					#[doc = ""]
-					#[doc = "\\[ id, pallet index, call index \\]"]
-					NotifyDecodeFailed(
-						::core::primitive::u64,
-						::core::primitive::u8,
-						::core::primitive::u8,
-					),
+					NotifyDecodeFailed {
+						query_id: ::core::primitive::u64,
+						pallet_index: ::core::primitive::u8,
+						call_index: ::core::primitive::u8,
+					},
 					#[codec(index = 8)]
 					#[doc = "Expected query response has been received but the origin location of the response does"]
 					#[doc = "not match that expected. The query remains registered for a later, valid, response to"]
 					#[doc = "be received and acted upon."]
-					#[doc = ""]
-					#[doc = "\\[ origin location, id, expected location \\]"]
-					InvalidResponder(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u64,
-						::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+					InvalidResponder {
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						query_id: ::core::primitive::u64,
+						expected_location: ::core::option::Option<
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
-					),
+					},
 					#[codec(index = 9)]
 					#[doc = "Expected query response has been received but the expected origin location placed in"]
 					#[doc = "storage by this runtime previously cannot be decoded. The query remains registered."]
@@ -9692,65 +10714,52 @@ pub mod api {
 					#[doc = "runtime should be readable prior to query timeout) and dangerous since the possibly"]
 					#[doc = "valid response will be dropped. Manual governance intervention is probably going to be"]
 					#[doc = "needed."]
-					#[doc = ""]
-					#[doc = "\\[ origin location, id \\]"]
-					InvalidResponderVersion(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u64,
-					),
+					InvalidResponderVersion {
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						query_id: ::core::primitive::u64,
+					},
 					#[codec(index = 10)]
 					#[doc = "Received query response has been read and removed."]
-					#[doc = ""]
-					#[doc = "\\[ id \\]"]
-					ResponseTaken(::core::primitive::u64),
+					ResponseTaken { query_id: ::core::primitive::u64 },
 					#[codec(index = 11)]
 					#[doc = "Some assets have been placed in an asset trap."]
-					#[doc = ""]
-					#[doc = "\\[ hash, origin, assets \\]"]
-					AssetsTrapped(
-						::subxt::utils::H256,
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::VersionedMultiAssets,
-					),
+					AssetsTrapped {
+						hash: ::subxt::utils::H256,
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						assets: runtime_types::xcm::VersionedMultiAssets,
+					},
 					#[codec(index = 12)]
 					#[doc = "An XCM version change notification message has been attempted to be sent."]
 					#[doc = ""]
 					#[doc = "The cost of sending it (borne by the chain) is included."]
-					#[doc = ""]
-					#[doc = "\\[ destination, result, cost \\]"]
-					VersionChangeNotified(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u32,
-						runtime_types::xcm::v3::multiasset::MultiAssets,
-					),
+					VersionChangeNotified {
+						destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						result: ::core::primitive::u32,
+						cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+						message_id: [::core::primitive::u8; 32usize],
+					},
 					#[codec(index = 13)]
 					#[doc = "The supported version of a location has been changed. This might be through an"]
 					#[doc = "automatic notification or a manual intervention."]
-					#[doc = ""]
-					#[doc = "\\[ location, XCM version \\]"]
-					SupportedVersionChanged(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u32,
-					),
+					SupportedVersionChanged {
+						location: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						version: ::core::primitive::u32,
+					},
 					#[codec(index = 14)]
 					#[doc = "A given location which had a version change subscription was dropped owing to an error"]
 					#[doc = "sending the notification to it."]
-					#[doc = ""]
-					#[doc = "\\[ location, query ID, error \\]"]
-					NotifyTargetSendFail(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u64,
-						runtime_types::xcm::v3::traits::Error,
-					),
+					NotifyTargetSendFail {
+						location: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						query_id: ::core::primitive::u64,
+						error: runtime_types::xcm::v3::traits::Error,
+					},
 					#[codec(index = 15)]
 					#[doc = "A given location which had a version change subscription was dropped owing to an error"]
 					#[doc = "migrating the location to our new XCM format."]
-					#[doc = ""]
-					#[doc = "\\[ location, query ID \\]"]
-					NotifyTargetMigrationFail(
-						runtime_types::xcm::VersionedMultiLocation,
-						::core::primitive::u64,
-					),
+					NotifyTargetMigrationFail {
+						location: runtime_types::xcm::VersionedMultiLocation,
+						query_id: ::core::primitive::u64,
+					},
 					#[codec(index = 16)]
 					#[doc = "Expected query response has been received but the expected querier location placed in"]
 					#[doc = "storage by this runtime previously cannot be decoded. The query remains registered."]
@@ -9759,68 +10768,59 @@ pub mod api {
 					#[doc = "runtime should be readable prior to query timeout) and dangerous since the possibly"]
 					#[doc = "valid response will be dropped. Manual governance intervention is probably going to be"]
 					#[doc = "needed."]
-					#[doc = ""]
-					#[doc = "\\[ origin location, id \\]"]
-					InvalidQuerierVersion(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u64,
-					),
+					InvalidQuerierVersion {
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						query_id: ::core::primitive::u64,
+					},
 					#[codec(index = 17)]
 					#[doc = "Expected query response has been received but the querier location of the response does"]
 					#[doc = "not match the expected. The query remains registered for a later, valid, response to"]
 					#[doc = "be received and acted upon."]
-					#[doc = ""]
-					#[doc = "\\[ origin location, id, expected querier, maybe actual querier \\]"]
-					InvalidQuerier(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::primitive::u64,
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+					InvalidQuerier {
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						query_id: ::core::primitive::u64,
+						expected_querier:
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						maybe_actual_querier: ::core::option::Option<
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
-					),
+					},
 					#[codec(index = 18)]
 					#[doc = "A remote has requested XCM version change notification from us and we have honored it."]
 					#[doc = "A version information message is sent to them and its cost is included."]
-					#[doc = ""]
-					#[doc = "\\[ destination location, cost \\]"]
-					VersionNotifyStarted(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::v3::multiasset::MultiAssets,
-					),
+					VersionNotifyStarted {
+						destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+						message_id: [::core::primitive::u8; 32usize],
+					},
 					#[codec(index = 19)]
-					#[doc = "We have requested that a remote chain sends us XCM version change notifications."]
-					#[doc = ""]
-					#[doc = "\\[ destination location, cost \\]"]
-					VersionNotifyRequested(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::v3::multiasset::MultiAssets,
-					),
+					#[doc = "We have requested that a remote chain send us XCM version change notifications."]
+					VersionNotifyRequested {
+						destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+						message_id: [::core::primitive::u8; 32usize],
+					},
 					#[codec(index = 20)]
-					#[doc = "We have requested that a remote chain stops sending us XCM version change notifications."]
-					#[doc = ""]
-					#[doc = "\\[ destination location, cost \\]"]
-					VersionNotifyUnrequested(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::v3::multiasset::MultiAssets,
-					),
+					#[doc = "We have requested that a remote chain stops sending us XCM version change"]
+					#[doc = "notifications."]
+					VersionNotifyUnrequested {
+						destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						cost: runtime_types::xcm::v3::multiasset::MultiAssets,
+						message_id: [::core::primitive::u8; 32usize],
+					},
 					#[codec(index = 21)]
 					#[doc = "Fees were paid from a location for an operation (often for using `SendXcm`)."]
-					#[doc = ""]
-					#[doc = "\\[ paying location, fees \\]"]
-					FeesPaid(
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::v3::multiasset::MultiAssets,
-					),
+					FeesPaid {
+						paying: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						fees: runtime_types::xcm::v3::multiasset::MultiAssets,
+					},
 					#[codec(index = 22)]
 					#[doc = "Some assets have been claimed from an asset trap"]
-					#[doc = ""]
-					#[doc = "\\[ hash, origin, assets \\]"]
-					AssetsClaimed(
-						::subxt::utils::H256,
-						runtime_types::xcm::v3::multilocation::MultiLocation,
-						runtime_types::xcm::VersionedMultiAssets,
-					),
+					AssetsClaimed {
+						hash: ::subxt::utils::H256,
+						origin: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
+						assets: runtime_types::xcm::VersionedMultiAssets,
+					},
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -9860,11 +10860,14 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub struct RemoteLockedFungibleRecord {
+				pub struct RemoteLockedFungibleRecord<_0> {
 					pub amount: ::core::primitive::u128,
 					pub owner: runtime_types::xcm::VersionedMultiLocation,
 					pub locker: runtime_types::xcm::VersionedMultiLocation,
-					pub users: ::core::primitive::u32,
+					pub consumers: runtime_types::bounded_collections::bounded_vec::BoundedVec<(
+						_0,
+						::core::primitive::u128,
+					)>,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -9890,25 +10893,7 @@ pub mod api {
 				}
 			}
 		}
-		pub mod parachain_info {
-			use super::runtime_types;
-			pub mod pallet {
-				use super::runtime_types;
-				#[derive(
-					:: subxt :: ext :: codec :: Decode,
-					:: subxt :: ext :: codec :: Encode,
-					:: subxt :: ext :: scale_decode :: DecodeAsType,
-					:: subxt :: ext :: scale_encode :: EncodeAsType,
-					Debug,
-				)]
-				# [codec (crate = :: subxt :: ext :: codec)]
-				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				#[doc = "Contains one variant per dispatchable that can be called by an extrinsic."]
-				pub enum Call {}
-			}
-		}
-		pub mod parachain_template_runtime {
+		pub mod parachain_runtime {
 			use super::runtime_types;
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -9939,9 +10924,11 @@ pub mod api {
 				#[codec(index = 2)]
 				Timestamp(runtime_types::pallet_timestamp::pallet::Call),
 				#[codec(index = 3)]
-				ParachainInfo(runtime_types::parachain_info::pallet::Call),
+				ParachainInfo(runtime_types::staging_parachain_info::pallet::Call),
 				#[codec(index = 10)]
 				Balances(runtime_types::pallet_balances::pallet::Call),
+				#[codec(index = 15)]
+				Sudo(runtime_types::pallet_sudo::pallet::Call),
 				#[codec(index = 21)]
 				CollatorSelection(runtime_types::pallet_collator_selection::pallet::Call),
 				#[codec(index = 22)]
@@ -9953,9 +10940,7 @@ pub mod api {
 				#[codec(index = 32)]
 				CumulusXcm(runtime_types::cumulus_pallet_xcm::pallet::Call),
 				#[codec(index = 33)]
-				DmpQueue(runtime_types::cumulus_pallet_dmp_queue::pallet::Call),
-				#[codec(index = 34)]
-				Sudo(runtime_types::pallet_sudo::pallet::Call),
+				MessageQueue(runtime_types::pallet_message_queue::pallet::Call),
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -9974,6 +10959,8 @@ pub mod api {
 				ParachainSystem(runtime_types::cumulus_pallet_parachain_system::pallet::Error),
 				#[codec(index = 10)]
 				Balances(runtime_types::pallet_balances::pallet::Error),
+				#[codec(index = 15)]
+				Sudo(runtime_types::pallet_sudo::pallet::Error),
 				#[codec(index = 21)]
 				CollatorSelection(runtime_types::pallet_collator_selection::pallet::Error),
 				#[codec(index = 22)]
@@ -9982,12 +10969,8 @@ pub mod api {
 				XcmpQueue(runtime_types::cumulus_pallet_xcmp_queue::pallet::Error),
 				#[codec(index = 31)]
 				PolkadotXcm(runtime_types::pallet_xcm::pallet::Error),
-				#[codec(index = 32)]
-				CumulusXcm(runtime_types::cumulus_pallet_xcm::pallet::Error),
 				#[codec(index = 33)]
-				DmpQueue(runtime_types::cumulus_pallet_dmp_queue::pallet::Error),
-				#[codec(index = 34)]
-				Sudo(runtime_types::pallet_sudo::pallet::Error),
+				MessageQueue(runtime_types::pallet_message_queue::pallet::Error),
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -10008,6 +10991,8 @@ pub mod api {
 				Balances(runtime_types::pallet_balances::pallet::Event),
 				#[codec(index = 11)]
 				TransactionPayment(runtime_types::pallet_transaction_payment::pallet::Event),
+				#[codec(index = 15)]
+				Sudo(runtime_types::pallet_sudo::pallet::Event),
 				#[codec(index = 21)]
 				CollatorSelection(runtime_types::pallet_collator_selection::pallet::Event),
 				#[codec(index = 22)]
@@ -10019,10 +11004,19 @@ pub mod api {
 				#[codec(index = 32)]
 				CumulusXcm(runtime_types::cumulus_pallet_xcm::pallet::Event),
 				#[codec(index = 33)]
-				DmpQueue(runtime_types::cumulus_pallet_dmp_queue::pallet::Event),
-				#[codec(index = 34)]
-				Sudo(runtime_types::pallet_sudo::pallet::Event),
+				MessageQueue(runtime_types::pallet_message_queue::pallet::Event),
 			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub enum RuntimeHoldReason {}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
 				:: subxt :: ext :: codec :: Encode,
@@ -10082,7 +11076,7 @@ pub mod api {
 				pub data: ::std::vec::Vec<::core::primitive::u8>,
 			}
 		}
-		pub mod polkadot_parachain {
+		pub mod polkadot_parachain_primitives {
 			use super::runtime_types;
 			pub mod primitives {
 				use super::runtime_types;
@@ -10119,20 +11113,30 @@ pub mod api {
 				# [codec (crate = :: subxt :: ext :: codec)]
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-				pub enum XcmpMessageFormat {
-					#[codec(index = 0)]
-					ConcatenatedVersionedXcm,
-					#[codec(index = 1)]
-					ConcatenatedEncodedBlob,
-					#[codec(index = 2)]
-					Signals,
-				}
+				pub struct ValidationCode(pub ::std::vec::Vec<::core::primitive::u8>);
 			}
 		}
 		pub mod polkadot_primitives {
 			use super::runtime_types;
-			pub mod v4 {
+			pub mod v6 {
 				use super::runtime_types;
+				pub mod async_backing {
+					use super::runtime_types;
+					#[derive(
+						:: subxt :: ext :: codec :: Decode,
+						:: subxt :: ext :: codec :: Encode,
+						:: subxt :: ext :: scale_decode :: DecodeAsType,
+						:: subxt :: ext :: scale_encode :: EncodeAsType,
+						Debug,
+					)]
+					# [codec (crate = :: subxt :: ext :: codec)]
+					#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+					pub struct AsyncBackingParams {
+						pub max_candidate_depth: ::core::primitive::u32,
+						pub allowed_ancestry_len: ::core::primitive::u32,
+					}
+				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
 					:: subxt :: ext :: codec :: Encode,
@@ -10153,6 +11157,8 @@ pub mod api {
 					pub hrmp_max_message_num_per_candidate: ::core::primitive::u32,
 					pub validation_upgrade_cooldown: ::core::primitive::u32,
 					pub validation_upgrade_delay: ::core::primitive::u32,
+					pub async_backing_params:
+						runtime_types::polkadot_primitives::v6::async_backing::AsyncBackingParams,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -10183,10 +11189,27 @@ pub mod api {
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 				pub struct PersistedValidationData<_0, _1> {
-					pub parent_head: runtime_types::polkadot_parachain::primitives::HeadData,
+					pub parent_head:
+						runtime_types::polkadot_parachain_primitives::primitives::HeadData,
 					pub relay_parent_number: _1,
 					pub relay_parent_storage_root: _0,
 					pub max_pov_size: ::core::primitive::u32,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub enum UpgradeGoAhead {
+					#[codec(index = 0)]
+					Abort,
+					#[codec(index = 1)]
+					GoAhead,
 				}
 				#[derive(
 					:: subxt :: ext :: codec :: Decode,
@@ -10274,6 +11297,18 @@ pub mod api {
 			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 			pub struct Slot(pub ::core::primitive::u64);
+			#[derive(
+				:: subxt :: ext :: codec :: CompactAs,
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct SlotDuration(pub ::core::primitive::u64);
 		}
 		pub mod sp_core {
 			use super::runtime_types;
@@ -10344,11 +11379,73 @@ pub mod api {
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 				pub struct Signature(pub [::core::primitive::u8; 64usize]);
 			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct OpaqueMetadata(pub ::std::vec::Vec<::core::primitive::u8>);
+		}
+		pub mod sp_inherents {
+			use super::runtime_types;
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct CheckInherentsResult {
+				pub okay: ::core::primitive::bool,
+				pub fatal_error: ::core::primitive::bool,
+				pub errors: runtime_types::sp_inherents::InherentData,
+			}
+			#[derive(
+				:: subxt :: ext :: codec :: Decode,
+				:: subxt :: ext :: codec :: Encode,
+				:: subxt :: ext :: scale_decode :: DecodeAsType,
+				:: subxt :: ext :: scale_encode :: EncodeAsType,
+				Debug,
+			)]
+			# [codec (crate = :: subxt :: ext :: codec)]
+			#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+			#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+			pub struct InherentData {
+				pub data: ::subxt::utils::KeyedVec<
+					[::core::primitive::u8; 8usize],
+					::std::vec::Vec<::core::primitive::u8>,
+				>,
+			}
 		}
 		pub mod sp_runtime {
 			use super::runtime_types;
 			pub mod generic {
 				use super::runtime_types;
+				pub mod block {
+					use super::runtime_types;
+					#[derive(
+						:: subxt :: ext :: codec :: Decode,
+						:: subxt :: ext :: codec :: Encode,
+						:: subxt :: ext :: scale_decode :: DecodeAsType,
+						:: subxt :: ext :: scale_encode :: EncodeAsType,
+						Debug,
+					)]
+					# [codec (crate = :: subxt :: ext :: codec)]
+					#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+					pub struct Block<_0, _1> {
+						pub header: _0,
+						pub extrinsics: ::std::vec::Vec<_1>,
+					}
+				}
 				pub mod digest {
 					use super::runtime_types;
 					#[derive(
@@ -10924,6 +12021,133 @@ pub mod api {
 						Mortal255(::core::primitive::u8),
 					}
 				}
+				pub mod header {
+					use super::runtime_types;
+					#[derive(
+						:: subxt :: ext :: codec :: Decode,
+						:: subxt :: ext :: codec :: Encode,
+						:: subxt :: ext :: scale_decode :: DecodeAsType,
+						:: subxt :: ext :: scale_encode :: EncodeAsType,
+						Debug,
+					)]
+					# [codec (crate = :: subxt :: ext :: codec)]
+					#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+					pub struct Header<_0> {
+						pub parent_hash: ::subxt::utils::H256,
+						#[codec(compact)]
+						pub number: _0,
+						pub state_root: ::subxt::utils::H256,
+						pub extrinsics_root: ::subxt::utils::H256,
+						pub digest: runtime_types::sp_runtime::generic::digest::Digest,
+					}
+				}
+			}
+			pub mod transaction_validity {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub enum InvalidTransaction {
+					#[codec(index = 0)]
+					Call,
+					#[codec(index = 1)]
+					Payment,
+					#[codec(index = 2)]
+					Future,
+					#[codec(index = 3)]
+					Stale,
+					#[codec(index = 4)]
+					BadProof,
+					#[codec(index = 5)]
+					AncientBirthBlock,
+					#[codec(index = 6)]
+					ExhaustsResources,
+					#[codec(index = 7)]
+					Custom(::core::primitive::u8),
+					#[codec(index = 8)]
+					BadMandatory,
+					#[codec(index = 9)]
+					MandatoryValidation,
+					#[codec(index = 10)]
+					BadSigner,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub enum TransactionSource {
+					#[codec(index = 0)]
+					InBlock,
+					#[codec(index = 1)]
+					Local,
+					#[codec(index = 2)]
+					External,
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub enum TransactionValidityError {
+					#[codec(index = 0)]
+					Invalid(runtime_types::sp_runtime::transaction_validity::InvalidTransaction),
+					#[codec(index = 1)]
+					Unknown(runtime_types::sp_runtime::transaction_validity::UnknownTransaction),
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub enum UnknownTransaction {
+					#[codec(index = 0)]
+					CannotLookup,
+					#[codec(index = 1)]
+					NoUnsignedValidator,
+					#[codec(index = 2)]
+					Custom(::core::primitive::u8),
+				}
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				pub struct ValidTransaction {
+					pub priority: ::core::primitive::u64,
+					pub requires: ::std::vec::Vec<::std::vec::Vec<::core::primitive::u8>>,
+					pub provides: ::std::vec::Vec<::std::vec::Vec<::core::primitive::u8>>,
+					pub longevity: ::core::primitive::u64,
+					pub propagate: ::core::primitive::bool,
+				}
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -10962,6 +12186,8 @@ pub mod api {
 				Corruption,
 				#[codec(index = 12)]
 				Unavailable,
+				#[codec(index = 13)]
+				RootNotAllowed,
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -11024,6 +12250,8 @@ pub mod api {
 				CannotCreateHold,
 				#[codec(index = 8)]
 				NotExpendable,
+				#[codec(index = 9)]
+				Blocked,
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,
@@ -11119,6 +12347,47 @@ pub mod api {
 			pub struct RuntimeDbWeight {
 				pub read: ::core::primitive::u64,
 				pub write: ::core::primitive::u64,
+			}
+		}
+		pub mod staging_parachain_info {
+			use super::runtime_types;
+			pub mod pallet {
+				use super::runtime_types;
+				#[derive(
+					:: subxt :: ext :: codec :: Decode,
+					:: subxt :: ext :: codec :: Encode,
+					:: subxt :: ext :: scale_decode :: DecodeAsType,
+					:: subxt :: ext :: scale_encode :: EncodeAsType,
+					Debug,
+				)]
+				# [codec (crate = :: subxt :: ext :: codec)]
+				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+				#[doc = "Contains a variant per dispatchable extrinsic that this pallet has."]
+				pub enum Call {}
+			}
+		}
+		pub mod staging_xcm {
+			use super::runtime_types;
+			pub mod v3 {
+				use super::runtime_types;
+				pub mod multilocation {
+					use super::runtime_types;
+					#[derive(
+						:: subxt :: ext :: codec :: Decode,
+						:: subxt :: ext :: codec :: Encode,
+						:: subxt :: ext :: scale_decode :: DecodeAsType,
+						:: subxt :: ext :: scale_encode :: EncodeAsType,
+						Debug,
+					)]
+					# [codec (crate = :: subxt :: ext :: codec)]
+					#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
+					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
+					pub struct MultiLocation {
+						pub parents: ::core::primitive::u8,
+						pub interior: runtime_types::xcm::v3::junctions::Junctions,
+					}
+				}
 			}
 		}
 		pub mod xcm {
@@ -12145,6 +13414,8 @@ pub mod api {
 						BitcoinCore,
 						#[codec(index = 9)]
 						BitcoinCash,
+						#[codec(index = 10)]
+						PolkadotBulletin,
 					}
 				}
 				pub mod junctions {
@@ -12236,7 +13507,7 @@ pub mod api {
 					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 					pub enum AssetId {
 						#[codec(index = 0)]
-						Concrete(runtime_types::xcm::v3::multilocation::MultiLocation),
+						Concrete(runtime_types::staging_xcm::v3::multilocation::MultiLocation),
 						#[codec(index = 1)]
 						Abstract([::core::primitive::u8; 32usize]),
 					}
@@ -12366,23 +13637,6 @@ pub mod api {
 							#[codec(compact)]
 							count: ::core::primitive::u32,
 						},
-					}
-				}
-				pub mod multilocation {
-					use super::runtime_types;
-					#[derive(
-						:: subxt :: ext :: codec :: Decode,
-						:: subxt :: ext :: codec :: Encode,
-						:: subxt :: ext :: scale_decode :: DecodeAsType,
-						:: subxt :: ext :: scale_encode :: EncodeAsType,
-						Debug,
-					)]
-					# [codec (crate = :: subxt :: ext :: codec)]
-					#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
-					#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
-					pub struct MultiLocation {
-						pub parents: ::core::primitive::u8,
-						pub interior: runtime_types::xcm::v3::junctions::Junctions,
 					}
 				}
 				pub mod traits {
@@ -12525,18 +13779,18 @@ pub mod api {
 						response: runtime_types::xcm::v3::Response,
 						max_weight: runtime_types::sp_weights::weight_v2::Weight,
 						querier: ::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
 					},
 					#[codec(index = 4)]
 					TransferAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssets,
-						beneficiary: runtime_types::xcm::v3::multilocation::MultiLocation,
+						beneficiary: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 5)]
 					TransferReserveAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssets,
-						dest: runtime_types::xcm::v3::multilocation::MultiLocation,
+						dest: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 6)]
@@ -12577,12 +13831,12 @@ pub mod api {
 					#[codec(index = 13)]
 					DepositAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						beneficiary: runtime_types::xcm::v3::multilocation::MultiLocation,
+						beneficiary: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 14)]
 					DepositReserveAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						dest: runtime_types::xcm::v3::multilocation::MultiLocation,
+						dest: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 15)]
@@ -12594,13 +13848,13 @@ pub mod api {
 					#[codec(index = 16)]
 					InitiateReserveWithdraw {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						reserve: runtime_types::xcm::v3::multilocation::MultiLocation,
+						reserve: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 17)]
 					InitiateTeleport {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						dest: runtime_types::xcm::v3::multilocation::MultiLocation,
+						dest: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 18)]
@@ -12624,7 +13878,7 @@ pub mod api {
 					#[codec(index = 24)]
 					ClaimAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssets,
-						ticket: runtime_types::xcm::v3::multilocation::MultiLocation,
+						ticket: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 25)]
 					Trap(#[codec(compact)] ::core::primitive::u64),
@@ -12643,7 +13897,7 @@ pub mod api {
 					#[codec(index = 30)]
 					ExpectOrigin(
 						::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
 					),
 					#[codec(index = 31)]
@@ -12686,22 +13940,22 @@ pub mod api {
 					#[codec(index = 39)]
 					LockAsset {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						unlocker: runtime_types::xcm::v3::multilocation::MultiLocation,
+						unlocker: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 40)]
 					UnlockAsset {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						target: runtime_types::xcm::v3::multilocation::MultiLocation,
+						target: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 41)]
 					NoteUnlockable {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						owner: runtime_types::xcm::v3::multilocation::MultiLocation,
+						owner: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 42)]
 					RequestUnlock {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						locker: runtime_types::xcm::v3::multilocation::MultiLocation,
+						locker: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 43)]
 					SetFeesMode { jit_withdraw: ::core::primitive::bool },
@@ -12710,12 +13964,12 @@ pub mod api {
 					#[codec(index = 45)]
 					ClearTopic,
 					#[codec(index = 46)]
-					AliasOrigin(runtime_types::xcm::v3::multilocation::MultiLocation),
+					AliasOrigin(runtime_types::staging_xcm::v3::multilocation::MultiLocation),
 					#[codec(index = 47)]
 					UnpaidExecution {
 						weight_limit: runtime_types::xcm::v3::WeightLimit,
 						check_origin: ::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
 					},
 				}
@@ -12743,18 +13997,18 @@ pub mod api {
 						response: runtime_types::xcm::v3::Response,
 						max_weight: runtime_types::sp_weights::weight_v2::Weight,
 						querier: ::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
 					},
 					#[codec(index = 4)]
 					TransferAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssets,
-						beneficiary: runtime_types::xcm::v3::multilocation::MultiLocation,
+						beneficiary: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 5)]
 					TransferReserveAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssets,
-						dest: runtime_types::xcm::v3::multilocation::MultiLocation,
+						dest: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 6)]
@@ -12795,12 +14049,12 @@ pub mod api {
 					#[codec(index = 13)]
 					DepositAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						beneficiary: runtime_types::xcm::v3::multilocation::MultiLocation,
+						beneficiary: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 14)]
 					DepositReserveAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						dest: runtime_types::xcm::v3::multilocation::MultiLocation,
+						dest: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 15)]
@@ -12812,13 +14066,13 @@ pub mod api {
 					#[codec(index = 16)]
 					InitiateReserveWithdraw {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						reserve: runtime_types::xcm::v3::multilocation::MultiLocation,
+						reserve: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 17)]
 					InitiateTeleport {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssetFilter,
-						dest: runtime_types::xcm::v3::multilocation::MultiLocation,
+						dest: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						xcm: runtime_types::xcm::v3::Xcm,
 					},
 					#[codec(index = 18)]
@@ -12842,7 +14096,7 @@ pub mod api {
 					#[codec(index = 24)]
 					ClaimAsset {
 						assets: runtime_types::xcm::v3::multiasset::MultiAssets,
-						ticket: runtime_types::xcm::v3::multilocation::MultiLocation,
+						ticket: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 25)]
 					Trap(#[codec(compact)] ::core::primitive::u64),
@@ -12861,7 +14115,7 @@ pub mod api {
 					#[codec(index = 30)]
 					ExpectOrigin(
 						::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
 					),
 					#[codec(index = 31)]
@@ -12904,22 +14158,22 @@ pub mod api {
 					#[codec(index = 39)]
 					LockAsset {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						unlocker: runtime_types::xcm::v3::multilocation::MultiLocation,
+						unlocker: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 40)]
 					UnlockAsset {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						target: runtime_types::xcm::v3::multilocation::MultiLocation,
+						target: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 41)]
 					NoteUnlockable {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						owner: runtime_types::xcm::v3::multilocation::MultiLocation,
+						owner: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 42)]
 					RequestUnlock {
 						asset: runtime_types::xcm::v3::multiasset::MultiAsset,
-						locker: runtime_types::xcm::v3::multilocation::MultiLocation,
+						locker: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					},
 					#[codec(index = 43)]
 					SetFeesMode { jit_withdraw: ::core::primitive::bool },
@@ -12928,12 +14182,12 @@ pub mod api {
 					#[codec(index = 45)]
 					ClearTopic,
 					#[codec(index = 46)]
-					AliasOrigin(runtime_types::xcm::v3::multilocation::MultiLocation),
+					AliasOrigin(runtime_types::staging_xcm::v3::multilocation::MultiLocation),
 					#[codec(index = 47)]
 					UnpaidExecution {
 						weight_limit: runtime_types::xcm::v3::WeightLimit,
 						check_origin: ::core::option::Option<
-							runtime_types::xcm::v3::multilocation::MultiLocation,
+							runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 						>,
 					},
 				}
@@ -13000,7 +14254,7 @@ pub mod api {
 				#[decode_as_type(crate_path = ":: subxt :: ext :: scale_decode")]
 				#[encode_as_type(crate_path = ":: subxt :: ext :: scale_encode")]
 				pub struct QueryResponseInfo {
-					pub destination: runtime_types::xcm::v3::multilocation::MultiLocation,
+					pub destination: runtime_types::staging_xcm::v3::multilocation::MultiLocation,
 					#[codec(compact)]
 					pub query_id: ::core::primitive::u64,
 					pub max_weight: runtime_types::sp_weights::weight_v2::Weight,
@@ -13121,7 +14375,7 @@ pub mod api {
 				#[codec(index = 1)]
 				V2(runtime_types::xcm::v2::multilocation::MultiLocation),
 				#[codec(index = 3)]
-				V3(runtime_types::xcm::v3::multilocation::MultiLocation),
+				V3(runtime_types::staging_xcm::v3::multilocation::MultiLocation),
 			}
 			#[derive(
 				:: subxt :: ext :: codec :: Decode,

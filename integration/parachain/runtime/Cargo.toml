@@ -23,7 +23,7 @@ log = { version = "0.4.17", default-features = false }
 smallvec = "1.10.0"
 
 # Local
-simnode-runtime-api = { path = "../../../runtime-api" }
+simnode-runtime-api = { path = "../../../runtime-api", default-features = false }
 
 # Substrate
 frame-benchmarking = { workspace = true, optional = true }
@@ -72,6 +72,7 @@ cumulus-pallet-session-benchmarking = { workspace = true }
 cumulus-pallet-xcm = { workspace = true }
 cumulus-pallet-xcmp-queue = { workspace = true }
 cumulus-primitives-core = { workspace = true }
+cumulus-primitives-aura = { workspace = true }
 cumulus-primitives-timestamp = { workspace = true }
 cumulus-primitives-utility = { workspace = true }
 pallet-collator-selection = { workspace = true }
@@ -91,6 +92,7 @@ std = [
 	"cumulus-pallet-xcm/std",
 	"cumulus-pallet-xcmp-queue/std",
 	"cumulus-primitives-core/std",
+	"cumulus-primitives-aura/std",
 	"cumulus-primitives-timestamp/std",
 	"cumulus-primitives-utility/std",
 	"cumulus-pallet-session-benchmarking/std",
@@ -126,6 +128,7 @@ std = [
 	"staging-xcm/std",
 	"parachains-common/std",
 	"pallet-message-queue/std",
+	"simnode-runtime-api/std",
 	"substrate-wasm-builder",
 ]
 

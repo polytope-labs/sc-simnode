@@ -37,6 +37,7 @@ sp-session = { workspace = true }
 sp-transaction-pool = { workspace = true  }
 sp-version = { workspace = true }
 sp-io = { workspace = true }
+sp-genesis-builder = { workspace = true }
 
 # frame dependencies
 frame-executive = { workspace = true  }

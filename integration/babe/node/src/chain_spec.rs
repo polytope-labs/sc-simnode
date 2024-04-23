@@ -269,7 +269,7 @@ pub fn testnet_genesis(
 	root_key: AccountId,
 	endowed_accounts: Option<Vec<AccountId>>,
 ) -> serde_json::Value {
-	const ENDOWMENT: Balance = 10_000_000 * DOLLARS;
+	const ENDOWMENT: Balance = 10_000 * DOLLARS;
 	const STASH: Balance = ENDOWMENT / 1000;
 
 	let (initial_authorities, endowed_accounts, _num_endowed_accounts, stakers) =

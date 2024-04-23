@@ -342,6 +342,7 @@ impl sc_simnode::ChainInfo for RuntimeInfo {
 			frame_system::CheckEra::<Self::Runtime>::from(Era::Immortal),
 			frame_system::CheckNonce::<Self::Runtime>::from(nonce),
 			frame_system::CheckWeight::<Self::Runtime>::new(),
+			pallet_transaction_payment::ChargeTransactionPayment::<Self::Runtime>::from(0),
 		)
 	}
 }

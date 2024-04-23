@@ -23,6 +23,7 @@ use futures::lock::Mutex;
 use num_traits::AsPrimitive;
 use parachain_inherent::ParachainInherentData;
 use polkadot_primitives::PersistedValidationData;
+use sp_api::ProvideRuntimeApi;
 use sp_blockchain::HeaderBackend;
 use sp_runtime::traits::{Block, Header};
 use sp_wasm_interface::{anyhow, anyhow::anyhow};
@@ -61,9 +62,15 @@ where
 	/// Given the current slot, create the inherent.
 	pub fn create_inherent(&mut self, slot: u64) -> Result<ParachainInherentData, anyhow::Error> {
 		let mut sproof = self.sproof_builder.take().unwrap_or_default();
-		sproof.current_slot = slot.into();
+		// relay chain is twice as fast the parachain
+		// todo: get the correct paraId here, somehow
+		sproof.para_id = 1000u32.into();
+		sproof.current_slot = ((slot * 2) + 1).into();
 		sproof.host_config.validation_upgrade_delay = 2;
 		sproof.host_config.max_code_size = 15 * 1024 * 1024;
+		let best = self.client.info().best_hash;
+		sproof.included_para_head =
+			self.client.header(best).ok().flatten().map(|h| Into::into(h.encode()));
 		// this makes every block random, so that you can still author blocks after reverting.
 		// instead of getting the AlreadyInChain error.
 		sproof.randomness = rand::random();

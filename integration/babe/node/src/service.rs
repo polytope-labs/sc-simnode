@@ -117,6 +117,7 @@ pub fn create_extrinsic(
 		)),
 		frame_system::CheckNonce::<babe_runtime::Runtime>::from(nonce),
 		frame_system::CheckWeight::<babe_runtime::Runtime>::new(),
+		pallet_transaction_payment::ChargeTransactionPayment::<babe_runtime::Runtime>::from(0),
 	);
 
 	let raw_payload = babe_runtime::SignedPayload::from_raw(
@@ -128,6 +129,7 @@ pub fn create_extrinsic(
 			babe_runtime::VERSION.transaction_version,
 			genesis_hash,
 			best_hash,
+			(),
 			(),
 			(),
 		),
