@@ -8,12 +8,12 @@ members = [
 #
 #    # parachain
 #    "integration/parachain/node",
-#    "integration/parachain/runtime",
-#
+    "integration/parachain/runtime",
+
     # aura
     "integration/aura/node",
     "integration/aura/runtime",
-#
+
      # babe
     "integration/babe/node",
     "integration/babe/runtime",
@@ -163,5 +163,4 @@ mmr-rpc = { version = "28.0.0" }
 xcm-simulator-example = "7.0.0"
 xcm-simulator = "7.0.0"
 polkadot-runtime-parachains = "7.0.0"
-substrate-build-script-utils = "8.0.0"
-node-inspect = "0.8.0"
+substrate-build-script-utils = "11.0.0"

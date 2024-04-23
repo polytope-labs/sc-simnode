@@ -61,7 +61,7 @@ frame-benchmarking = { workspace = true }
 frame-benchmarking-cli = { workspace = true }
 
 # Local Dependencies
-aura-runtime = { version = "4.0.0-dev", path = "../runtime" }
+aura-runtime = { path = "../runtime" }
 sc-simnode = { path = "../../../simnode", features = ["aura"] }
 
 # CLI-specific dependencies
