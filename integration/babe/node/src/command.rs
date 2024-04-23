@@ -22,10 +22,9 @@ use crate::{
 	service::{new_partial, FullClient},
 	Cli, Subcommand,
 };
-use babe_runtime::{ExistentialDeposit, RuntimeApi};
+use babe_runtime::{Block, ExistentialDeposit, RuntimeApi};
 use frame_benchmarking_cli::*;
 use node_executor::ExecutorDispatch;
-use node_primitives::Block;
 use sc_cli::{ChainSpec, Result, RuntimeVersion, SubstrateCli};
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
@@ -80,10 +79,6 @@ impl SubstrateCli for Cli {
 		};
 		Ok(spec)
 	}
-
-	fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		&babe_runtime::VERSION
-	}
 }
 
 /// Parse command line arguments into service configuration.
@@ -122,12 +117,13 @@ pub fn run() -> Result<()> {
 					},
 					BenchmarkCmd::Block(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
+								config.wasm_method,
+								config.default_heap_pages,
+								config.max_runtime_instances,
+								config.runtime_cache_size,
+							);
 						let partial = new_partial(&config, executor)?;
 						cmd.run(partial.client)
 					},
@@ -139,12 +135,13 @@ pub fn run() -> Result<()> {
 					#[cfg(feature = "runtime-benchmarks")]
 					BenchmarkCmd::Storage(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
+								config.wasm_method,
+								config.default_heap_pages,
+								config.max_runtime_instances,
+								config.runtime_cache_size,
+							);
 						let partial = new_partial(&config, executor)?;
 						let db = partial.backend.expose_db();
 						let storage = partial.backend.expose_storage();
@@ -153,12 +150,13 @@ pub fn run() -> Result<()> {
 					},
 					BenchmarkCmd::Overhead(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
+								config.wasm_method,
+								config.default_heap_pages,
+								config.max_runtime_instances,
+								config.runtime_cache_size,
+							);
 						let partial = new_partial(&config, executor)?;
 						let ext_builder = RemarkBuilder::new(partial.client.clone());
 
@@ -172,12 +170,13 @@ pub fn run() -> Result<()> {
 					},
 					BenchmarkCmd::Extrinsic(cmd) => {
 						// ensure that we keep the task manager alive
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							NativeElseWasmExecutor::<ExecutorDispatch>::new_with_wasm_executor(
+								config.wasm_method,
+								config.default_heap_pages,
+								config.max_runtime_instances,
+								config.runtime_cache_size,
+							);
 						let partial = service::new_partial(&config, executor)?;
 						// Register the *Remark* and *TKA* builders.
 						let ext_factory = ExtrinsicFactory(vec![
@@ -373,7 +372,7 @@ pub struct RuntimeInfo;
 
 impl sc_simnode::ChainInfo for RuntimeInfo {
 	// make sure you pass the opaque::Block here
-	type Block = node_primitives::Block;
+	type Block = babe_runtime::Block;
 	// the runtime type
 	type Runtime = babe_runtime::Runtime;
 	// the runtime api
@@ -396,7 +395,6 @@ impl sc_simnode::ChainInfo for RuntimeInfo {
 			frame_system::CheckEra::<Self::Runtime>::from(Era::Immortal),
 			frame_system::CheckNonce::<Self::Runtime>::from(nonce),
 			frame_system::CheckWeight::<Self::Runtime>::new(),
-			pallet_asset_tx_payment::ChargeAssetTxPayment::<Self::Runtime>::from(0, None),
 		)
 	}
 }

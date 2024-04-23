@@ -45,9 +45,8 @@ log = "0.4.17"
 rand = "0.8"
 
 # primitives
-sp-authority-discovery = { workspace = true }
 sp-consensus-babe = { workspace = true }
-grandpa-primitives = { package = "sp-consensus-grandpa",  workspace = true }
+sp-consensus-grandpa = { workspace = true }
 sp-api = { workspace = true }
 sp-core = { workspace = true }
 sp-runtime = { workspace = true }
@@ -57,7 +56,7 @@ sp-keyring = { workspace = true}
 sp-keystore = { workspace = true }
 sp-consensus = { workspace = true }
 sp-transaction-pool = { workspace = true }
-sp-transaction-storage-proof = { workspace = true }
+sp-transaction-storage-proof = { workspace = true, default-features = true }
 sp-io = {  workspace = true }
 
 # client dependencies
@@ -71,13 +70,12 @@ sc-network-common = { workspace = true }
 sc-network-sync = { workspace = true}
 sc-consensus-slots = { workspace = true }
 sc-consensus-babe = { workspace = true }
-grandpa = { package = "sc-consensus-grandpa",  workspace = true }
+sc-consensus-grandpa = { workspace = true }
 sc-rpc = { workspace = true }
 sc-basic-authorship = { workspace = true }
-sc-service = { default-features = false, workspace = true }
+sc-service = { workspace = true }
 sc-telemetry = { workspace = true }
 sc-executor = { workspace = true }
-sc-authority-discovery = { workspace = true }
 sc-sync-state-rpc = { workspace = true }
 sc-sysinfo = { workspace = true }
 sc-storage-monitor = { workspace = true }
@@ -86,53 +84,35 @@ sc-storage-monitor = { workspace = true }
 frame-system = { workspace = true }
 frame-system-rpc-runtime-api = { workspace = true }
 pallet-transaction-payment = { workspace = true }
-pallet-assets = { workspace = true }
-pallet-asset-tx-payment = { workspace = true }
-pallet-im-online = { default-features = false,  workspace = true }
 
 # node-specific dependencies
 babe-runtime = { path = "../runtime" }
-node-rpc = { path = "../rpc" }
-node-primitives = {  workspace = true }
-node-executor = {  workspace = true }
+node-rpc = { package = "babe-node-rpc", path = "../rpc" }
 sc-simnode = { path = "../../../simnode", features = ["babe"] }
 
 # CLI-specific dependencies
 sc-cli = { optional = true,  workspace = true }
 frame-benchmarking-cli = { optional = true,  workspace = true }
-node-inspect = { optional = true,  workspace = true }
 try-runtime-cli = { optional = true,  workspace = true }
 serde_json = "1.0.85"
 
 [dev-dependencies]
 tempfile = "3.1.0"
-sp-tracing = { workspace = true }
+#sp-tracing = { workspace = true }
 sc-keystore = { workspace = true }
-sc-service-test = { workspace = true }
+#sc-service-test = { workspace = true }
 sc-consensus-epochs = { workspace = true }
 
 [build-dependencies]
-clap = { version = "4.0.9", optional = true }
-clap_complete = { version = "4.0.2", optional = true }
-node-inspect = { optional = true,  workspace = true }
-frame-benchmarking-cli = { optional = true,  workspace = true }
 substrate-build-script-utils = { optional = true,  workspace = true }
-substrate-frame-cli = { optional = true,  workspace = true }
-try-runtime-cli = { optional = true,  workspace = true }
-sc-cli = { workspace = true, optional = true }
-pallet-balances = { workspace = true }
-sc-storage-monitor = { workspace = true }
 
 [features]
 default = ["cli"]
 cli = [
-    "node-inspect",
     "sc-cli",
     "frame-benchmarking-cli",
-    "substrate-frame-cli",
     "sc-service/rocksdb",
     "clap",
-    "clap_complete",
     "substrate-build-script-utils",
     "try-runtime-cli",
 ]
