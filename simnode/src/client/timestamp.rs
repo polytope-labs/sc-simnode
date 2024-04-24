@@ -110,7 +110,7 @@ impl SlotTimestampProvider {
 		let time = if *header.number() != Zero::zero() {
 			let slot = func(header)?;
 			// add the slot duration so there's no collision of slots
-			(slot * slot_duration.as_millis() as u64) + slot_duration.as_millis() as u64
+			(slot * slot_duration.as_millis()) + slot_duration.as_millis()
 		} else {
 			// this is the first block, use the correct time.
 			let now = SystemTime::now();
