@@ -343,9 +343,8 @@ where
 					let timestamp = SlotTimestampProvider::new_aura(client.clone(), parent)
 						.map_err(|err| format!("{:?}", err))?;
 
-					let aura = sp_consensus_aura::inherents::InherentDataProvider::new(
-						timestamp.slot().into(),
-					);
+					let aura =
+						sp_consensus_aura::inherents::InherentDataProvider::new(timestamp.slot());
 
 					let parachain_system = parachain_sproof
 						.lock()

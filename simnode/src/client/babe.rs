@@ -221,9 +221,8 @@ where
 					let timestamp = SlotTimestampProvider::new_babe(client.clone(), parent)
 						.map_err(|err| format!("{:?}", err))?;
 
-					let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
-						timestamp.slot().into(),
-					);
+					let babe =
+						sp_consensus_babe::inherents::InherentDataProvider::new(timestamp.slot());
 
 					Ok((timestamp, babe))
 				}
