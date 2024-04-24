@@ -60,8 +60,13 @@ where
 		self.sproof_builder = Some(sproof);
 	}
 
-	/// Given the current slot, create the inherent.
-	pub fn create_inherent(&mut self, slot: u64) -> Result<ParachainInherentData, anyhow::Error> {
+	/// Given the current slot and parent block hash, creates the inherent that parachain-system
+	/// expects.
+	pub fn create_inherent(
+		&mut self,
+		slot: u64,
+		parent: <T::Block as Block>::Hash,
+	) -> Result<ParachainInherentData, anyhow::Error> {
 		let mut sproof = self.sproof_builder.take().unwrap_or_default();
 		sproof.para_id = with_state::<T, _>(self.client.clone(), None, || {
 			parachain_info::Pallet::<T::Runtime>::parachain_id()
@@ -70,9 +75,8 @@ where
 		sproof.current_slot = ((slot * 2) + 1).into();
 		sproof.host_config.validation_upgrade_delay = 2;
 		sproof.host_config.max_code_size = 15 * 1024 * 1024;
-		let best = self.client.info().best_hash;
 		sproof.included_para_head =
-			self.client.header(best).ok().flatten().map(|h| Into::into(h.encode()));
+			self.client.header(parent).ok().flatten().map(|h| Into::into(h.encode()));
 		// this makes every block random, so that you can still author blocks after reverting.
 		// instead of getting the AlreadyInChain error.
 		sproof.randomness = rand::random();

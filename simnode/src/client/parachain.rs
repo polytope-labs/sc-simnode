@@ -347,8 +347,10 @@ where
 						timestamp.slot().into(),
 					);
 
-					let parachain_system =
-						parachain_sproof.lock().await.create_inherent(timestamp.slot().into())?;
+					let parachain_system = parachain_sproof
+						.lock()
+						.await
+						.create_inherent(timestamp.slot().into(), parent)?;
 					Ok((timestamp, aura, parachain_system))
 				}
 			}
