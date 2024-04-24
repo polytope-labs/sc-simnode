@@ -24,8 +24,8 @@ jobs:
 
       - name: Install protoc
         run: |
-          sudo apt update
-          sudo apt install protobuf-compiler
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler
 
       - name: cargo check simnode
         run: cargo check -p sc-simnode
@@ -49,8 +49,8 @@ jobs:
 
       - name: Install protoc
         run: |
-          sudo apt update
-          sudo apt install -y protobuf-compiler build-essential
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler build-essential
 
       - name: Build all binaries
         run: |

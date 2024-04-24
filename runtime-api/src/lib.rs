@@ -17,7 +17,8 @@
 //! # simnode-runtime-api
 //!
 //!
-//! Exports a substrate runtime API that allows simnode create extrinsics that are always valid for the runtime
+//! Exports a substrate runtime API that allows simnode create extrinsics that are always valid for
+//! the runtime
 
 use codec::Codec;
 use sp_std::vec::Vec;
