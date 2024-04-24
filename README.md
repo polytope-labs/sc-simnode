@@ -15,7 +15,11 @@ This library exists to allow substrate developers to:
 
 ## Documentation
 
-Installation and integration guides can be found in the [book](https://simnode.polytope.technology).
+Installation and integration guides can be found in the [book](https://simnode.polytope.technology). Example integrations are provided for runtimes of all different kinds:
+
+- [x] [Standalone Chain](/examples/aura), AURA leader election, GRANDPA consensus.
+- [X] [Standalone Chain](/examples/babe), BABE leader election, GRANDPA consensus.
+- [X] [Parachain](/examples/parachain), AURA leader election, Polkadot Consensus.
 
 ## License
 

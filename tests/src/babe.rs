@@ -1,11 +1,11 @@
 #![cfg(test)]
 
-use crate::codegen::aura::{
+use crate::codegen::babe::{
 	api,
 	api::{
 		balances::events::Transfer,
 		runtime_types::{
-			aura_runtime::RuntimeCall, frame_system::pallet::Call, sp_weights::weight_v2::Weight,
+			babe_runtime::RuntimeCall, frame_system::pallet::Call, sp_weights::weight_v2::Weight,
 		},
 		system::events::CodeUpdated,
 	},
@@ -95,7 +95,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 	let old_version = client.rpc().runtime_version(None).await?;
 	assert_eq!(old_version.spec_version, 1);
 
-	let code = include_bytes!("../../../assets/aura-runtime-upgrade.wasm").to_vec();
+	let code = include_bytes!("../../assets/babe-runtime-upgrade.wasm").to_vec();
 
 	let call = client.tx().call_data(&api::tx().sudo().sudo_unchecked_weight(
 		RuntimeCall::System(Call::set_code { code }),
@@ -121,7 +121,7 @@ async fn runtime_upgrades() -> Result<(), anyhow::Error> {
 
 	// assert the version
 	let new_version = client.rpc().runtime_version(None).await?;
-	assert_eq!(new_version.spec_version, 1000);
+	assert_eq!(new_version.spec_version, 100);
 
 	// try to create 10 blocks to assert that the runtime still works.
 	for _ in 0..10 {
