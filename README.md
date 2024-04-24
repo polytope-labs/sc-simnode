@@ -8,7 +8,8 @@
 
 This library exists to allow substrate developers to:
  - [x] Test complex pallets that require a full runtime, not a mocked runtime.
- - [x] Execute transactions from any origin on their live chain state.
+ - [x] Test a combination of both onchain & offchain components (eg offchain workers)
+ - [x] Fork your live chain state and execute transactions from any origin.
  - [x] Simulate runtime upgrades & migrations.
 
 
