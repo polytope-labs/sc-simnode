@@ -22,6 +22,7 @@ jobs:
         with:
           toolchain: stable
 
+      - uses: Swatinem/rust-cache@v1
       - name: Install protoc
         run: |
           sudo apt-get update

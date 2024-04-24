@@ -21,6 +21,10 @@ Installation and integration guides can be found in the [book](https://simnode.p
 - [X] [Standalone Chain](/examples/babe), BABE leader election, GRANDPA consensus.
 - [X] [Parachain](/examples/parachain), AURA leader election, Polkadot Consensus.
 
+## Releases
+
+`sc-simnode` exclusively follows the official [paritytech/polkadot-sdk](https://github.com/paritytech/polkadot-sdk/releases) releases. Therefore new versions of this crate will be published with the same semver version of the corresponding polkadot-sdk release.
+
 ## License
 
 This library is licensed under the Apache 2.0 License, Copyright (c) 2023 Polytope Labs.
