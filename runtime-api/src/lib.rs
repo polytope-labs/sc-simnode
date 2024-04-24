@@ -14,6 +14,11 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 #![cfg_attr(not(feature = "std"), no_std)]
 
+//! # simnode-runtime-api
+//!
+//!
+//! Exports a substrate runtime API that allows simnode create extrinsics that are always valid for the runtime
+
 use codec::Codec;
 use sp_std::vec::Vec;
 

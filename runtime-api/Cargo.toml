@@ -1,12 +1,15 @@
 [package]
-edition = "2021"
 name = "simnode-runtime-api"
+version = "1.6.0"
 authors = ["Polytope Labs <hello@polytope.technology>"]
-version = "0.1.0"
-publish = false
-
-[package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/polytope-labs/sc-simnode"
+homepage = "https://simnode.polytope.technology/"
+documentation = "https://docs.rs/sc-simnode"
+description = "Runtime APIs required for simnode integration"
+keywords = ["substrate", "polkadot-sdk", "integration-testing", "e2e-tests"]
+readme = "../README.md"
 
 [dependencies]
 codec = { workspace = true }
