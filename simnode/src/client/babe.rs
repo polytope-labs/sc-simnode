@@ -16,17 +16,14 @@
 
 //! Simnode for Standalone runtimes with Babe Consensus
 
-use super::*;
-use crate::{ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
-use futures::{channel::mpsc, future::Either, StreamExt};
+use futures::{channel::mpsc, future::Either, FutureExt, StreamExt};
 use manual_seal::{
 	consensus::{babe::BabeConsensusDataProvider, timestamp::SlotTimestampProvider},
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, EngineCommand, ManualSealParams,
 };
 use num_traits::AsPrimitive;
-use sc_client_api::backend::BlockImportOperation as IBlockImportOperation;
-use sc_client_db::BlockImportOperation;
+use sc_client_api::Backend;
 use sc_consensus::{BlockImport, ImportQueue};
 use sc_consensus_babe::BabeLink;
 use sc_service::{
@@ -34,8 +31,7 @@ use sc_service::{
 	TFullBackend, TFullClient, TaskManager,
 };
 use sc_transaction_pool::FullPool;
-use sc_transaction_pool_api::TransactionPool;
-use simnode_runtime_api::CreateTransactionApi;
+use sc_transaction_pool_api::{OffchainTransactionPoolFactory, TransactionPool};
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
 use sp_consensus::SelectChain;
@@ -44,7 +40,12 @@ use sp_core::crypto::AccountId32;
 use sp_keyring::Sr25519Keyring::Alice;
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
-use sp_trie::PrefixedMemoryDB;
+
+use simnode_runtime_api::CreateTransactionApi;
+
+use crate::{ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
+
+use super::*;
 
 /// Set up and run simnode
 pub async fn start_simnode<C, B, S, I, BI>(
@@ -62,13 +63,7 @@ where
 	B: BlockT,
 	C: ChainInfo<Block = B> + 'static + Send + Sync,
 	I: ImportQueue<B> + 'static,
-	BI: BlockImport<
-			B,
-			Error = sp_consensus::Error,
-			Transaction = PrefixedMemoryDB<<B::Header as Header>::Hashing>,
-		> + Send
-		+ Sync
-		+ 'static,
+	BI: BlockImport<B, Error = sp_consensus::Error> + Send + Sync + 'static,
 	S: SelectChain<B> + 'static,
 	<C::RuntimeApi as ConstructRuntimeApi<B, FullClientFor<C>>>::RuntimeApi:
 		Core<B>
@@ -76,7 +71,7 @@ where
 			+ sp_offchain::OffchainWorkerApi<B>
 			+ sp_api::Metadata<B>
 			+ sp_session::SessionKeys<B>
-			+ ApiExt<B, StateBackend = <BlockImportOperation<B> as IBlockImportOperation<B>>::State>
+			+ ApiExt<B>
 			+ BlockBuilder<B>
 			+ sp_consensus_babe::BabeApi<B>
 			+ CreateTransactionApi<
@@ -102,26 +97,41 @@ where
 		other: (block_import, mut telemetry, babe_link),
 	} = components;
 
+	let net_config = sc_network::config::FullNetworkConfiguration::new(&config.network);
 	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
 			config: &config,
+			net_config,
 			client: client.clone(),
 			transaction_pool: pool.clone(),
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
 			warp_sync_params: None,
+			block_relay: None,
 		};
 		build_network(params)?
 	};
 
 	// offchain workers
-	sc_service::build_offchain_workers(
-		&config,
-		task_manager.spawn_handle(),
-		client.clone(),
-		network.clone(),
-	);
+	if config.offchain_worker.enabled {
+		task_manager.spawn_handle().spawn(
+			"offchain-workers-runner",
+			"offchain-worker",
+			sc_offchain::OffchainWorkers::new(sc_offchain::OffchainWorkerOptions {
+				runtime_api_provider: client.clone(),
+				is_validator: config.role.is_authority(),
+				keystore: Some(keystore_container.keystore()),
+				offchain_db: backend.offchain_storage(),
+				transaction_pool: Some(OffchainTransactionPoolFactory::new(pool.clone())),
+				network_provider: network.clone(),
+				enable_http_requests: true,
+				custom_extensions: |_| vec![],
+			})
+			.run(client.clone(), task_manager.spawn_handle())
+			.boxed(),
+		);
+	}
 
 	// Proposer object for block authorship.
 	let env = sc_basic_authorship::ProposerFactory::new(

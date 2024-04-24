@@ -20,7 +20,7 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2023-08-18
+          toolchain: stable
 
       - name: Install protoc
         run: |
@@ -39,11 +39,13 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2023-08-18
+          toolchain: stable
           override: true
 
       - uses: Swatinem/rust-cache@v1
-      - run: rustup target add wasm32-unknown-unknown
+      - run: |
+          rustup target add wasm32-unknown-unknown
+          rustup component add rust-src
 
       - name: Install protoc
         run: |
@@ -89,7 +91,7 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2023-08-18
+          toolchain: nightly-2024-04-04
           components: rustfmt
 
       - name: Check format

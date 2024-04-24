@@ -22,8 +22,7 @@
 
 use crate::service::{create_extrinsic, FullClient};
 
-use babe_runtime::{BalancesCall, SystemCall};
-use node_primitives::{AccountId, Balance};
+use babe_runtime::{AccountId, Balance, BalancesCall, SystemCall};
 use sc_cli::Result;
 use sp_inherents::{InherentData, InherentDataProvider};
 use sp_keyring::Sr25519Keyring;

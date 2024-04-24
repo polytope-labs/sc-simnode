@@ -16,8 +16,12 @@
 #![deny(missing_docs, unused_extern_crates)]
 
 //! ### sc-simnode
+use sc_client_api::ExecutorProvider;
 use sp_api::ConstructRuntimeApi;
+use sp_blockchain::HeaderBackend;
 use sp_runtime::traits::{Block as BlockT, SignedExtension};
+use sp_state_machine::{Ext, OverlayedChanges};
+use std::sync::Arc;
 
 pub mod cli;
 pub mod client;
@@ -50,4 +54,21 @@ pub trait ChainInfo: Sized {
 	fn signed_extras(
 		from: <Self::Runtime as frame_system::Config>::AccountId,
 	) -> Self::SignedExtras;
+}
+
+/// Runs the given closure in an externalities provided environment, over the blockchain state
+pub fn with_state<T: ChainInfo, R>(
+	client: Arc<FullClientFor<T>>,
+	id: Option<<T::Block as BlockT>::Hash>,
+	closure: impl FnOnce() -> R,
+) -> R {
+	let mut overlay = OverlayedChanges::default();
+	let id = id.unwrap_or_else(|| client.info().best_hash);
+	let block_number =
+		client.number(id).ok().flatten().unwrap_or_else(|| client.info().best_number);
+	let mut extensions = client.execution_extensions().extensions(id, block_number);
+	let state_backend = client.state_at(id).expect(&format!("State at block {} not found", id));
+
+	let mut ext = Ext::new(&mut overlay, &state_backend, Some(&mut extensions));
+	sp_externalities::set_and_run_with_externalities(&mut ext, closure)
 }

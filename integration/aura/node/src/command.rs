@@ -6,13 +6,12 @@ use crate::{
 };
 use aura_runtime::{Block, EXISTENTIAL_DEPOSIT};
 use frame_benchmarking_cli::{BenchmarkCmd, ExtrinsicFactory, SUBSTRATE_REFERENCE_HARDWARE};
-use sc_cli::{ChainSpec, RuntimeVersion, SubstrateCli};
-use sc_executor::NativeElseWasmExecutor;
+use sc_cli::SubstrateCli;
+
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
 use sp_runtime::generic::Era;
 
-use crate::service::ExecutorDispatch;
 #[cfg(feature = "try-runtime")]
 use try_runtime_cli::block_building_info::timestamp_with_aura_info;
 
@@ -49,10 +48,6 @@ impl SubstrateCli for Cli {
 				Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
 		})
 	}
-
-	fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		&aura_runtime::VERSION
-	}
 }
 
 /// Parse and run command line arguments
@@ -68,12 +63,8 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::CheckBlock(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-					config.wasm_method,
-					config.default_heap_pages,
-					config.max_runtime_instances,
-					config.runtime_cache_size,
-				);
+				let executor =
+					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 				let PartialComponents { client, task_manager, import_queue, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, import_queue), task_manager))
@@ -82,12 +73,8 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ExportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-					config.wasm_method,
-					config.default_heap_pages,
-					config.max_runtime_instances,
-					config.runtime_cache_size,
-				);
+				let executor =
+					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 				let PartialComponents { client, task_manager, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, config.database), task_manager))
@@ -96,12 +83,8 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ExportState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-					config.wasm_method,
-					config.default_heap_pages,
-					config.max_runtime_instances,
-					config.runtime_cache_size,
-				);
+				let executor =
+					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 				let PartialComponents { client, task_manager, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, config.chain_spec), task_manager))
@@ -110,12 +93,8 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ImportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-					config.wasm_method,
-					config.default_heap_pages,
-					config.max_runtime_instances,
-					config.runtime_cache_size,
-				);
+				let executor =
+					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 				let PartialComponents { client, task_manager, import_queue, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, import_queue), task_manager))
@@ -128,12 +107,8 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::Revert(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-					config.wasm_method,
-					config.default_heap_pages,
-					config.max_runtime_instances,
-					config.runtime_cache_size,
-				);
+				let executor =
+					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 				let PartialComponents { client, task_manager, backend, .. } =
 					service::new_partial(&config, executor)?;
 				let aux_revert = Box::new(|client, _, blocks| {
@@ -159,15 +134,11 @@ pub fn run() -> sc_cli::Result<()> {
 							)
 						}
 
-						cmd.run::<Block, service::ExecutorDispatch>(config)
+						cmd.run::<Block, ()>(config)
 					},
 					BenchmarkCmd::Block(cmd) => {
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 						let PartialComponents { client, .. } =
 							service::new_partial(&config, executor)?;
 						cmd.run(client)
@@ -179,12 +150,8 @@ pub fn run() -> sc_cli::Result<()> {
 					),
 					#[cfg(feature = "runtime-benchmarks")]
 					BenchmarkCmd::Storage(cmd) => {
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 						let PartialComponents { client, backend, .. } =
 							service::new_partial(&config, executor)?;
 						let db = backend.expose_db();
@@ -193,12 +160,8 @@ pub fn run() -> sc_cli::Result<()> {
 						cmd.run(config, client, db, storage)
 					},
 					BenchmarkCmd::Overhead(cmd) => {
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 						let PartialComponents { client, .. } =
 							service::new_partial(&config, executor)?;
 						let ext_builder = RemarkBuilder::new(client.clone());
@@ -212,12 +175,8 @@ pub fn run() -> sc_cli::Result<()> {
 						)
 					},
 					BenchmarkCmd::Extrinsic(cmd) => {
-						let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
-							config.wasm_method,
-							config.default_heap_pages,
-							config.max_runtime_instances,
-							config.runtime_cache_size,
-						);
+						let executor =
+							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 						let PartialComponents { client, .. } =
 							service::new_partial(&config, executor)?;
 						// Register the *Remark* and *TKA* builders.
@@ -240,13 +199,8 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::Simnode(cmd)) => {
 			let runner = cli.create_runner(&cmd.run.normalize())?;
 			let config = runner.config();
-			let executor = sc_simnode::Executor::new(
-				config.wasm_method,
-				config.default_heap_pages,
-				config.max_runtime_instances,
-				None,
-				config.runtime_cache_size,
-			);
+
+			let executor = sc_simnode::new_wasm_executor(&config);
 			let components = service::new_partial(config, executor)?;
 
 			runner.run_node_until_exit(move |config| async move {

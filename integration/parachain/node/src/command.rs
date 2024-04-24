@@ -1,28 +1,21 @@
-use std::net::SocketAddr;
-
-use codec::Encode;
-use cumulus_client_cli::generate_genesis_block;
 use cumulus_primitives_core::ParaId;
 use frame_benchmarking_cli::{BenchmarkCmd, SUBSTRATE_REFERENCE_HARDWARE};
-use log::{info, warn};
-use parachain_template_runtime::Block;
+use log::info;
+use parachain_runtime::Block;
 use sc_cli::{
 	ChainSpec, CliConfiguration, DefaultConfigurationValues, ImportParams, KeystoreParams,
-	NetworkParams, Result, RuntimeVersion, SharedParams, SubstrateCli,
+	NetworkParams, Result, SharedParams, SubstrateCli,
 };
-use sc_executor::NativeElseWasmExecutor;
+
 use sc_service::config::{BasePath, PrometheusConfig};
-use sp_core::hexdisplay::HexDisplay;
-use sp_runtime::{
-	generic::Era,
-	traits::{AccountIdConversion, Block as BlockT},
-};
+
+use sp_runtime::{generic::Era, traits::AccountIdConversion};
 
 use crate::{
 	chain_spec,
 	cli::{Cli, RelayChainCli, Subcommand},
 	rpc,
-	service::{new_partial, ParachainNativeExecutor},
+	service::new_partial,
 };
 
 fn load_spec(id: &str) -> std::result::Result<Box<dyn ChainSpec>, String> {
@@ -68,10 +61,6 @@ impl SubstrateCli for Cli {
 	fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
 		load_spec(id)
 	}
-
-	fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		&parachain_template_runtime::VERSION
-	}
 }
 
 impl SubstrateCli for RelayChainCli {
@@ -108,22 +97,14 @@ impl SubstrateCli for RelayChainCli {
 	fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
 		polkadot_cli::Cli::from_iter([RelayChainCli::executable_name()].iter()).load_spec(id)
 	}
-
-	fn native_runtime_version(chain_spec: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		polkadot_cli::Cli::native_runtime_version(chain_spec)
-	}
 }
 
 macro_rules! construct_async_run {
 	(|$components:ident, $cli:ident, $cmd:ident, $config:ident| $( $code:tt )* ) => {{
 		let runner = $cli.create_runner($cmd)?;
 		runner.async_run(|$config| {
-			let executor = NativeElseWasmExecutor::<ParachainNativeExecutor>::new(
-				$config.wasm_method,
-				$config.default_heap_pages,
-				$config.max_runtime_instances,
-				$config.runtime_cache_size,
-			);
+			let executor =
+				sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&$config);
 			let $components = new_partial(&$config, executor)?;
 			let task_manager = $components.task_manager;
 			{ $( $code )* }.map(|v| (v, task_manager))
@@ -186,10 +167,12 @@ pub fn run() -> Result<()> {
 		},
 		Some(Subcommand::ExportGenesisState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.sync_run(|_config| {
-				let spec = cli.load_spec(&cmd.shared_params.chain.clone().unwrap_or_default())?;
-				let state_version = Cli::native_runtime_version(&spec).state_version();
-				cmd.run::<Block>(&*spec, state_version)
+			runner.sync_run(|config| {
+				let executor =
+					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+				let components = new_partial(&config, executor)?;
+
+				cmd.run(components.client.clone())
 			})
 		},
 		Some(Subcommand::ExportGenesisWasm(cmd)) => {
@@ -205,19 +188,15 @@ pub fn run() -> Result<()> {
 			match cmd {
 				BenchmarkCmd::Pallet(cmd) =>
 					if cfg!(feature = "runtime-benchmarks") {
-						runner.sync_run(|config| cmd.run::<Block, ParachainNativeExecutor>(config))
+						runner.sync_run(|config| cmd.run::<Block, ()>(config))
 					} else {
 						Err("Benchmarking wasn't enabled when building the node. \
 					You can enable it with `--features runtime-benchmarks`."
 							.into())
 					},
 				BenchmarkCmd::Block(cmd) => runner.sync_run(|config| {
-					let executor = NativeElseWasmExecutor::<ParachainNativeExecutor>::new(
-						config.wasm_method,
-						config.default_heap_pages,
-						config.max_runtime_instances,
-						config.runtime_cache_size,
-					);
+					let executor =
+						sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 					let partials = new_partial(&config, executor)?;
 					cmd.run(partials.client)
 				}),
@@ -231,12 +210,8 @@ pub fn run() -> Result<()> {
 					.into()),
 				#[cfg(feature = "runtime-benchmarks")]
 				BenchmarkCmd::Storage(cmd) => runner.sync_run(|config| {
-					let executor = NativeElseWasmExecutor::<ParachainNativeExecutor>::new(
-						config.wasm_method,
-						config.default_heap_pages,
-						config.max_runtime_instances,
-						config.runtime_cache_size,
-					);
+					let executor =
+						sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
 					let partials = new_partial(&config, executor)?;
 					let db = partials.backend.expose_db();
 					let storage = partials.backend.expose_storage();
@@ -252,7 +227,7 @@ pub fn run() -> Result<()> {
 		},
 		#[cfg(feature = "try-runtime")]
 		Some(Subcommand::TryRuntime(cmd)) => {
-			use parachain_template_runtime::MILLISECS_PER_BLOCK;
+			use parachain_runtime::MILLISECS_PER_BLOCK;
 			use sc_executor::{sp_wasm_interface::ExtendedHostFunctions, NativeExecutionDispatch};
 			use try_runtime_cli::block_building_info::timestamp_with_aura_info;
 
@@ -283,13 +258,7 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::Simnode(cmd)) => {
 			let runner = cli.create_runner(&cmd.run.normalize())?;
 			let config = runner.config();
-			let executor = sc_simnode::Executor::new(
-				config.wasm_method,
-				config.default_heap_pages,
-				config.max_runtime_instances,
-				None,
-				config.runtime_cache_size,
-			);
+			let executor = sc_simnode::new_wasm_executor(&config);
 			let components = new_partial(config, executor)?;
 
 			runner.run_node_until_exit(move |config| async move {
@@ -325,11 +294,12 @@ pub fn run() -> Result<()> {
 			let collator_options = cli.run.collator_options();
 
 			runner.run_node_until_exit(|config| async move {
-				let hwbench = (!cli.no_hardware_benchmarks).then_some(
-					config.database.path().map(|database_path| {
+				let hwbench = (!cli.no_hardware_benchmarks)
+					.then_some(config.database.path().map(|database_path| {
 						let _ = std::fs::create_dir_all(&database_path);
 						sc_sysinfo::gather_hwbench(Some(database_path))
-					})).flatten();
+					}))
+					.flatten();
 
 				let para_id = chain_spec::Extensions::try_get(&*config.chain_spec)
 					.map(|e| e.para_id)
@@ -343,26 +313,16 @@ pub fn run() -> Result<()> {
 				let id = ParaId::from(para_id);
 
 				let parachain_account =
-					AccountIdConversion::<polkadot_primitives::AccountId>::into_account_truncating(&id);
-
-				let state_version = Cli::native_runtime_version(&config.chain_spec).state_version();
-				let block: Block = generate_genesis_block(&*config.chain_spec, state_version)
-					.map_err(|e| format!("{:?}", e))?;
-				let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));
+					AccountIdConversion::<polkadot_primitives::AccountId>::into_account_truncating(
+						&id,
+					);
 
 				let tokio_handle = config.tokio_handle.clone();
 				let polkadot_config =
 					SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, tokio_handle)
 						.map_err(|err| format!("Relay chain argument error: {}", err))?;
-
-				info!("Parachain id: {:?}", id);
 				info!("Parachain Account: {}", parachain_account);
-				info!("Parachain genesis state: {}", genesis_state);
 				info!("Is collating: {}", if config.role.is_authority() { "yes" } else { "no" });
-
-				if !collator_options.relay_chain_rpc_urls.is_empty() && cli.relay_chain_args.len() > 0 {
-					warn!("Detected relay chain node arguments together with --relay-chain-rpc-url. This command starts a minimal Polkadot node that only uses a network-related subset of all relay chain CLI options.");
-				}
 
 				crate::service::start_parachain_node(
 					config,
@@ -382,14 +342,6 @@ pub fn run() -> Result<()> {
 impl DefaultConfigurationValues for RelayChainCli {
 	fn p2p_listen_port() -> u16 {
 		30334
-	}
-
-	fn rpc_ws_listen_port() -> u16 {
-		9945
-	}
-
-	fn rpc_http_listen_port() -> u16 {
-		9934
 	}
 
 	fn prometheus_listen_port() -> u16 {
@@ -443,24 +395,8 @@ impl CliConfiguration<Self> for RelayChainCli {
 		self.base.base.node_name()
 	}
 
-	fn rpc_http(&self, default_listen_port: u16) -> Result<Option<SocketAddr>> {
-		self.base.base.rpc_http(default_listen_port)
-	}
-
-	fn rpc_ipc(&self) -> Result<Option<String>> {
-		self.base.base.rpc_ipc()
-	}
-
-	fn rpc_ws(&self, default_listen_port: u16) -> Result<Option<SocketAddr>> {
-		self.base.base.rpc_ws(default_listen_port)
-	}
-
 	fn rpc_methods(&self) -> Result<sc_service::config::RpcMethods> {
 		self.base.base.rpc_methods()
-	}
-
-	fn rpc_ws_max_connections(&self) -> Result<Option<usize>> {
-		self.base.base.rpc_ws_max_connections()
 	}
 
 	fn rpc_cors(&self, is_dev: bool) -> Result<Option<Vec<String>>> {
@@ -520,13 +456,13 @@ pub struct RuntimeInfo;
 
 impl sc_simnode::ChainInfo for RuntimeInfo {
 	// make sure you pass the opaque::Block here
-	type Block = parachain_template_runtime::opaque::Block;
+	type Block = parachain_runtime::opaque::Block;
 	// the runtime type
-	type Runtime = parachain_template_runtime::Runtime;
+	type Runtime = parachain_runtime::Runtime;
 	// the runtime api
-	type RuntimeApi = parachain_template_runtime::RuntimeApi;
+	type RuntimeApi = parachain_runtime::RuntimeApi;
 	// [`SignedExtra`] for your runtime
-	type SignedExtras = parachain_template_runtime::SignedExtra;
+	type SignedExtras = parachain_runtime::SignedExtra;
 
 	// initialize the [`SignedExtra`] for your runtime, you'll notice I'm calling a pallet method in
 	// order to read from storage. This is possible becase this method is called in an externalities
