@@ -60,6 +60,7 @@ sp-block-builder = { version = "26.0.0", default-features = false }
 sp-consensus-aura = { version = "0.32.0", default-features = false }
 sp-consensus-babe = { version = "0.32.0", default-features = false }
 sp-consensus-grandpa = { version = "13.0.0", default-features = false }
+sp-consensus-slots = { version = "0.32.0", default-features = false }
 sp-consensus = { version = "0.32.0", default-features = false }
 sp-consensus-beefy = { version = "13.0.0", default-features = false }
 sp-core = { version = "28.0.0", default-features = false }

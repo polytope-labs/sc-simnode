@@ -24,6 +24,7 @@ pub mod parachain;
 
 #[cfg(feature = "babe")]
 pub mod babe;
+pub mod timestamp;
 
 use crate::{ChainInfo, SignatureVerificationOverride};
 use jsonrpsee::RpcModule;

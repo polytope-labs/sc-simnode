@@ -17,10 +17,9 @@
 //! Simnode for Standalone runtimes with Aura Consensus
 
 use super::*;
-use crate::{ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
+use crate::{timestamp::SlotTimestampProvider, ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
 use futures::{channel::mpsc, future::Either, FutureExt, StreamExt};
 use manual_seal::{
-	consensus::timestamp::SlotTimestampProvider,
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, EngineCommand, ManualSealParams,
 };
@@ -201,12 +200,12 @@ where
 		consensus_data_provider: Some(Box::new(AuraConsensusDataProvider::new(client.clone()))),
 		create_inherent_data_providers: {
 			let client = client.clone();
-			move |_, _| {
+			move |parent, _| {
 				let client = client.clone();
 				async move {
 					let client = client.clone();
 
-					let timestamp = SlotTimestampProvider::new_aura(client.clone())
+					let timestamp = SlotTimestampProvider::new_aura(client.clone(), parent)
 						.map_err(|err| format!("{:?}", err))?;
 
 					let aura = sp_consensus_aura::inherents::InherentDataProvider::new(
