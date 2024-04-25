@@ -22,10 +22,11 @@ jobs:
         with:
           toolchain: stable
 
+      - uses: Swatinem/rust-cache@v1
       - name: Install protoc
         run: |
-          sudo apt update
-          sudo apt install protobuf-compiler
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler
 
       - name: cargo check simnode
         run: cargo check -p sc-simnode
@@ -38,9 +39,7 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
-          override: true
 
       - uses: Swatinem/rust-cache@v1
       - run: |
@@ -49,8 +48,8 @@ jobs:
 
       - name: Install protoc
         run: |
-          sudo apt update
-          sudo apt install -y protobuf-compiler build-essential
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler build-essential
 
       - name: Build all binaries
         run: |

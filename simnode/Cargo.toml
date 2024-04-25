@@ -1,8 +1,15 @@
 [package]
 name = "sc-simnode"
-version = "0.1.0"
+version = "1.6.1"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/polytope-labs/sc-simnode"
+homepage = "https://simnode.polytope.technology/"
+documentation = "https://docs.rs/sc-simnode"
+description = "Simnode is an e2e integration testing environment for substrate-based blockchains"
+keywords = ["substrate", "polkadot-sdk", "integration-testing", "e2e-tests"]
+readme = "../README.md"
 
 [dependencies]
 # client deps
@@ -23,13 +30,16 @@ sc-client-api = { workspace = true }
 sc-rpc-server = { workspace = true }
 
 # consensus
-sc-consensus-babe = { workspace = true, optional = true }
+sc-consensus-babe = { workspace = true }
 manual-seal = { workspace = true }
 sc-consensus = { workspace = true }
+sc-consensus-slots = { workspace = true }
+sc-consensus-aura = { workspace = true, default-features = true }
 
 # primitive deps
 sp-consensus-aura = { workspace = true, default-features = true }
-sp-consensus-babe = { workspace = true, optional = true, default-features = true }
+sp-consensus-slots = { workspace = true, default-features = true }
+sp-consensus-babe = { workspace = true, default-features = true }
 sp-core = { workspace = true, default-features = true }
 sp-blockchain = { workspace = true, default-features = true }
 sp-block-builder = { workspace = true, default-features = true }
@@ -45,6 +55,7 @@ sp-keyring = { workspace = true, default-features = true }
 sp-externalities = { workspace = true, default-features = true }
 sp-state-machine = { workspace = true, default-features = true }
 sp-trie = { workspace = true, default-features = true }
+sp-timestamp = { workspace = true, default-features = true }
 sp-wasm-interface = { workspace = true, default-features = true }
 sp-runtime-interface = { workspace = true, default-features = true }
 
@@ -73,7 +84,7 @@ jsonrpsee = { version = "0.16.2", features = ["server"] }
 num-traits = "0.2.14"
 async-trait = "0.1.57"
 # local deps
-simnode-runtime-api = { path = "../runtime-api" }
+simnode-runtime-api = { version = "1.6.0", path = "../runtime-api" }
 
 
 [features]
@@ -84,4 +95,4 @@ std = []
 # consensus
 parachain = []
 aura = []
-babe = ["sp-consensus-babe", "sc-consensus-babe"]
+babe = []

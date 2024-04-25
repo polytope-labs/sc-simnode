@@ -8,13 +8,22 @@
 
 This library exists to allow substrate developers to:
  - [x] Test complex pallets that require a full runtime, not a mocked runtime.
- - [x] Execute transactions from any origin on their live chain state.
+ - [x] Test a combination of both onchain & offchain components (eg offchain workers)
+ - [x] Fork your live chain state and execute transactions from any origin.
  - [x] Simulate runtime upgrades & migrations.
 
 
 ## Documentation
 
-Installation and integration guides can be found in the [book](https://simnode.polytope.technology).
+Installation and integration guides can be found in the [book](https://simnode.polytope.technology). Example integrations are provided for runtimes of all different kinds:
+
+- [x] [Standalone Chain](/examples/aura), AURA leader election, GRANDPA consensus.
+- [X] [Standalone Chain](/examples/babe), BABE leader election, GRANDPA consensus.
+- [X] [Parachain](/examples/parachain), AURA leader election, Polkadot Consensus.
+
+## Releases
+
+`sc-simnode` exclusively follows the official [paritytech/polkadot-sdk](https://github.com/paritytech/polkadot-sdk/releases) releases. Therefore new versions of this crate will be published with the same semver version of the corresponding polkadot-sdk release.
 
 ## License
 

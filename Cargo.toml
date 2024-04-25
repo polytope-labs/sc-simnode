@@ -3,21 +3,20 @@ resolver = "2"
 members = [
     "simnode",
     "runtime-api",
-
-    "integration/tests",
+    "tests",
 
     # parachain
-    "integration/parachain/node",
-    "integration/parachain/runtime",
+    "examples/parachain/node",
+    "examples/parachain/runtime",
 
     # aura
-    "integration/aura/node",
-    "integration/aura/runtime",
+    "examples/aura/node",
+    "examples/aura/runtime",
 
      # babe
-    "integration/babe/node",
-    "integration/babe/runtime",
-    "integration/babe/rpc",
+    "examples/babe/node",
+    "examples/babe/runtime",
+    "examples/babe/rpc",
 ]
 
 [workspace.dependencies]
@@ -41,7 +40,7 @@ pallet-offences = { version = "27.0.0", default-features = false }
 pallet-authorship = { version = "28.0.0", default-features = false }
 pallet-balances = { version = "28.0.0", default-features = false }
 pallet-session = { version = "28.0.0", default-features = false }
-pallet-staking = { version = "28.0.1", default-features = false }
+pallet-staking = { version = "28.0.0", default-features = false }
 pallet-session-benchmarking = { version = "28.0.0", default-features = false }
 pallet-sudo = { version = "28.0.0", default-features = false }
 pallet-timestamp = { version = "27.0.0", default-features = false }
@@ -50,7 +49,7 @@ pallet-transaction-payment-rpc-runtime-api = { version = "28.0.0", default-featu
 pallet-message-queue = { version = "31.0.0", default-features = false }
 pallet-beefy-mmr = { version = "28.0.0", default-features = false }
 pallet-assets = { version = "29.0.0", default-features = false }
-pallet-staking-reward-curve = { version = "8.0.0" }
+pallet-staking-reward-curve = { version = "11.0.0" }
 
 sp-api = { version = "26.0.0", default-features = false }
 sp-blockchain = { version = "28.0.0", default-features = false }
@@ -60,6 +59,7 @@ sp-block-builder = { version = "26.0.0", default-features = false }
 sp-consensus-aura = { version = "0.32.0", default-features = false }
 sp-consensus-babe = { version = "0.32.0", default-features = false }
 sp-consensus-grandpa = { version = "13.0.0", default-features = false }
+sp-consensus-slots = { version = "0.32.0", default-features = false }
 sp-consensus = { version = "0.32.0", default-features = false }
 sp-consensus-beefy = { version = "13.0.0", default-features = false }
 sp-core = { version = "28.0.0", default-features = false }
@@ -67,7 +67,7 @@ sp-inherents = { version = "26.0.0", default-features = false }
 sp-externalities = { version = "0.25.0", default-features = false }
 sp-offchain = { version = "26.0.0", default-features = false }
 sp-keyring = { version = "31.0.0", default-features = false }
-sp-runtime = { version = "31.0.1", default-features = false }
+sp-runtime = { version = "31.0.0", default-features = false }
 sp-runtime-interface = { version = "24.0.0", default-features = false }
 sp-timestamp = { version = "26.0.0", default-features = false }
 sp-keystore = { version = "0.34.0", default-features = false }
@@ -87,8 +87,8 @@ pallet-xcm = { version = "7.0.0", default-features = false }
 polkadot-parachain-primitives = { version = "6.0.0", default-features = false }
 polkadot-runtime-common = { version = "7.0.0", default-features = false }
 staging-xcm = { version = "7.0.0", default-features = false }
-staging-xcm-builder = { version = "7.0.0", default-features = false }
-staging-xcm-executor = { version = "7.0.0", default-features = false }
+staging-xcm-builder = { version = "7.0.3", default-features = false }
+staging-xcm-executor = { version = "7.0.3", default-features = false }
 cumulus-primitives-aura = { version = "0.7.0", default-features = false }
 cumulus-pallet-session-benchmarking = { version = "9.0.0", default-features = false }
 cumulus-pallet-aura-ext = { version = "0.7.0", default-features = false }
@@ -98,20 +98,20 @@ cumulus-pallet-xcm = { version = "0.7.0", default-features = false }
 cumulus-pallet-xcmp-queue = { version = "0.7.0", default-features = false }
 cumulus-primitives-core = { version = "0.7.0", default-features = false }
 cumulus-primitives-timestamp = { version = "0.7.0", default-features = false }
-cumulus-primitives-utility = { version = "0.7.0", default-features = false }
-pallet-collator-selection = { version = "9.0.0", default-features = false }
-parachain-info = { package = "staging-parachain-info", version = "0.7.0", default-features = false }
+cumulus-primitives-utility = { version = "0.7.3", default-features = false }
+pallet-collator-selection = { version = "=9.0.0", default-features = false }
+parachain-info = { version = "0.7.0", package = "staging-parachain-info", default-features = false }
 parachains-common = { version = "7.0.0", default-features = false }
 
 # client
-parachain-inherent = {  package = "cumulus-primitives-parachain-inherent", version = "0.7.0" }
-sproof-builder = { package = "cumulus-test-relay-sproof-builder", version = "0.7.0" }
+parachain-inherent = { version = "0.7.0", package = "cumulus-primitives-parachain-inherent" }
+sproof-builder = { version = "0.7.0", package = "cumulus-test-relay-sproof-builder" }
 frame-benchmarking-cli = "32.0.0"
 pallet-transaction-payment-rpc = "30.0.0"
 sc-basic-authorship = "0.34.0"
 sc-chain-spec = "27.0.0"
 sc-cli = "0.36.0"
-sc-keystore = "24.0.0"
+sc-keystore = "25.0.0"
 sc-informant = "0.33.0"
 sc-block-builder = "0.33.0"
 sc-client-api = "28.0.0"
@@ -142,7 +142,7 @@ sc-tracing = "28.0.0"
 sc-transaction-pool = "28.0.0"
 sc-transaction-pool-api = "28.0.0"
 sc-offchain = "29.0.0"
-manual-seal = { package = "sc-consensus-manual-seal", version = "0.35.0" }
+manual-seal = { version = "0.35.0", package = "sc-consensus-manual-seal" }
 substrate-frame-rpc-system = "28.0.0"
 substrate-prometheus-endpoint = "0.17.0"
 try-runtime-cli = "0.38.0"

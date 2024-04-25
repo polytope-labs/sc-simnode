@@ -17,12 +17,14 @@
 //! Simnode for Standalone runtimes with Parachain Consensus
 
 use super::*;
-use crate::{ChainInfo, ParachainSproofInherentProvider, SimnodeApiServer, SimnodeRpcHandler};
+use crate::{
+	timestamp::SlotTimestampProvider, ChainInfo, ParachainSproofInherentProvider, SimnodeApiServer,
+	SimnodeRpcHandler,
+};
 use async_trait::async_trait;
 use futures::{channel::mpsc, future::Either, lock::Mutex, FutureExt, StreamExt};
 use jsonrpsee::core::{Error as RpcError, RpcResult};
 use manual_seal::{
-	consensus::timestamp::SlotTimestampProvider,
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, EngineCommand, ManualSealParams,
 };
@@ -331,22 +333,23 @@ where
 		create_inherent_data_providers: {
 			let client = client.clone();
 			let parachain_inherent_provider = parachain_inherent_provider.clone();
-			move |_, _| {
+			move |parent, _| {
 				let client = client.clone();
 				let parachain_sproof = parachain_inherent_provider.clone();
 				async move {
 					let client = client.clone();
 					let parachain_sproof = parachain_sproof.clone();
 
-					let timestamp = SlotTimestampProvider::new_aura(client.clone())
+					let timestamp = SlotTimestampProvider::new_aura(client.clone(), parent)
 						.map_err(|err| format!("{:?}", err))?;
 
-					let aura = sp_consensus_aura::inherents::InherentDataProvider::new(
-						timestamp.slot().into(),
-					);
+					let aura =
+						sp_consensus_aura::inherents::InherentDataProvider::new(timestamp.slot());
 
-					let parachain_system =
-						parachain_sproof.lock().await.create_inherent(timestamp.slot().into())?;
+					let parachain_system = parachain_sproof
+						.lock()
+						.await
+						.create_inherent(timestamp.slot().into(), parent)?;
 					Ok((timestamp, aura, parachain_system))
 				}
 			}

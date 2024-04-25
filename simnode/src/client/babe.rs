@@ -18,7 +18,7 @@
 
 use futures::{channel::mpsc, future::Either, FutureExt, StreamExt};
 use manual_seal::{
-	consensus::{babe::BabeConsensusDataProvider, timestamp::SlotTimestampProvider},
+	consensus::babe::BabeConsensusDataProvider,
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, EngineCommand, ManualSealParams,
 };
@@ -43,7 +43,7 @@ use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 
 use simnode_runtime_api::CreateTransactionApi;
 
-use crate::{ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
+use crate::{timestamp::SlotTimestampProvider, ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
 
 use super::*;
 
@@ -213,17 +213,16 @@ where
 		consensus_data_provider: Some(Box::new(babe_consensus)),
 		create_inherent_data_providers: {
 			let client = client.clone();
-			move |_, _| {
+			move |parent, _| {
 				let client = client.clone();
 				async move {
 					let client = client.clone();
 
-					let timestamp = SlotTimestampProvider::new_babe(client.clone())
+					let timestamp = SlotTimestampProvider::new_babe(client.clone(), parent)
 						.map_err(|err| format!("{:?}", err))?;
 
-					let babe = sp_consensus_babe::inherents::InherentDataProvider::new(
-						timestamp.slot().into(),
-					);
+					let babe =
+						sp_consensus_babe::inherents::InherentDataProvider::new(timestamp.slot());
 
 					Ok((timestamp, babe))
 				}
