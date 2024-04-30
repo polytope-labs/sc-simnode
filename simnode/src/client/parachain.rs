@@ -47,6 +47,7 @@ use sp_core::{crypto::AccountId32, Bytes};
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 
+use sp_core::traits::SpawnEssentialNamed;
 use std::sync::Arc;
 
 /// Parachain handler implementation for Simnode RPC API.
@@ -266,49 +267,42 @@ where
 	let rpc_sink = command_sink.clone();
 
 	let parachain_inherent_provider_clone = parachain_inherent_provider.clone();
-	let rpc_handlers = {
-		let client = client.clone();
-		let backend = backend.clone();
-		let pool = pool.clone();
-		let params = SpawnTasksParams {
-			config,
-			client: client.clone(),
-			backend: backend.clone(),
-			task_manager: &mut task_manager,
-			keystore: keystore_container.keystore(),
-			transaction_pool: pool.clone(),
-			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
+	let (client_clone, backend_clone) = (client.clone(), backend.clone());
+	let params = SpawnTasksParams {
+		config,
+		client: client.clone(),
+		backend: backend.clone(),
+		task_manager: &mut task_manager,
+		keystore: keystore_container.keystore(),
+		transaction_pool: pool.clone(),
+		rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
+			let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
 
-				io.merge(
-					ParachainRPCHandler {
-						inner: SimnodeRpcHandler::new(client.clone(), backend.clone()),
-						sink: rpc_sink.clone(),
-						parachain: parachain_inherent_provider_clone.clone(),
-					}
-					.into_rpc(),
-				)
-				.map_err(|_| {
-					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
-				})?;
-				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
-					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
-				})?;
-				Ok(io)
-			}),
-			network,
-			system_rpc_tx,
-			tx_handler_controller,
-			sync_service,
-			telemetry: telemetry.as_mut(),
-		};
-		spawn_tasks(params)?
+			io.merge(
+				ParachainRPCHandler {
+					inner: SimnodeRpcHandler::new(client_clone.clone(), backend_clone.clone()),
+					sink: rpc_sink.clone(),
+					parachain: parachain_inherent_provider_clone.clone(),
+				}
+				.into_rpc(),
+			)
+			.map_err(|_| sc_service::Error::Other("Unable to merge simnode rpc api".to_string()))?;
+			io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
+				sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
+			})?;
+			Ok(io)
+		}),
+		network,
+		system_rpc_tx,
+		tx_handler_controller,
+		sync_service,
+		telemetry: telemetry.as_mut(),
 	};
+	spawn_tasks(params)?;
 
 	_network_starter.start_network();
-	let _rpc_handler = rpc_handlers.handle();
 
-	run_manual_seal(ManualSealParams {
+	let task = run_manual_seal(ManualSealParams {
 		block_import,
 		env,
 		client: client.clone(),
@@ -354,8 +348,13 @@ where
 				}
 			}
 		},
-	})
-	.await;
+	});
+
+	task_manager.spawn_essential_handle().spawn_essential(
+		"manual-consensus-task",
+		None,
+		Box::pin(task),
+	);
 
 	Ok(task_manager)
 }
