@@ -36,7 +36,7 @@ use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
 use sp_block_builder::BlockBuilder;
 use sp_consensus::SelectChain;
-use sp_core::crypto::AccountId32;
+use sp_core::{crypto::AccountId32, traits::SpawnEssentialNamed};
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 /// Set up and run simnode
@@ -141,42 +141,37 @@ where
 
 	let rpc_sink = command_sink.clone();
 
-	let rpc_handlers = {
-		let client = client.clone();
-		let backend = backend.clone();
-		let pool = pool.clone();
-		let params = SpawnTasksParams {
-			config,
-			client: client.clone(),
-			backend: backend.clone(),
-			task_manager: &mut task_manager,
-			keystore: keystore_container.keystore(),
-			transaction_pool: pool.clone(),
-			rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-				let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
+	let (client_clone, backend_clone) = (client.clone(), backend.clone());
+	let params = SpawnTasksParams {
+		config,
+		client: client.clone(),
+		backend: backend.clone(),
+		task_manager: &mut task_manager,
+		keystore: keystore_container.keystore(),
+		transaction_pool: pool.clone(),
+		rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
+			let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
 
-				io.merge(SimnodeRpcHandler::<C>::new(client.clone(), backend.clone()).into_rpc())
-					.map_err(|_| {
-						sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
-					})?;
-				io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
-					sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
-				})?;
-				Ok(io)
-			}),
-			network,
-			system_rpc_tx,
-			tx_handler_controller,
-			sync_service,
-			telemetry: telemetry.as_mut(),
-		};
-		spawn_tasks(params)?
+			io.merge(
+				SimnodeRpcHandler::<C>::new(client_clone.clone(), backend_clone.clone()).into_rpc(),
+			)
+			.map_err(|_| sc_service::Error::Other("Unable to merge simnode rpc api".to_string()))?;
+			io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
+				sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
+			})?;
+			Ok(io)
+		}),
+		network,
+		system_rpc_tx,
+		tx_handler_controller,
+		sync_service,
+		telemetry: telemetry.as_mut(),
 	};
+	spawn_tasks(params)?;
 
 	_network_starter.start_network();
-	let _rpc_handler = rpc_handlers.handle();
 
-	run_manual_seal(ManualSealParams {
+	let task = run_manual_seal(ManualSealParams {
 		block_import,
 		env,
 		client: client.clone(),
@@ -215,8 +210,13 @@ where
 				}
 			}
 		},
-	})
-	.await;
+	});
+
+	task_manager.spawn_essential_handle().spawn_essential(
+		"manual-consensus-task",
+		None,
+		Box::pin(task),
+	);
 
 	Ok(task_manager)
 }
