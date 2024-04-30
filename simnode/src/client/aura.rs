@@ -152,10 +152,10 @@ where
 		rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
 			let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
 
-			io.merge(SimnodeRpcHandler::<C>::new(client_clone.clone(), backend_clone.clone()).into_rpc())
-				.map_err(|_| {
-					sc_service::Error::Other("Unable to merge simnode rpc api".to_string())
-				})?;
+			io.merge(
+				SimnodeRpcHandler::<C>::new(client_clone.clone(), backend_clone.clone()).into_rpc(),
+			)
+			.map_err(|_| sc_service::Error::Other("Unable to merge simnode rpc api".to_string()))?;
 			io.merge(ManualSeal::new(rpc_sink.clone()).into_rpc()).map_err(|_| {
 				sc_service::Error::Other("Unable to merge manual seal rpc api".to_string())
 			})?;
