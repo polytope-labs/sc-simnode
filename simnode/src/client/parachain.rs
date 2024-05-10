@@ -39,15 +39,14 @@ use sc_service::{
 use sc_transaction_pool::FullPool;
 use sc_transaction_pool_api::{OffchainTransactionPoolFactory, TransactionPool};
 use simnode_runtime_api::CreateTransactionApi;
-use sp_api::{ApiExt, ConstructRuntimeApi, Core};
+use sp_api::{ApiExt, ConstructRuntimeApi, Core, ProvideRuntimeApi};
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
 use sp_consensus::SelectChain;
-use sp_core::{crypto::AccountId32, Bytes};
+use sp_consensus_aura::AuraApi;
+use sp_core::{crypto::AccountId32, traits::SpawnEssentialNamed, Bytes};
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
-
-use sp_core::traits::SpawnEssentialNamed;
 use std::sync::Arc;
 
 /// Parachain handler implementation for Simnode RPC API.
@@ -213,8 +212,14 @@ where
 		other: (block_import, mut telemetry, _),
 	} = components;
 
-	let parachain_inherent_provider =
-		Arc::new(Mutex::new(ParachainSproofInherentProvider::<C>::new(client.clone())));
+	let slot_duration = client
+		.runtime_api()
+		.slot_duration(client.info().best_hash)
+		.map_err(|err| sc_service::Error::Application(Box::new(err)))?;
+
+	let parachain_inherent_provider = Arc::new(Mutex::new(
+		ParachainSproofInherentProvider::<C>::new(client.clone(), slot_duration.as_millis()),
+	));
 
 	let net_config = sc_network::config::FullNetworkConfiguration::new(&config.network);
 	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
