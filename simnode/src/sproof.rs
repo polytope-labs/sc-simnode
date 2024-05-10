@@ -37,6 +37,8 @@ pub struct ParachainSproofInherentProvider<T: ChainInfo> {
 	client: Arc<FullClientFor<T>>,
 	// sproof builder
 	sproof_builder: Option<RelayStateSproofBuilder>,
+	// slot duration for the node
+	slot_duration: u64,
 	// phantom type
 	_phantom: PhantomData<T>,
 }
@@ -51,8 +53,13 @@ where
 	<<T::Block as Block>::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
-	pub fn new(client: Arc<FullClientFor<T>>) -> Self {
-		ParachainSproofInherentProvider { client, sproof_builder: None, _phantom: PhantomData }
+	pub fn new(client: Arc<FullClientFor<T>>, slot_duration: u64) -> Self {
+		ParachainSproofInherentProvider {
+			client,
+			slot_duration,
+			sproof_builder: None,
+			_phantom: PhantomData,
+		}
 	}
 
 	/// updates the sproof to a new state
@@ -71,8 +78,13 @@ where
 		sproof.para_id = with_state::<T, _>(self.client.clone(), None, || {
 			parachain_info::Pallet::<T::Runtime>::parachain_id()
 		});
-		// relay chain is twice as fast the parachain
-		sproof.current_slot = ((slot * 2) + 1).into();
+		sproof.current_slot = if self.slot_duration == 12_000 {
+			// relay chain is twice as fast the parachain
+			((slot * 2) + 1).into()
+		} else {
+			// async backing is enabled
+			slot.into()
+		};
 		sproof.host_config.validation_upgrade_delay = 2;
 		sproof.host_config.max_code_size = 15 * 1024 * 1024;
 		sproof.included_para_head =
