@@ -22,8 +22,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use codec::Encode;
-use jsonrpsee::proc_macros::rpc;
-use jsonrpsee::{core::RpcResult,types::ErrorObjectOwned};
+use jsonrpsee::{core::RpcResult, proc_macros::rpc, types::ErrorObjectOwned};
 use sc_client_api::Backend;
 use sc_service::TFullBackend;
 use simnode_runtime_api::CreateTransactionApi;
@@ -93,31 +92,55 @@ where
 				<T::Runtime as frame_system::Config>::RuntimeCall,
 				<T::Runtime as frame_system::Config>::AccountId,
 			>>(at)
-			.map_err(|e|ErrorObjectOwned::owned::<&str>(1000,format!("failed read runtime api: {e:?}"),None))?;
+			.map_err(|e| {
+				ErrorObjectOwned::owned::<&str>(
+					1000,
+					format!("failed read runtime api: {e:?}"),
+					None,
+				)
+			})?;
 
-		let ext =
-			if has_api {
-				let call = codec::Decode::decode(&mut &call.0[..])
-					.map_err(|e| ErrorObjectOwned::owned::<&str>(1001,format!("failed to decode call: {e:?}"),None))?;
-				let account = AccountId32::from_string(&account)
-					.map_err(|e| ErrorObjectOwned::owned::<&str>(1002,format!("failed to decode account: {e:?}"),None))?;
-				self.client.runtime_api().create_transaction(at, account.into(), call).map_err(
-					|e| ErrorObjectOwned::owned::<&str>(1003,format!("CreateTransactionApi is unimplemented: {e:?}"),None),
-				)?
-			} else {
-				let call = codec::Decode::decode(&mut &call.0[..])
-					.map_err(|e| ErrorObjectOwned::owned::<&str>(1004,format!("failed to decode call: {e:?}"),None))?;
-				let account = AccountId32::from_string(&account)
-					.map_err(|e| ErrorObjectOwned::owned::<&str>(1005,format!("failed to decode account: {e:?}"),None))?;
-				let extra = self.with_state(None, || T::signed_extras(account.clone().into()));
-				let ext = UncheckedExtrinsicFor::<T>::new_signed(
-					call,
-					MultiAddress::Id(account.into()),
-					MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
-					extra,
-				);
-				ext.encode()
-			};
+		let ext = if has_api {
+			let call = codec::Decode::decode(&mut &call.0[..]).map_err(|e| {
+				ErrorObjectOwned::owned::<&str>(1001, format!("failed to decode call: {e:?}"), None)
+			})?;
+			let account = AccountId32::from_string(&account).map_err(|e| {
+				ErrorObjectOwned::owned::<&str>(
+					1002,
+					format!("failed to decode account: {e:?}"),
+					None,
+				)
+			})?;
+			self.client
+				.runtime_api()
+				.create_transaction(at, account.into(), call)
+				.map_err(|e| {
+					ErrorObjectOwned::owned::<&str>(
+						1003,
+						format!("CreateTransactionApi is unimplemented: {e:?}"),
+						None,
+					)
+				})?
+		} else {
+			let call = codec::Decode::decode(&mut &call.0[..]).map_err(|e| {
+				ErrorObjectOwned::owned::<&str>(1004, format!("failed to decode call: {e:?}"), None)
+			})?;
+			let account = AccountId32::from_string(&account).map_err(|e| {
+				ErrorObjectOwned::owned::<&str>(
+					1005,
+					format!("failed to decode account: {e:?}"),
+					None,
+				)
+			})?;
+			let extra = self.with_state(None, || T::signed_extras(account.clone().into()));
+			let ext = UncheckedExtrinsicFor::<T>::new_signed(
+				call,
+				MultiAddress::Id(account.into()),
+				MultiSignature::Sr25519(sp_core::sr25519::Signature::from_raw([0u8; 64])),
+				extra,
+			);
+			ext.encode()
+		};
 
 		Ok(ext)
 	}
@@ -132,9 +155,9 @@ where
 	}
 
 	fn revert_blocks(&self, n: u32) -> RpcResult<()> {
-		self.backend
-			.revert(n.into(), true)
-			.map_err(|e| ErrorObjectOwned::owned::<&str>(2050,format!("failed to revert blocks: {e:?}"),None))?;
+		self.backend.revert(n.into(), true).map_err(|e| {
+			ErrorObjectOwned::owned::<&str>(2050, format!("failed to revert blocks: {e:?}"), None)
+		})?;
 
 		Ok(())
 	}
@@ -162,8 +185,10 @@ where
 	}
 
 	async fn upgrade_signal(&self, _go_ahead: bool) -> RpcResult<()> {
-		Err(ErrorObjectOwned::owned::<&str>(3050,format!(
-			"standalone runtimes don't need permission to upgrade their runtime"
-		),None))
+		Err(ErrorObjectOwned::owned::<&str>(
+			3050,
+			format!("standalone runtimes don't need permission to upgrade their runtime"),
+			None,
+		))
 	}
 }

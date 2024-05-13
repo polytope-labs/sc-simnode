@@ -20,12 +20,12 @@ use super::{
 	RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
 };
 use crate::AllPalletsWithSystem;
+use cumulus_primitives_core::InteriorLocation;
 use frame_support::{
 	match_types, parameter_types,
 	traits::{ConstU32, Everything, Nothing, ProcessMessageError},
 	weights::Weight,
 };
-use cumulus_primitives_core::InteriorLocation;
 use frame_system::EnsureRoot;
 use pallet_xcm::XcmPassthrough;
 use polkadot_parachain_primitives::primitives::Sibling;
@@ -105,10 +105,9 @@ parameter_types! {
 	pub const MaxAssetsIntoHolding: u32 = 64;
 }
 
-
 match_types! {
 	pub type ParentOrParentsExecutivePlurality: impl Contains<Location> = {
-		Location { parents: 1, interior: Junctions::Here} 
+		Location { parents: 1, interior: Junctions::Here}
 		// Location { parents: 1, interior: Junctions::X1(Arc::new(Plurality { id: BodyId::Executive, .. }))}
 	};
 }
@@ -150,14 +149,9 @@ impl ShouldExecute for DenyReserveTransferToRelayChain {
 		if message.iter().any(|inst| {
 			matches!(
 				inst,
-				InitiateReserveWithdraw {
-					reserve: Location { parents: 1, interior: Here },
-					..
-				} | DepositReserveAsset { dest: Location { parents: 1, interior: Here }, .. } |
-					TransferReserveAsset {
-						dest: Location { parents: 1, interior: Here },
-						..
-					}
+				InitiateReserveWithdraw { reserve: Location { parents: 1, interior: Here }, .. } |
+					DepositReserveAsset { dest: Location { parents: 1, interior: Here }, .. } |
+					TransferReserveAsset { dest: Location { parents: 1, interior: Here }, .. }
 			)
 		}) {
 			return Err(ProcessMessageError::Unsupported); // Deny

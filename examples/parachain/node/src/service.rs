@@ -432,7 +432,7 @@ fn start_consensus(
 		client.clone(),
 	);
 
-		let params = lookahead::Params {
+	let params = lookahead::Params {
 		create_inherent_data_providers: move |_, ()| async move { Ok(()) },
 		block_import,
 		para_client: client.clone(),
@@ -446,7 +446,7 @@ fn start_consensus(
 		collator_key,
 		para_id,
 		overseer_handle,
-		reinitialize:true,
+		reinitialize: true,
 		relay_chain_slot_duration,
 		proposer,
 		collator_service,
