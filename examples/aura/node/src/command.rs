@@ -10,7 +10,7 @@ use sc_cli::SubstrateCli;
 
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
-use sp_runtime::generic::Era;
+use sp_runtime::{generic::Era, traits::BlakeTwo256};
 
 #[cfg(feature = "try-runtime")]
 use try_runtime_cli::block_building_info::timestamp_with_aura_info;
@@ -134,7 +134,7 @@ pub fn run() -> sc_cli::Result<()> {
 							)
 						}
 
-						cmd.run::<Block, ()>(config)
+						cmd.run::<BlakeTwo256, ()>(config)
 					},
 					BenchmarkCmd::Block(cmd) => {
 						let executor =

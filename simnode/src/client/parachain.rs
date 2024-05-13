@@ -23,7 +23,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use futures::{channel::mpsc, future::Either, lock::Mutex, FutureExt, StreamExt};
-use jsonrpsee::core::{Error as RpcError, RpcResult};
+use jsonrpsee::{core::RpcResult,types::ErrorObjectOwned};
 use manual_seal::{
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, EngineCommand, ManualSealParams,
@@ -111,12 +111,12 @@ where
 			sender: Some(sender),
 		};
 
-		sink.send(command).await?;
+		sink.send(command).await.map_err(|_| ErrorObjectOwned::owned::<&str>(2300,"Failed to upgrade signal",None))?;
 
 		match receiver.await {
 			Ok(Ok(_)) => Ok(()),
 			Ok(Err(e)) => Err(e.into()),
-			Err(e) => Err(RpcError::to_call_error(e)),
+			Err(e) => Err(ErrorObjectOwned::owned::<&str>(2200,format!("{}",e),None)),
 		}
 	}
 }

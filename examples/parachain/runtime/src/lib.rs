@@ -15,6 +15,7 @@ pub fn wasm_binary_unwrap() -> &'static [u8] {
 		 the flag disabled.",
 	)
 }
+extern crate alloc;
 
 mod weights;
 pub mod xcm_config;
@@ -345,7 +346,6 @@ impl pallet_balances::Config for Runtime {
 	type RuntimeFreezeReason = RuntimeFreezeReason;
 	type FreezeIdentifier = ();
 	type MaxFreezes = ConstU32<0>;
-	type MaxHolds = ConstU32<1>;
 }
 
 parameter_types! {

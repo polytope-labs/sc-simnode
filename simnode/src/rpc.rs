@@ -22,10 +22,8 @@ use crate::{
 };
 use async_trait::async_trait;
 use codec::Encode;
-use jsonrpsee::{
-	core::{Error as RpcError, RpcResult as Result},
-	proc_macros::rpc,
-};
+use jsonrpsee::proc_macros::rpc;
+use jsonrpsee::{core::RpcResult,types::ErrorObjectOwned};
 use sc_client_api::Backend;
 use sc_service::TFullBackend;
 use simnode_runtime_api::CreateTransactionApi;
@@ -48,16 +46,16 @@ pub trait SimnodeApi {
 	/// Constructs an extrinsic with an empty signature and the given AccountId as the Signer using
 	/// simnode's runtime api.
 	#[method(name = "simnode_authorExtrinsic")]
-	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes>;
+	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes>;
 
 	/// reverts `n` number of blocks and their state from the chain.
 	#[method(name = "simnode_revertBlocks")]
-	fn revert_blocks(&self, n: u32) -> Result<()>;
+	fn revert_blocks(&self, n: u32) -> RpcResult<()>;
 
 	/// Insert the [`UpgradeGoAhead`] command into the inherents as if it came from the relay chain.
 	/// This greenlights/aborts a pending runtime upgrade.
 	#[method(name = "simnode_upgradeSignal")]
-	async fn upgrade_signal(&self, go_ahead: bool) -> Result<()>;
+	async fn upgrade_signal(&self, go_ahead: bool) -> RpcResult<()>;
 }
 
 /// Handler implementation for Simnode RPC API.
@@ -84,7 +82,7 @@ where
 		Self { client, backend }
 	}
 
-	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Vec<u8>> {
+	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Vec<u8>> {
 		let at = self.client.info().best_hash;
 
 		let has_api = self
@@ -95,22 +93,22 @@ where
 				<T::Runtime as frame_system::Config>::RuntimeCall,
 				<T::Runtime as frame_system::Config>::AccountId,
 			>>(at)
-			.map_err(|e| RpcError::Custom(format!("failed read runtime api: {e:?}")))?;
+			.map_err(|e|ErrorObjectOwned::owned::<&str>(1000,format!("failed read runtime api: {e:?}"),None))?;
 
 		let ext =
 			if has_api {
 				let call = codec::Decode::decode(&mut &call.0[..])
-					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
+					.map_err(|e| ErrorObjectOwned::owned::<&str>(1001,format!("failed to decode call: {e:?}"),None))?;
 				let account = AccountId32::from_string(&account)
-					.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
+					.map_err(|e| ErrorObjectOwned::owned::<&str>(1002,format!("failed to decode account: {e:?}"),None))?;
 				self.client.runtime_api().create_transaction(at, account.into(), call).map_err(
-					|e| RpcError::Custom(format!("CreateTransactionApi is unimplemented: {e:?}")),
+					|e| ErrorObjectOwned::owned::<&str>(1003,format!("CreateTransactionApi is unimplemented: {e:?}"),None),
 				)?
 			} else {
 				let call = codec::Decode::decode(&mut &call.0[..])
-					.map_err(|e| RpcError::Custom(format!("failed to decode call: {e:?}")))?;
+					.map_err(|e| ErrorObjectOwned::owned::<&str>(1004,format!("failed to decode call: {e:?}"),None))?;
 				let account = AccountId32::from_string(&account)
-					.map_err(|e| RpcError::Custom(format!("failed to decode account: {e:?}")))?;
+					.map_err(|e| ErrorObjectOwned::owned::<&str>(1005,format!("failed to decode account: {e:?}"),None))?;
 				let extra = self.with_state(None, || T::signed_extras(account.clone().into()));
 				let ext = UncheckedExtrinsicFor::<T>::new_signed(
 					call,
@@ -133,10 +131,10 @@ where
 		with_state::<T, R>(self.client.clone(), id, closure)
 	}
 
-	fn revert_blocks(&self, n: u32) -> Result<()> {
+	fn revert_blocks(&self, n: u32) -> RpcResult<()> {
 		self.backend
 			.revert(n.into(), true)
-			.map_err(|e| RpcError::Custom(format!("failed to revert blocks: {e:?}")))?;
+			.map_err(|e| ErrorObjectOwned::owned::<&str>(2050,format!("failed to revert blocks: {e:?}"),None))?;
 
 		Ok(())
 	}
@@ -155,17 +153,17 @@ where
 	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
 	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 {
-	fn author_extrinsic(&self, call: Bytes, account: String) -> Result<Bytes> {
+	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes> {
 		Ok(self.author_extrinsic(call, account)?.into())
 	}
 
-	fn revert_blocks(&self, n: u32) -> Result<()> {
+	fn revert_blocks(&self, n: u32) -> RpcResult<()> {
 		self.revert_blocks(n)
 	}
 
-	async fn upgrade_signal(&self, _go_ahead: bool) -> Result<()> {
-		Err(RpcError::Custom(format!(
+	async fn upgrade_signal(&self, _go_ahead: bool) -> RpcResult<()> {
+		Err(ErrorObjectOwned::owned::<&str>(3050,format!(
 			"standalone runtimes don't need permission to upgrade their runtime"
-		)))
+		),None))
 	}
 }

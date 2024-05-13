@@ -46,7 +46,7 @@ frame-system = { workspace = true }
 pallet-transaction-payment = { default-features = false, workspace = true }
 
 # These dependencies are used for the node template's RPCs
-jsonrpsee = { version = "0.16.2", features = ["server"] }
+jsonrpsee = { version = "0.22.5", features = ["server"] }
 sc-rpc = { workspace = true }
 sp-api = { workspace = true }
 sc-rpc-api = { workspace = true }
