@@ -1,6 +1,6 @@
 [package]
 name = "sc-simnode"
-version = "1.6.2"
+version = "1.8.0"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -80,7 +80,7 @@ futures = "0.3.16"
 tokio = { version = "1.13", features = ["signal"] }
 clap = { version = "4.0.9", features = ["derive"] }
 # Calling RPC
-jsonrpsee = { version = "0.16.2", features = ["server"] }
+jsonrpsee = { version = "0.22.5", features = ["server", "client-core", "macros"]  }
 num-traits = "0.2.14"
 async-trait = "0.1.57"
 # local deps

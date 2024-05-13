@@ -13,12 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
 use super::{
 	AccountId, Balances, ParachainInfo, ParachainSystem, PolkadotXcm, Runtime, RuntimeCall,
 	RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
 };
 use crate::AllPalletsWithSystem;
-use core::marker::PhantomData;
+use cumulus_primitives_core::InteriorLocation;
 use frame_support::{
 	match_types, parameter_types,
 	traits::{ConstU32, Everything, Nothing, ProcessMessageError},
@@ -42,11 +44,11 @@ use staging_xcm_executor::{
 };
 
 parameter_types! {
-	pub const RelayLocation: MultiLocation = MultiLocation::parent();
+	pub const RelayLocation: Location = Location::parent();
 	pub const RelayNetwork: Option<NetworkId> = None;
 	pub RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
-	pub Ancestry: MultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
-	pub UniversalLocation: InteriorMultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
+	pub Ancestry: Location = Parachain(ParachainInfo::parachain_id().into()).into();
+	pub UniversalLocation: InteriorLocation = Parachain(ParachainInfo::parachain_id().into()).into();
 }
 
 /// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -104,9 +106,9 @@ parameter_types! {
 }
 
 match_types! {
-	pub type ParentOrParentsExecutivePlurality: impl Contains<MultiLocation> = {
-		MultiLocation { parents: 1, interior: Here } |
-		MultiLocation { parents: 1, interior: X1(Plurality { id: BodyId::Executive, .. }) }
+	pub type ParentOrParentsExecutivePlurality: impl Contains<Location> = {
+		Location { parents: 1, interior: Junctions::Here}
+		// Location { parents: 1, interior: Junctions::X1(Arc::new(Plurality { id: BodyId::Executive, .. }))}
 	};
 }
 
@@ -124,7 +126,7 @@ where
 	Allow: ShouldExecute,
 {
 	fn should_execute<RuntimeCall>(
-		origin: &MultiLocation,
+		origin: &Location,
 		message: &mut [Instruction<RuntimeCall>],
 		max_weight: Weight,
 		properties: &mut Properties,
@@ -139,7 +141,7 @@ where
 pub struct DenyReserveTransferToRelayChain;
 impl ShouldExecute for DenyReserveTransferToRelayChain {
 	fn should_execute<RuntimeCall>(
-		origin: &MultiLocation,
+		origin: &Location,
 		message: &mut [Instruction<RuntimeCall>],
 		_max_weight: Weight,
 		_properties: &mut Properties,
@@ -147,14 +149,9 @@ impl ShouldExecute for DenyReserveTransferToRelayChain {
 		if message.iter().any(|inst| {
 			matches!(
 				inst,
-				InitiateReserveWithdraw {
-					reserve: MultiLocation { parents: 1, interior: Here },
-					..
-				} | DepositReserveAsset { dest: MultiLocation { parents: 1, interior: Here }, .. } |
-					TransferReserveAsset {
-						dest: MultiLocation { parents: 1, interior: Here },
-						..
-					}
+				InitiateReserveWithdraw { reserve: Location { parents: 1, interior: Here }, .. } |
+					DepositReserveAsset { dest: Location { parents: 1, interior: Here }, .. } |
+					TransferReserveAsset { dest: Location { parents: 1, interior: Here }, .. }
 			)
 		}) {
 			return Err(ProcessMessageError::Unsupported); // Deny
@@ -162,7 +159,7 @@ impl ShouldExecute for DenyReserveTransferToRelayChain {
 
 		// An unexpected reserve transfer has arrived from the Relay Chain. Generally, `IsReserve`
 		// should not allow this, but we just log it here.
-		if matches!(origin, MultiLocation { parents: 1, interior: Here }) &&
+		if matches!(origin, Location { parents: 1, interior: Here }) &&
 			message.iter().any(|inst| matches!(inst, ReserveAssetDeposited { .. }))
 		{
 			log::warn!(
