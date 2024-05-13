@@ -84,7 +84,7 @@ jsonrpsee = { version = "0.22.5", features = ["server", "client-core", "macros"]
 num-traits = "0.2.14"
 async-trait = "0.1.57"
 # local deps
-simnode-runtime-api = { version = "1.6.0", path = "../runtime-api" }
+simnode-runtime-api = { version = "1.8.0", path = "../runtime-api" }
 
 
 [features]
