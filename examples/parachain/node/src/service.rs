@@ -37,11 +37,14 @@ use sp_core::traits::CodeExecutor;
 use sp_keystore::KeystorePtr;
 use substrate_prometheus_endpoint::Registry;
 
-type ParachainClient = TFullClient<Block, RuntimeApi, WasmExecutor<sp_io::SubstrateHostFunctions>>;
+pub type HostFunctions =
+	(sp_io::SubstrateHostFunctions, cumulus_client_service::storage_proof_size::HostFunctions);
+
+type ParachainClient = TFullClient<Block, RuntimeApi, WasmExecutor<HostFunctions>>;
 
 type ParachainBackend = TFullBackend<Block>;
 
-type ParachainBlockImport<E = WasmExecutor<sp_io::SubstrateHostFunctions>> =
+type ParachainBlockImport<E = WasmExecutor<HostFunctions>> =
 	TParachainBlockImport<Block, Arc<ClientWithExecutor<E>>, ParachainBackend>;
 
 type ClientWithExecutor<E> = TFullClient<Block, RuntimeApi, E>;
@@ -141,8 +144,7 @@ async fn start_node_impl(
 	hwbench: Option<sc_sysinfo::HwBench>,
 ) -> sc_service::error::Result<(TaskManager, Arc<ParachainClient>)> {
 	let parachain_config = prepare_node_config(parachain_config);
-	let executor =
-		sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&parachain_config);
+	let executor = sc_service::new_wasm_executor::<HostFunctions>(&parachain_config);
 	let params = new_partial(&parachain_config, executor)?;
 	let (block_import, mut telemetry, telemetry_worker_handle) = params.other;
 

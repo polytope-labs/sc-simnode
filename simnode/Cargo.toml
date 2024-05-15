@@ -65,6 +65,7 @@ frame-system = { workspace = true, default-features = true }
 # parachain stuff
 cumulus-client-cli = { workspace = true }
 cumulus-client-collator = { workspace = true }
+cumulus-client-service = { workspace = true }
 parachain-inherent = { workspace = true }
 sproof-builder = { workspace = true }
 parachain-info = { workspace = true }
