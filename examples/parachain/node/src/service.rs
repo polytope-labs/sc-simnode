@@ -36,37 +36,6 @@ use sc_transaction_pool_api::OffchainTransactionPoolFactory;
 use sp_core::traits::CodeExecutor;
 use sp_keystore::KeystorePtr;
 use substrate_prometheus_endpoint::Registry;
-/// Native executor type.
-pub struct ParachainNativeExecutor;
-
-impl sc_executor::NativeExecutionDispatch for ParachainNativeExecutor {
-	type ExtendHostFunctions = frame_benchmarking::benchmarking::HostFunctions;
-
-	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
-		parachain_runtime::api::dispatch(method, data)
-	}
-
-	fn native_version() -> sc_executor::NativeVersion {
-		parachain_runtime::native_version()
-	}
-}
-
-pub struct WithSignatureOverride;
-
-impl sc_executor::NativeExecutionDispatch for WithSignatureOverride {
-	type ExtendHostFunctions = (
-		frame_benchmarking::benchmarking::HostFunctions,
-		sc_simnode::overrides::SignatureVerificationOverride,
-	);
-
-	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
-		parachain_runtime::api::dispatch(method, data)
-	}
-
-	fn native_version() -> sc_executor::NativeVersion {
-		parachain_runtime::native_version()
-	}
-}
 
 type ParachainClient = TFullClient<Block, RuntimeApi, WasmExecutor<sp_io::SubstrateHostFunctions>>;
 
