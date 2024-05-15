@@ -10,6 +10,6 @@ subxt = "0.31.0"
 futures = "0.3.28"
 tokio = { version = "1.27.0", features = ["macros"] }
 
-codec = { workspace = true, features = ["derive"] }
-sp-core = { workspace = true, features = ["full_crypto"] }
-sp-keyring = { workspace = true }
+codec = { workspace = true, default-features = true, features = ["derive"] }
+sp-core = { workspace = true, default-features = true, features = ["full_crypto"] }
+sp-keyring = { default-features = true, workspace = true }

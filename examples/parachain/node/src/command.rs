@@ -104,7 +104,7 @@ macro_rules! construct_async_run {
 		let runner = $cli.create_runner($cmd)?;
 		runner.async_run(|$config| {
 			let executor =
-				sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&$config);
+				sc_service::new_wasm_executor::<crate::service::HostFunctions>(&$config);
 			let $components = new_partial(&$config, executor)?;
 			let task_manager = $components.task_manager;
 			{ $( $code )* }.map(|v| (v, task_manager))
@@ -169,7 +169,7 @@ pub fn run() -> Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.sync_run(|config| {
 				let executor =
-					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+					sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
 				let components = new_partial(&config, executor)?;
 
 				cmd.run(components.client.clone())
@@ -196,7 +196,7 @@ pub fn run() -> Result<()> {
 					},
 				BenchmarkCmd::Block(cmd) => runner.sync_run(|config| {
 					let executor =
-						sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+						sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
 					let partials = new_partial(&config, executor)?;
 					cmd.run(partials.client)
 				}),
@@ -211,7 +211,7 @@ pub fn run() -> Result<()> {
 				#[cfg(feature = "runtime-benchmarks")]
 				BenchmarkCmd::Storage(cmd) => runner.sync_run(|config| {
 					let executor =
-						sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+						sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
 					let partials = new_partial(&config, executor)?;
 					let db = partials.backend.expose_db();
 					let storage = partials.backend.expose_storage();
@@ -234,7 +234,7 @@ pub fn run() -> Result<()> {
 			let runner = cli.create_runner(cmd)?;
 
 			type HostFunctionsOf<E> = ExtendedHostFunctions<
-				sp_io::SubstrateHostFunctions,
+				crate::service::HostFunctions,
 				<E as NativeExecutionDispatch>::ExtendHostFunctions,
 			>;
 

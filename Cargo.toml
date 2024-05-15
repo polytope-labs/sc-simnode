@@ -24,155 +24,155 @@ codec = { version = "3.1.3", package = "parity-scale-codec", default-features = 
 scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 
 # wasm
-frame-benchmarking = { version = "30.0.0", default-features = false }
-frame-executive = { version = "30.0.0", default-features = false }
-frame-election-provider-support = { version = "30.0.0", default-features = false }
-frame-support = { version = "30.0.0", default-features = false }
-frame-system = { version = "30.0.0", default-features = false }
-frame-system-benchmarking = { version = "30.0.0", default-features = false }
-frame-system-rpc-runtime-api = { version = "28.0.0", default-features = false }
-frame-try-runtime = { version = "0.36.0", default-features = false }
+frame-benchmarking = { version = "31.0.0", default-features = false }
+frame-executive = { version = "31.0.0", default-features = false }
+frame-election-provider-support = { version = "31.0.0", default-features = false }
+frame-support = { version = "31.0.0", default-features = false }
+frame-system = { version = "31.0.0", default-features = false }
+frame-system-benchmarking = { version = "31.0.0", default-features = false }
+frame-system-rpc-runtime-api = { version = "29.0.0", default-features = false }
+frame-try-runtime = { version = "0.37.0", default-features = false }
 
-pallet-aura = { version = "29.0.0", default-features = false }
-pallet-grandpa = { version = "30.0.0", default-features = false }
-pallet-babe = { version = "30.0.0", default-features = false }
-pallet-offences = { version = "29.0.0", default-features = false }
-pallet-authorship = { version = "30.0.0", default-features = false }
-pallet-balances = { version = "30.0.0", default-features = false }
-pallet-session = { version = "30.0.0", default-features = false }
-pallet-staking = { version = "30.0.2", default-features = false }
-pallet-session-benchmarking = { version = "30.0.0", default-features = false }
+pallet-aura = { version = "30.0.0", default-features = false }
+pallet-grandpa = { version = "31.0.0", default-features = false }
+pallet-babe = { version = "31.0.0", default-features = false }
+pallet-offences = { version = "30.0.0", default-features = false }
+pallet-authorship = { version = "31.0.0", default-features = false }
+pallet-balances = { version = "31.0.0", default-features = false }
+pallet-session = { version = "31.0.0", default-features = false }
+pallet-staking = { version = "31.0.0", default-features = false }
+pallet-session-benchmarking = { version = "31.0.0", default-features = false }
 
-pallet-sudo = { version = "30.0.0", default-features = false }
-pallet-timestamp = { version = "29.0.0", default-features = false }
-pallet-transaction-payment = { version = "30.0.0", default-features = false }
-pallet-transaction-payment-rpc-runtime-api = { version = "30.0.0", default-features = false }
-pallet-message-queue = { version = "33.0.0", default-features = false }
-pallet-beefy-mmr = { version = "30.0.0", default-features = false }
-pallet-assets = { version = "31.0.0", default-features = false }
+pallet-sudo = { version = "31.0.0", default-features = false }
+pallet-timestamp = { version = "30.0.0", default-features = false }
+pallet-transaction-payment = { version = "31.0.0", default-features = false }
+pallet-transaction-payment-rpc-runtime-api = { version = "31.0.0", default-features = false }
+pallet-message-queue = { version = "34.0.0", default-features = false }
+pallet-beefy-mmr = { version = "31.0.0", default-features = false }
+pallet-assets = { version = "32.0.0", default-features = false }
 pallet-staking-reward-curve = { version = "11.0.0" }
 
-sp-api = { version = "28.0.0", default-features = false }
-sp-blockchain = { version = "30.0.0", default-features = false }
-sp-io = { version = "32.0.0", default-features = false }
-sp-trie = { version = "31.0.0", default-features = false }
-sp-block-builder = { version = "28.0.0", default-features = false }
-sp-consensus-aura = { version = "0.34.0", default-features = false }
-sp-consensus-babe = { version = "0.34.0", default-features = false }
+sp-api = { version = "29.0.0", default-features = false }
+sp-blockchain = { version = "31.0.0", default-features = false }
+sp-io = { version = "33.0.0", default-features = false }
+sp-trie = { version = "32.0.0", default-features = false }
+sp-block-builder = { version = "29.0.0", default-features = false }
+sp-consensus-aura = { version = "0.35.0", default-features = false }
+sp-consensus-babe = { version = "0.35.0", default-features = false }
 
-sp-consensus-grandpa = { version = "15.0.0", default-features = false }
-sp-consensus-slots = { version = "0.34.0", default-features = false }
+sp-consensus-grandpa = { version = "16.0.0", default-features = false }
+sp-consensus-slots = { version = "0.35.0", default-features = false }
 
-sp-consensus = { version = "0.34.0", default-features = false }
-sp-consensus-beefy = { version = "15.0.0", default-features = false }
-sp-core = { version = "30.0.0", default-features = false }
-sp-inherents = { version = "28.0.0", default-features = false }
+sp-consensus = { version = "0.35.0", default-features = false }
+sp-consensus-beefy = { version = "16.0.0", default-features = false }
+sp-core = { version = "31.0.0", default-features = false }
+sp-inherents = { version = "29.0.0", default-features = false }
 sp-externalities = { version = "0.27.0", default-features = false }
-sp-offchain = { version = "28.0.0", default-features = false }
-sp-keyring = { version = "33.0.0", default-features = false }
-sp-runtime = { version = "33.0.0", default-features = false }
+sp-offchain = { version = "29.0.0", default-features = false }
+sp-keyring = { version = "34.0.0", default-features = false }
+sp-runtime = { version = "34.0.0", default-features = false }
 sp-runtime-interface = { version = "26.0.0", default-features = false }
 
-sp-timestamp = { version = "28.0.0", default-features = false }
-sp-keystore = { version = "0.36.0", default-features = false }
-sp-mmr-primitives = { version = "28.0.0", default-features = false }
+sp-timestamp = { version = "29.0.0", default-features = false }
+sp-keystore = { version = "0.37.0", default-features = false }
+sp-mmr-primitives = { version = "29.0.0", default-features = false }
 
-sp-state-machine = { version = "0.37.0", default-features = false }
+sp-state-machine = { version = "0.38.0", default-features = false }
 sp-storage = { version = "20.0.0", default-features = false }
-sp-staking = { version = "28.0.0", default-features = false }
-sp-session = { version = "29.0.0", default-features = false }
+sp-staking = { version = "29.0.0", default-features = false }
+sp-session = { version = "30.0.0", default-features = false }
 sp-std = { version = "14.0.0", default-features = false }
-sp-transaction-pool = { version = "28.0.0", default-features = false }
-sp-version = { version = "31.0.0", default-features = false }
-sp-genesis-builder = { version = "0.9.0", default-features = false }
+sp-transaction-pool = { version = "29.0.0", default-features = false }
+sp-version = { version = "32.0.0", default-features = false }
+sp-genesis-builder = { version = "0.10.0", default-features = false }
 sp-wasm-interface = { version = "20.0.0", default-features = false }
-sp-transaction-storage-proof = { version = "28.0.0", default-features = false }
+sp-transaction-storage-proof = { version = "29.0.0", default-features = false }
 
 
-pallet-xcm = { version = "9.0.1", default-features = false }
-polkadot-parachain-primitives = { version = "8.0.0", default-features = false }
-polkadot-runtime-common = { version = "9.0.0", default-features = false }
-staging-xcm = { version = "9.0.0", default-features = false }
-staging-xcm-builder = { version = "9.0.0", default-features = false }
-staging-xcm-executor = { version = "9.0.1", default-features = false }
+pallet-xcm = { version = "10.0.1", default-features = false }
+polkadot-parachain-primitives = { version = "9.0.0", default-features = false }
+polkadot-runtime-common = { version = "10.0.0", default-features = false }
+staging-xcm = { version = "10.0.0", default-features = false }
+staging-xcm-builder = { version = "10.0.0", default-features = false }
+staging-xcm-executor = { version = "10.0.0", default-features = false }
 
-cumulus-primitives-aura = { version = "0.9.0", default-features = false }
-cumulus-pallet-session-benchmarking = { version = "11.0.0", default-features = false }
-cumulus-pallet-aura-ext = { version = "0.9.0", default-features = false }
-cumulus-pallet-dmp-queue = { version = "0.9.0", default-features = false }
-cumulus-pallet-parachain-system = { version = "0.9.0", default-features = false, features = ["parameterized-consensus-hook"] }
-cumulus-pallet-xcm = { version = "0.9.0", default-features = false }
-cumulus-pallet-xcmp-queue = { version = "0.9.0", default-features = false }
-cumulus-primitives-core = { version = "0.9.0", default-features = false }
+cumulus-primitives-aura = { version = "0.10.0", default-features = false }
+cumulus-pallet-session-benchmarking = { version = "12.0.0", default-features = false }
+cumulus-pallet-aura-ext = { version = "0.10.0", default-features = false }
+cumulus-pallet-dmp-queue = { version = "0.10.0", default-features = false }
+cumulus-pallet-parachain-system = { version = "0.10.0", default-features = false, features = ["parameterized-consensus-hook"] }
+cumulus-pallet-xcm = { version = "0.10.0", default-features = false }
+cumulus-pallet-xcmp-queue = { version = "0.10.0", default-features = false }
+cumulus-primitives-core = { version = "0.10.0", default-features = false }
 
-cumulus-primitives-timestamp = { version = "0.9.0", default-features = false }
-cumulus-primitives-utility = { version = "0.9.0", default-features = false }
-pallet-collator-selection = { version = "11.0.1", default-features = false }
-parachain-info = { version = "0.9.0", package = "staging-parachain-info", default-features = false }
-parachains-common = { version = "9.0.0", default-features = false }
+cumulus-primitives-timestamp = { version = "0.10.0", default-features = false }
+cumulus-primitives-utility = { version = "0.10.0", default-features = false }
+pallet-collator-selection = { version = "12.0.1", default-features = false }
+parachain-info = { version = "0.10.0", package = "staging-parachain-info", default-features = false }
+parachains-common = { version = "10.0.0", default-features = false }
 
 
 # client
-parachain-inherent = { version = "0.9.0", package = "cumulus-primitives-parachain-inherent" }
-sproof-builder = { version = "0.9.0", package = "cumulus-test-relay-sproof-builder" }
-frame-benchmarking-cli = "34.0.0"
+parachain-inherent = { version = "0.10.0", package = "cumulus-primitives-parachain-inherent" }
+sproof-builder = { version = "0.10.0", package = "cumulus-test-relay-sproof-builder" }
+frame-benchmarking-cli = "35.0.1"
 
-pallet-transaction-payment-rpc = "32.0.0"
-sc-basic-authorship = "0.36.0"
+pallet-transaction-payment-rpc = "33.0.0"
+sc-basic-authorship = "0.37.0"
 
-sc-chain-spec = "29.0.0"
-sc-cli = "0.38.0"
-sc-keystore = "27.0.0"
-sc-informant = "0.35.0"
-sc-block-builder = "0.35.0"
+sc-chain-spec = "30.0.1"
+sc-cli = "0.39.0"
+sc-keystore = "28.0.0"
+sc-informant = "0.36.0"
+sc-block-builder = "0.36.0"
 
-sc-client-api = "30.0.0"
-sc-client-db = "0.37.0"
-sc-consensus = "0.35.0"
-sc-consensus-aura = "0.36.0"
-sc-consensus-grandpa = "0.21.0"
-sc-consensus-babe = "0.36.0"
-sc-consensus-epochs = "0.35.0"
-sc-consensus-slots = "0.35.0"
-sc-executor = "0.34.0"
-sc-network = "0.36.0"
-sc-network-sync = "0.35.0"
-sc-network-common = "0.35.0"
-sc-rpc = "31.0.0"
-sc-rpc-api = "0.35.0"
-sc-rpc-server = "13.0.0"
-sc-rpc-spec-v2 = "0.36.0"
-substrate-state-trie-migration-rpc = "29.0.0"
-sc-consensus-babe-rpc = "0.36.0"
-sc-consensus-grandpa-rpc = "0.21.0"
-sc-sync-state-rpc = "0.36.0"
-sc-service = "0.37.0"
-sc-sysinfo = "29.0.0"
-sc-storage-monitor = "0.18.0"
+sc-client-api = "31.0.0"
+sc-client-db = "0.38.0"
+sc-consensus = "0.36.0"
+sc-consensus-aura = "0.37.0"
+sc-consensus-grandpa = "0.22.0"
+sc-consensus-babe = "0.37.0"
+sc-consensus-epochs = "0.36.0"
+sc-consensus-slots = "0.36.0"
+sc-executor = "0.35.0"
+sc-network = "0.37.0"
+sc-network-sync = "0.36.0"
+sc-network-common = "0.36.0"
+sc-rpc = "32.0.0"
+sc-rpc-api = "0.36.0"
+sc-rpc-server = "14.0.0"
+sc-rpc-spec-v2 = "0.37.0"
+substrate-state-trie-migration-rpc = "30.0.0"
+sc-consensus-babe-rpc = "0.37.0"
+sc-consensus-grandpa-rpc = "0.22.0"
+sc-sync-state-rpc = "0.37.0"
+sc-service = "0.38.0"
+sc-sysinfo = "30.0.0"
+sc-storage-monitor = "0.19.0"
 sc-telemetry = "17.0.0"
-sc-tracing = "30.0.0"
-sc-transaction-pool = "30.0.0"
-sc-transaction-pool-api = "30.0.0"
-sc-offchain = "31.0.0"
-manual-seal = { version = "0.37.0", package = "sc-consensus-manual-seal" }
-substrate-frame-rpc-system = "30.0.0"
+sc-tracing = "31.0.0"
+sc-transaction-pool = "31.0.0"
+sc-transaction-pool-api = "31.0.0"
+sc-offchain = "32.0.0"
+manual-seal = { version = "0.38.0", package = "sc-consensus-manual-seal" }
+substrate-frame-rpc-system = "31.0.0"
 substrate-prometheus-endpoint = "0.17.0"
-try-runtime-cli = "0.40.0"
-polkadot-cli = "9.0.0"
-polkadot-primitives = "9.0.0"
-polkadot-service = "9.0.0"
-cumulus-client-cli = "0.9.0"
-cumulus-client-consensus-aura = "0.9.0"
-cumulus-client-consensus-common = "0.9.0"
-cumulus-client-network = "0.9.0"
-cumulus-client-service = "0.9.0"
-cumulus-primitives-parachain-inherent = "0.9.0"
-cumulus-relay-chain-interface = "0.9.0"
-cumulus-client-consensus-proposer = "0.9.0"
-cumulus-client-collator = "0.9.0"
-substrate-wasm-builder = { version = "19.0.0" }
-mmr-rpc = { version = "30.0.0" }
-xcm-simulator-example = "9.0.0"
-xcm-simulator = "9.0.0"
-polkadot-runtime-parachains = "9.0.0"
+try-runtime-cli = "0.41.0"
+polkadot-cli = "10.0.0"
+polkadot-primitives = "10.0.0"
+polkadot-service = "10.0.0"
+cumulus-client-cli = "0.10.0"
+cumulus-client-consensus-aura = "0.10.0"
+cumulus-client-consensus-common = "0.10.0"
+cumulus-client-network = "0.10.0"
+cumulus-client-service = "0.10.0"
+cumulus-primitives-parachain-inherent = "0.10.0"
+cumulus-relay-chain-interface = "0.10.0"
+cumulus-client-consensus-proposer = "0.10.0"
+cumulus-client-collator = "0.10.0"
+substrate-wasm-builder = { version = "20.0.0" }
+mmr-rpc = { version = "31.0.0" }
+xcm-simulator-example = "10.0.0"
+xcm-simulator = "10.0.0"
+polkadot-runtime-parachains = "10.0.0"
 substrate-build-script-utils = "11.0.0"

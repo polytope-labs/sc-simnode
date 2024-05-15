@@ -36,43 +36,15 @@ use sc_transaction_pool_api::OffchainTransactionPoolFactory;
 use sp_core::traits::CodeExecutor;
 use sp_keystore::KeystorePtr;
 use substrate_prometheus_endpoint::Registry;
-/// Native executor type.
-pub struct ParachainNativeExecutor;
 
-impl sc_executor::NativeExecutionDispatch for ParachainNativeExecutor {
-	type ExtendHostFunctions = frame_benchmarking::benchmarking::HostFunctions;
+pub type HostFunctions =
+	(sp_io::SubstrateHostFunctions, cumulus_client_service::storage_proof_size::HostFunctions);
 
-	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
-		parachain_runtime::api::dispatch(method, data)
-	}
-
-	fn native_version() -> sc_executor::NativeVersion {
-		parachain_runtime::native_version()
-	}
-}
-
-pub struct WithSignatureOverride;
-
-impl sc_executor::NativeExecutionDispatch for WithSignatureOverride {
-	type ExtendHostFunctions = (
-		frame_benchmarking::benchmarking::HostFunctions,
-		sc_simnode::overrides::SignatureVerificationOverride,
-	);
-
-	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
-		parachain_runtime::api::dispatch(method, data)
-	}
-
-	fn native_version() -> sc_executor::NativeVersion {
-		parachain_runtime::native_version()
-	}
-}
-
-type ParachainClient = TFullClient<Block, RuntimeApi, WasmExecutor<sp_io::SubstrateHostFunctions>>;
+type ParachainClient = TFullClient<Block, RuntimeApi, WasmExecutor<HostFunctions>>;
 
 type ParachainBackend = TFullBackend<Block>;
 
-type ParachainBlockImport<E = WasmExecutor<sp_io::SubstrateHostFunctions>> =
+type ParachainBlockImport<E = WasmExecutor<HostFunctions>> =
 	TParachainBlockImport<Block, Arc<ClientWithExecutor<E>>, ParachainBackend>;
 
 type ClientWithExecutor<E> = TFullClient<Block, RuntimeApi, E>;
@@ -172,8 +144,7 @@ async fn start_node_impl(
 	hwbench: Option<sc_sysinfo::HwBench>,
 ) -> sc_service::error::Result<(TaskManager, Arc<ParachainClient>)> {
 	let parachain_config = prepare_node_config(parachain_config);
-	let executor =
-		sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&parachain_config);
+	let executor = sc_service::new_wasm_executor::<HostFunctions>(&parachain_config);
 	let params = new_partial(&parachain_config, executor)?;
 	let (block_import, mut telemetry, telemetry_worker_handle) = params.other;
 

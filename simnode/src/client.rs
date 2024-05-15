@@ -38,9 +38,10 @@ use sp_wasm_interface::ExtendedHostFunctions;
 /// The simnode executor type, we use the wasm executor to force the runtime use host functions
 /// instead of native code for signature verification, this in turn uses our signature verification
 /// overrides.
-pub type Executor = WasmExecutor<
+pub type Executor = WasmExecutor<(
 	ExtendedHostFunctions<sp_io::SubstrateHostFunctions, SignatureVerificationOverride>,
->;
+	cumulus_client_service::storage_proof_size::HostFunctions,
+)>;
 
 /// Creates a [`WasmExecutor`] according to [`Configuration`].
 pub fn new_wasm_executor(config: &Configuration) -> Executor {
