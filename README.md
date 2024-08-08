@@ -23,7 +23,7 @@ Installation and integration guides can be found in the [book](https://simnode.p
 
 ## Releases
 
-`sc-simnode` exclusively follows the official [paritytech/polkadot-sdk](https://github.com/paritytech/polkadot-sdk/releases) releases. Therefore new versions of this crate will be published with the same semver version of the corresponding polkadot-sdk release.
+`sc-simnode` exclusively follows the official [paritytech/polkadot-sdk](https://github.com/paritytech/polkadot-sdk/releases) stable releases. Therefore new versions of this crate will be published with the same semver version of the corresponding polkadot-sdk stable release.
 
 ## License
 

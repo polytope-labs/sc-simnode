@@ -28,7 +28,7 @@ use sc_cli::{Result, SubstrateCli};
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
 
-use sp_runtime::{generic::Era, traits::BlakeTwo256};
+use sp_runtime::generic::Era;
 use std::sync::Arc;
 
 #[cfg(feature = "try-runtime")]
@@ -106,7 +106,9 @@ pub fn run() -> Result<()> {
 							)
 						}
 
-						cmd.run::<BlakeTwo256, ()>(config)
+						cmd.run_with_spec::<sp_runtime::traits::HashingFor<Block>, ()>(Some(
+							config.chain_spec,
+						))
 					},
 					BenchmarkCmd::Block(cmd) => {
 						// ensure that we keep the task manager alive
