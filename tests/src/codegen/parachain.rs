@@ -1379,8 +1379,8 @@ pub mod api {
 			.only_these_pallets(&PALLETS)
 			.only_these_runtime_apis(&RUNTIME_APIS)
 			.hash();
-		runtime_metadata_hash
-			== [
+		runtime_metadata_hash ==
+			[
 				240u8, 109u8, 29u8, 187u8, 14u8, 111u8, 97u8, 120u8, 70u8, 37u8, 55u8, 91u8, 35u8,
 				95u8, 215u8, 197u8, 209u8, 211u8, 184u8, 246u8, 88u8, 254u8, 176u8, 222u8, 99u8,
 				93u8, 226u8, 68u8, 200u8, 216u8, 3u8, 173u8,

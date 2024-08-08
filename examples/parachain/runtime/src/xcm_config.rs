@@ -149,9 +149,9 @@ impl ShouldExecute for DenyReserveTransferToRelayChain {
 		if message.iter().any(|inst| {
 			matches!(
 				inst,
-				InitiateReserveWithdraw { reserve: Location { parents: 1, interior: Here }, .. }
-					| DepositReserveAsset { dest: Location { parents: 1, interior: Here }, .. }
-					| TransferReserveAsset { dest: Location { parents: 1, interior: Here }, .. }
+				InitiateReserveWithdraw { reserve: Location { parents: 1, interior: Here }, .. } |
+					DepositReserveAsset { dest: Location { parents: 1, interior: Here }, .. } |
+					TransferReserveAsset { dest: Location { parents: 1, interior: Here }, .. }
 			)
 		}) {
 			return Err(ProcessMessageError::Unsupported); // Deny
@@ -159,8 +159,8 @@ impl ShouldExecute for DenyReserveTransferToRelayChain {
 
 		// An unexpected reserve transfer has arrived from the Relay Chain. Generally, `IsReserve`
 		// should not allow this, but we just log it here.
-		if matches!(origin, Location { parents: 1, interior: Here })
-			&& message.iter().any(|inst| matches!(inst, ReserveAssetDeposited { .. }))
+		if matches!(origin, Location { parents: 1, interior: Here }) &&
+			message.iter().any(|inst| matches!(inst, ReserveAssetDeposited { .. }))
 		{
 			log::warn!(
 				target: "xcm::barriers",
