@@ -185,16 +185,19 @@ pub fn run() -> Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			// Switch on the concrete benchmark sub-command-
 			match cmd {
-				BenchmarkCmd::Pallet(cmd) =>
+				BenchmarkCmd::Pallet(cmd) => {
 					if cfg!(feature = "runtime-benchmarks") {
-						runner.sync_run(|config| cmd.run_with_spec::<
+						runner.sync_run(|config| {
+							cmd.run_with_spec::<
 							sp_runtime::traits::HashingFor<Block>, cumulus_client_service::storage_proof_size::HostFunctions
-						>(Some(config.chain_spec)))
+						>(Some(config.chain_spec))
+						})
 					} else {
 						Err("Benchmarking wasn't enabled when building the node. \
 					You can enable it with `--features runtime-benchmarks`."
 							.into())
-					},
+					}
+				},
 				BenchmarkCmd::Block(cmd) => runner.sync_run(|config| {
 					let executor =
 						sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
@@ -202,13 +205,14 @@ pub fn run() -> Result<()> {
 					cmd.run(partials.client)
 				}),
 				#[cfg(not(feature = "runtime-benchmarks"))]
-				BenchmarkCmd::Storage(_) =>
+				BenchmarkCmd::Storage(_) => {
 					return Err(sc_cli::Error::Input(
 						"Compile with --features=runtime-benchmarks \
 						to enable storage benchmarks."
 							.into(),
 					)
-					.into()),
+					.into())
+				},
 				#[cfg(feature = "runtime-benchmarks")]
 				BenchmarkCmd::Storage(cmd) => runner.sync_run(|config| {
 					let executor =
@@ -218,8 +222,9 @@ pub fn run() -> Result<()> {
 					let storage = partials.backend.expose_storage();
 					cmd.run(config, partials.client.clone(), db, storage)
 				}),
-				BenchmarkCmd::Machine(cmd) =>
-					runner.sync_run(|config| cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone())),
+				BenchmarkCmd::Machine(cmd) => {
+					runner.sync_run(|config| cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone()))
+				},
 				// NOTE: this allows the Client to leniently implement
 				// new benchmark commands without requiring a companion MR.
 				#[allow(unreachable_patterns)]

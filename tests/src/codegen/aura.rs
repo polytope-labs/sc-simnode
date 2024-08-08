@@ -797,8 +797,7 @@ pub mod api {
 				#[doc = " Get current GRANDPA authority set id."]
 				pub fn current_set_id(
 					&self,
-				) -> ::subxt::runtime_api::Payload<types::CurrentSetId, ::core::primitive::u64>
-				{
+				) -> ::subxt::runtime_api::Payload<types::CurrentSetId, ::core::primitive::u64> {
 					::subxt::runtime_api::Payload::new_static(
 						"GrandpaApi",
 						"current_set_id",
@@ -879,8 +878,7 @@ pub mod api {
 				pub fn account_nonce(
 					&self,
 					account: ::subxt::utils::AccountId32,
-				) -> ::subxt::runtime_api::Payload<types::AccountNonce, ::core::primitive::u32>
-				{
+				) -> ::subxt::runtime_api::Payload<types::AccountNonce, ::core::primitive::u32> {
 					::subxt::runtime_api::Payload::new_static(
 						"AccountNonceApi",
 						"account_nonce",
@@ -1386,8 +1384,8 @@ pub mod api {
 			.only_these_pallets(&PALLETS)
 			.only_these_runtime_apis(&RUNTIME_APIS)
 			.hash();
-		runtime_metadata_hash ==
-			[
+		runtime_metadata_hash
+			== [
 				181u8, 64u8, 222u8, 173u8, 194u8, 23u8, 232u8, 138u8, 217u8, 240u8, 61u8, 152u8,
 				143u8, 98u8, 191u8, 12u8, 165u8, 50u8, 30u8, 39u8, 143u8, 129u8, 243u8, 208u8,
 				43u8, 163u8, 232u8, 180u8, 255u8, 159u8, 230u8, 128u8,
@@ -2438,8 +2436,7 @@ pub mod api {
 				#[doc = " The maximum length of a block (in bytes)."]
 				pub fn block_length(
 					&self,
-				) -> ::subxt::constants::Address<runtime_types::frame_system::limits::BlockLength>
-				{
+				) -> ::subxt::constants::Address<runtime_types::frame_system::limits::BlockLength> {
 					::subxt::constants::Address::new_static(
 						"System",
 						"BlockLength",
