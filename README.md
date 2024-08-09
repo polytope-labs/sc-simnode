@@ -1,5 +1,5 @@
-# sc-simnode ![Unit Tests](https://github.com/polytope-labs/sc-simnode/actions/workflows/ci.yml/badge.svg) [![Telegram: YourGroup](https://img.shields.io/badge/-Telegram-blue?style=flat-square&logo=Telegram&logoColor=white&link=https://t.me/YourGroup)](https://t.me/sc_simnode) [![Discord: YourServer](https://img.shields.io/badge/-Discord-7289DA?style=flat-square&logo=Discord&logoColor=white&link=https://discord.gg/YourServer)](https://discord.gg/2vbPnFwg8h) ![Crates.io](https://img.shields.io/crates/v/sc-simnode
-)
+# sc-simnode ![Unit Tests](https://github.com/polytope-labs/sc-simnode/actions/workflows/ci.yml/badge.svg) [![Telegram: YourGroup](https://img.shields.io/badge/-Telegram-blue?style=flat-square&logo=Telegram&logoColor=white&link=https://t.me/YourGroup)](https://t.me/sc_simnode) [![Discord: YourServer](https://img.shields.io/badge/-Discord-7289DA?style=flat-square&logo=Discord&logoColor=white&link=https://discord.gg/YourServer)](https://discord.gg/2vbPnFwg8h) ![Crates.io Version](https://img.shields.io/crates/v/sc-simnode)
+
 
 ![alt text](./assets/neo.webp)
 
