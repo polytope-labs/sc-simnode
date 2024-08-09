@@ -41,6 +41,7 @@ jobs:
         with:
           toolchain: stable
       - run: |
+          rustup target add wasm32-unknown-unknown --toolchain nightly
           rustup target add wasm32-unknown-unknown
           rustup component add rust-src
 
@@ -54,7 +55,7 @@ jobs:
       - name: Build all binaries
         run: |
           rm -rf target/ Cargo.lock ~/.cargo/registry
-          cargo build --release --bins
+          cargo +nightly build --release --bins
 
       - name: Aura Integration tests
         run: |
