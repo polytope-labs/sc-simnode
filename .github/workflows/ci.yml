@@ -53,7 +53,7 @@ jobs:
 
       - name: Build all binaries
         run: |
-          cargo update async-channel@1.9.0 --precise 2.3.1
+          rm -rf target/ Cargo.lock
           cargo build --release --bins
 
       - name: Aura Integration tests
