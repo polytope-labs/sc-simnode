@@ -41,6 +41,7 @@ jobs:
         with:
           toolchain: stable
       - run: |
+          rustup toolchain install nightly
           rustup target add wasm32-unknown-unknown --toolchain nightly
           rustup target add wasm32-unknown-unknown
           rustup component add rust-src
