@@ -32,7 +32,7 @@ jobs:
         run: cargo check -p sc-simnode
 
   tests:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -75,4 +75,3 @@ jobs:
           sleep 20;
           RUST_BACKTRACE=1 cargo test --release -p simnode-integration-tests --tests parachain -- --nocapture
           kill -9 $!
-
