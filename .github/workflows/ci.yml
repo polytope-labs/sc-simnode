@@ -55,7 +55,7 @@ jobs:
         run: |
           rm -rf target/ Cargo.lock ~/.cargo/registry
           rustup show
-          cargo +nightly build --release --bins
+          cargo build --release --bins
 
       - name: Aura Integration tests
         run: |
