@@ -53,8 +53,6 @@ jobs:
 
       - name: Build all binaries
         run: |
-          rm -rf target/ Cargo.lock ~/.cargo/registry
-          rustup show
           cargo build --release --bins
 
       - name: Aura Integration tests
