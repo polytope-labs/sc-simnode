@@ -32,6 +32,7 @@ use num_traits::AsPrimitive;
 use sc_client_api::Backend;
 
 use sc_consensus::{BlockImport, ImportQueue};
+use sc_network::NetworkBackend;
 use sc_service::{
 	build_network, spawn_tasks, BuildNetworkParams, PartialComponents, SpawnTasksParams,
 	TFullBackend, TFullClient, TaskManager,
@@ -223,7 +224,14 @@ where
 		ParachainSproofInherentProvider::<C>::new(client.clone(), slot_duration.as_millis()),
 	));
 
-	let net_config = sc_network::config::FullNetworkConfiguration::new(&config.network);
+	let net_config = sc_network::config::FullNetworkConfiguration::<
+		B,
+		B::Hash,
+		sc_network::Litep2pNetworkBackend,
+	>::new(&config.network);
+	let metrics = <sc_network::Litep2pNetworkBackend as NetworkBackend<B, B::Hash>>::register_notification_metrics(
+		config.prometheus_registry(),
+	);
 	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
 		let params = BuildNetworkParams {
 			config: &config,
@@ -235,6 +243,7 @@ where
 			block_announce_validator_builder: None,
 			warp_sync_params: None,
 			block_relay: None,
+			metrics,
 		};
 		build_network(params)?
 	};
@@ -250,7 +259,7 @@ where
 				keystore: Some(keystore_container.keystore()),
 				offchain_db: backend.offchain_storage(),
 				transaction_pool: Some(OffchainTransactionPoolFactory::new(pool.clone())),
-				network_provider: network.clone(),
+				network_provider: Arc::new(network.clone()),
 				enable_http_requests: true,
 				custom_extensions: |_| vec![],
 			})

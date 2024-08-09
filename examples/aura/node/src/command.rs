@@ -10,7 +10,7 @@ use sc_cli::SubstrateCli;
 
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
-use sp_runtime::{generic::Era, traits::BlakeTwo256};
+use sp_runtime::generic::Era;
 
 #[cfg(feature = "try-runtime")]
 use try_runtime_cli::block_building_info::timestamp_with_aura_info;
@@ -131,10 +131,12 @@ pub fn run() -> sc_cli::Result<()> {
 								"Runtime benchmarking wasn't enabled when building the node. \
 							You can enable it with `--features runtime-benchmarks`."
 									.into(),
-							)
+							);
 						}
 
-						cmd.run::<BlakeTwo256, ()>(config)
+						cmd.run_with_spec::<sp_runtime::traits::HashingFor<Block>, ()>(Some(
+							config.chain_spec,
+						))
 					},
 					BenchmarkCmd::Block(cmd) => {
 						let executor =

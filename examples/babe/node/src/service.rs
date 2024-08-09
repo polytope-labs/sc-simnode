@@ -29,7 +29,7 @@ use futures::prelude::*;
 use sc_client_api::{Backend, BlockBackend};
 use sc_consensus_babe::{self, SlotProportion};
 use sc_executor::{RuntimeVersionOf, WasmExecutor};
-use sc_network::NetworkService;
+use sc_network::NetworkBackend;
 use sc_network_sync::SyncingService;
 use sc_service::{
 	config::Configuration, error::Error as ServiceError, RpcHandlers, TaskManager, WarpSyncParams,
@@ -37,8 +37,8 @@ use sc_service::{
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sc_transaction_pool_api::OffchainTransactionPoolFactory;
 use sp_api::ProvideRuntimeApi;
-use sp_core::{crypto::Pair, traits::CodeExecutor};
-use sp_runtime::{generic, traits::Block as BlockT, SaturatedConversion};
+use sp_core::{crypto::Pair, traits::CodeExecutor, H256};
+use sp_runtime::{generic, SaturatedConversion};
 use std::{path::Path, sync::Arc};
 
 /// The full client type definition.
@@ -320,7 +320,7 @@ pub struct NewFullBase {
 	/// The client instance of the node.
 	pub client: Arc<FullClient>,
 	/// The networking service of the node.
-	pub network: Arc<NetworkService<Block, <Block as BlockT>::Hash>>,
+	pub network: Arc<dyn sc_network::service::traits::NetworkService>,
 	/// The syncing service of the node.
 	pub sync: Arc<SyncingService<Block>>,
 	/// The transaction pool of the node.
@@ -358,6 +358,15 @@ pub fn new_full_base(
 		other: (rpc_builder, import_setup, rpc_setup, mut telemetry),
 	} = new_partial(&config, executor)?;
 
+	let mut net_config = sc_network::config::FullNetworkConfiguration::<
+		Block,
+		H256,
+		sc_network::Litep2pNetworkBackend,
+	>::new(&config.network);
+	let metrics = <sc_network::Litep2pNetworkBackend as NetworkBackend<Block, H256>>::register_notification_metrics(
+		config.prometheus_registry(),
+	);
+
 	let shared_voter_state = rpc_setup;
 	let _auth_disc_publish_non_global_ips = config.network.allow_non_globals_in_dht;
 	let grandpa_protocol_name = sc_consensus_grandpa::protocol_standard_name(
@@ -365,10 +374,13 @@ pub fn new_full_base(
 		&config.chain_spec,
 	);
 
-	let mut net_config = sc_network::config::FullNetworkConfiguration::new(&config.network);
-
+	let peer_store_handle = net_config.peer_store_handle();
 	let (grandpa_protocol_config, grandpa_notification_service) =
-		sc_consensus_grandpa::grandpa_peers_set_config(grandpa_protocol_name.clone());
+		sc_consensus_grandpa::grandpa_peers_set_config::<Block, sc_network::Litep2pNetworkBackend>(
+			grandpa_protocol_name.clone(),
+			metrics.clone(),
+			peer_store_handle,
+		);
 	net_config.add_notification_protocol(grandpa_protocol_config);
 	let warp_sync = Arc::new(sc_consensus_grandpa::warp_proof::NetworkProvider::new(
 		backend.clone(),
@@ -386,6 +398,7 @@ pub fn new_full_base(
 			import_queue,
 			block_announce_validator_builder: None,
 			warp_sync_params: Some(WarpSyncParams::WithProvider(warp_sync)),
+			metrics,
 			block_relay: None,
 		})?;
 
@@ -402,7 +415,7 @@ pub fn new_full_base(
 				transaction_pool: Some(OffchainTransactionPoolFactory::new(
 					transaction_pool.clone(),
 				)),
-				network_provider: network.clone(),
+				network_provider: Arc::new(network.clone()),
 				enable_http_requests: true,
 				custom_extensions: |_| vec![],
 			})

@@ -18,10 +18,7 @@
 
 //! Substrate chain configurations.
 
-use babe_runtime::{
-	constants::currency::*, wasm_binary_unwrap, Block, RuntimeGenesisConfig, SessionKeys,
-	StakerStatus,
-};
+use babe_runtime::{constants::currency::*, wasm_binary_unwrap, Block, SessionKeys, StakerStatus};
 use sc_chain_spec::ChainSpecExtension;
 use sc_service::ChainType;
 
@@ -54,7 +51,7 @@ pub struct Extensions {
 }
 
 /// Specialized `ChainSpec`.
-pub type ChainSpec = sc_service::GenericChainSpec<RuntimeGenesisConfig, Extensions>;
+pub type ChainSpec = sc_service::GenericChainSpec<Extensions>;
 
 fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
 	SessionKeys { grandpa, babe }

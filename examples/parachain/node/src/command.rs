@@ -5,11 +5,8 @@ use sc_cli::{
 	ChainSpec, CliConfiguration, DefaultConfigurationValues, ImportParams, KeystoreParams,
 	NetworkParams, Result, SharedParams, SubstrateCli,
 };
-use sp_runtime::traits::BlakeTwo256;
 
 use sc_service::config::{BasePath, PrometheusConfig};
-
-use sp_runtime::{generic::Era, traits::AccountIdConversion};
 
 use crate::{
 	chain_spec,
@@ -17,6 +14,8 @@ use crate::{
 	rpc,
 	service::new_partial,
 };
+use parachain_runtime::opaque::Block;
+use sp_runtime::{generic::Era, traits::AccountIdConversion};
 
 fn load_spec(id: &str) -> std::result::Result<Box<dyn ChainSpec>, String> {
 	Ok(match id {
@@ -188,7 +187,11 @@ pub fn run() -> Result<()> {
 			match cmd {
 				BenchmarkCmd::Pallet(cmd) =>
 					if cfg!(feature = "runtime-benchmarks") {
-						runner.sync_run(|config| cmd.run::<BlakeTwo256, ()>(config))
+						runner.sync_run(|config| {
+							cmd.run_with_spec::<
+							sp_runtime::traits::HashingFor<Block>, cumulus_client_service::storage_proof_size::HostFunctions
+						>(Some(config.chain_spec))
+						})
 					} else {
 						Err("Benchmarking wasn't enabled when building the node. \
 					You can enable it with `--features runtime-benchmarks`."
