@@ -41,10 +41,10 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: Swatinem/rust-cache@v1
-      - run: |
-          rustup target add wasm32-unknown-unknown
-          rustup component add rust-src
+      # - uses: Swatinem/rust-cache@v1
+      # - run: |
+      #     rustup target add wasm32-unknown-unknown
+      #     rustup component add rust-src
 
       - name: Install protoc
         run: |
@@ -53,7 +53,7 @@ jobs:
 
       - name: Build all binaries
         run: |
-          cargo update async-channel@2.3.0 --precise 2.3.1
+          cargo update async-channel@1.9.0 --precise 2.3.1
           cargo build --release --bins
 
       - name: Aura Integration tests
