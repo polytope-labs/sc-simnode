@@ -54,7 +54,7 @@ jobs:
       - name: Build all binaries
         run: |
           rm -rf target/ Cargo.lock ~/.cargo/registry
-          cargo build -rp aura-node
+          rustup show
           cargo +nightly build --release --bins
 
       - name: Aura Integration tests
