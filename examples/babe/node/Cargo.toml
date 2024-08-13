@@ -57,7 +57,7 @@ sp-keystore = { workspace = true }
 sp-consensus = { workspace = true }
 sp-transaction-pool = { workspace = true }
 sp-transaction-storage-proof = { workspace = true, default-features = true }
-sp-io = {  workspace = true }
+sp-io = {  workspace = true, default-features = true }
 
 # client dependencies
 sc-client-api = { workspace = true }
