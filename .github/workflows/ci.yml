@@ -54,6 +54,7 @@ jobs:
       - name: Build all binaries
         continue-on-error: true
         run: |
+          cargo update memchr@2.7.2
           cargo build --release --bins
 
       - name: Aura Integration tests
