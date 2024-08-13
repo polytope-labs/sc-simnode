@@ -54,7 +54,8 @@ jobs:
       - name: Build all binaries
         continue-on-error: true
         run: |
-          cargo update memchr@2.7.2
+          cargo update memchr --precise 2.7.4
+          cargo update serde_json --precise 1.0.120
           cargo build --release --bins
 
       - name: Aura Integration tests
