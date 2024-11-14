@@ -29,7 +29,7 @@ pub mod timestamp;
 use crate::{ChainInfo, SignatureVerificationOverride};
 use jsonrpsee::RpcModule;
 use sc_executor::{HeapAllocStrategy, WasmExecutor, DEFAULT_HEAP_ALLOC_STRATEGY};
-use sc_rpc::{DenyUnsafe, SubscriptionTaskExecutor};
+use sc_rpc::SubscriptionTaskExecutor;
 use sc_service::{Configuration, PartialComponents, TFullBackend, TFullClient};
 use sc_telemetry::Telemetry;
 use sp_runtime::{generic::UncheckedExtrinsic, MultiAddress, MultiSignature};
@@ -46,14 +46,15 @@ pub type Executor = WasmExecutor<(
 /// Creates a [`WasmExecutor`] according to [`Configuration`].
 pub fn new_wasm_executor(config: &Configuration) -> Executor {
 	let strategy = config
+		.executor
 		.default_heap_pages
 		.map_or(DEFAULT_HEAP_ALLOC_STRATEGY, |p| HeapAllocStrategy::Static { extra_pages: p as _ });
 	WasmExecutor::builder()
-		.with_execution_method(config.wasm_method)
+		.with_execution_method(config.executor.wasm_method)
 		.with_onchain_heap_alloc_strategy(strategy)
 		.with_offchain_heap_alloc_strategy(strategy)
-		.with_max_runtime_instances(config.max_runtime_instances)
-		.with_runtime_cache_size(config.runtime_cache_size)
+		.with_max_runtime_instances(config.executor.max_runtime_instances)
+		.with_runtime_cache_size(config.executor.runtime_cache_size)
 		.build()
 }
 
@@ -91,7 +92,6 @@ pub struct SimnodeParams<Client, Backend, SelectChain, Pool, ImportQueue, BlockI
 	/// Use instant sealing for block production? if not uses manual seal.
 	pub instant: bool,
 	/// rpc builder.
-	pub rpc_builder: Box<
-		dyn Fn(DenyUnsafe, SubscriptionTaskExecutor) -> Result<RpcModule<()>, sc_service::Error>,
-	>,
+	pub rpc_builder:
+		Box<dyn Fn(SubscriptionTaskExecutor) -> Result<RpcModule<()>, sc_service::Error>>,
 }

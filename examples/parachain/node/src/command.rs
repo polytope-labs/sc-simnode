@@ -103,7 +103,7 @@ macro_rules! construct_async_run {
 		let runner = $cli.create_runner($cmd)?;
 		runner.async_run(|$config| {
 			let executor =
-				sc_service::new_wasm_executor::<crate::service::HostFunctions>(&$config);
+				sc_service::new_wasm_executor::<crate::service::HostFunctions>(&$config.executor);
 			let $components = new_partial(&$config, executor)?;
 			let task_manager = $components.task_manager;
 			{ $( $code )* }.map(|v| (v, task_manager))
@@ -167,8 +167,9 @@ pub fn run() -> Result<()> {
 		Some(Subcommand::ExportGenesisState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.sync_run(|config| {
-				let executor =
-					sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
+				let executor = sc_service::new_wasm_executor::<crate::service::HostFunctions>(
+					&config.executor,
+				);
 				let components = new_partial(&config, executor)?;
 
 				cmd.run(components.client.clone())
@@ -185,7 +186,7 @@ pub fn run() -> Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			// Switch on the concrete benchmark sub-command-
 			match cmd {
-				BenchmarkCmd::Pallet(cmd) =>
+				BenchmarkCmd::Pallet(cmd) => {
 					if cfg!(feature = "runtime-benchmarks") {
 						runner.sync_run(|config| {
 							cmd.run_with_spec::<
@@ -196,32 +197,37 @@ pub fn run() -> Result<()> {
 						Err("Benchmarking wasn't enabled when building the node. \
 					You can enable it with `--features runtime-benchmarks`."
 							.into())
-					},
+					}
+				},
 				BenchmarkCmd::Block(cmd) => runner.sync_run(|config| {
-					let executor =
-						sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
+					let executor = sc_service::new_wasm_executor::<crate::service::HostFunctions>(
+						&config.executor,
+					);
 					let partials = new_partial(&config, executor)?;
 					cmd.run(partials.client)
 				}),
 				#[cfg(not(feature = "runtime-benchmarks"))]
-				BenchmarkCmd::Storage(_) =>
+				BenchmarkCmd::Storage(_) => {
 					return Err(sc_cli::Error::Input(
 						"Compile with --features=runtime-benchmarks \
 						to enable storage benchmarks."
 							.into(),
 					)
-					.into()),
+					.into())
+				},
 				#[cfg(feature = "runtime-benchmarks")]
 				BenchmarkCmd::Storage(cmd) => runner.sync_run(|config| {
-					let executor =
-						sc_service::new_wasm_executor::<crate::service::HostFunctions>(&config);
+					let executor = sc_service::new_wasm_executor::<crate::service::HostFunctions>(
+						&config.executor,
+					);
 					let partials = new_partial(&config, executor)?;
 					let db = partials.backend.expose_db();
 					let storage = partials.backend.expose_storage();
 					cmd.run(config, partials.client.clone(), db, storage)
 				}),
-				BenchmarkCmd::Machine(cmd) =>
-					runner.sync_run(|config| cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone())),
+				BenchmarkCmd::Machine(cmd) => {
+					runner.sync_run(|config| cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone()))
+				},
 				// NOTE: this allows the Client to leniently implement
 				// new benchmark commands without requiring a companion MR.
 				#[allow(unreachable_patterns)]
@@ -273,10 +279,10 @@ pub fn run() -> Result<()> {
 							components,
 							config,
 							instant: true,
-							rpc_builder: Box::new(move |deny_unsafe, _| {
+							rpc_builder: Box::new(move |_| {
 								let client = client.clone();
 								let pool = pool.clone();
-								let full_deps = rpc::FullDeps { client, pool, deny_unsafe };
+								let full_deps = rpc::FullDeps { client, pool };
 								let io =
 									rpc::create_full(full_deps).expect("Rpc to be initialized");
 
@@ -300,7 +306,10 @@ pub fn run() -> Result<()> {
 				let hwbench = (!cli.no_hardware_benchmarks)
 					.then_some(config.database.path().map(|database_path| {
 						let _ = std::fs::create_dir_all(&database_path);
-						sc_sysinfo::gather_hwbench(Some(database_path))
+						sc_sysinfo::gather_hwbench(
+							Some(database_path),
+							&SUBSTRATE_REFERENCE_HARDWARE,
+						)
 					}))
 					.flatten();
 
@@ -439,19 +448,6 @@ impl CliConfiguration<Self> for RelayChainCli {
 
 	fn announce_block(&self) -> Result<bool> {
 		self.base.base.announce_block()
-	}
-
-	fn init<F>(
-		&self,
-		_support_url: &String,
-		_impl_version: &String,
-		_logger_hook: F,
-		_config: &sc_service::Configuration,
-	) -> Result<()>
-	where
-		F: FnOnce(&mut sc_cli::LoggerBuilder, &sc_service::Configuration),
-	{
-		unreachable!("PolkadotCli is never initialized; qed");
 	}
 }
 

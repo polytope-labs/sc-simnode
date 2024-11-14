@@ -228,7 +228,7 @@ where
 		B,
 		B::Hash,
 		sc_network::Litep2pNetworkBackend,
-	>::new(&config.network);
+	>::new(&config.network, config.prometheus_registry().cloned());
 	let metrics = <sc_network::Litep2pNetworkBackend as NetworkBackend<B, B::Hash>>::register_notification_metrics(
 		config.prometheus_registry(),
 	);
@@ -241,7 +241,7 @@ where
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
-			warp_sync_params: None,
+			warp_sync_config: None,
 			block_relay: None,
 			metrics,
 		};
@@ -291,8 +291,8 @@ where
 		task_manager: &mut task_manager,
 		keystore: keystore_container.keystore(),
 		transaction_pool: pool.clone(),
-		rpc_builder: Box::new(move |deny_unsafe, subscription_executor| {
-			let mut io = rpc_builder(deny_unsafe, subscription_executor)?;
+		rpc_builder: Box::new(move |subscription_executor| {
+			let mut io = rpc_builder(subscription_executor)?;
 
 			io.merge(
 				ParachainRPCHandler {

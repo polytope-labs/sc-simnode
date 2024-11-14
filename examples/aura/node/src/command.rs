@@ -44,8 +44,9 @@ impl SubstrateCli for Cli {
 		Ok(match id {
 			"dev" => Box::new(chain_spec::development_config()?),
 			"" | "local" => Box::new(chain_spec::local_testnet_config()?),
-			path =>
-				Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
+			path => {
+				Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?)
+			},
 		})
 	}
 }
@@ -63,8 +64,9 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::CheckBlock(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor =
-					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+				let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+					&config.executor,
+				);
 				let PartialComponents { client, task_manager, import_queue, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, import_queue), task_manager))
@@ -73,8 +75,9 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ExportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor =
-					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+				let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+					&config.executor,
+				);
 				let PartialComponents { client, task_manager, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, config.database), task_manager))
@@ -83,8 +86,9 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ExportState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor =
-					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+				let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+					&config.executor,
+				);
 				let PartialComponents { client, task_manager, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, config.chain_spec), task_manager))
@@ -93,8 +97,9 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ImportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor =
-					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+				let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+					&config.executor,
+				);
 				let PartialComponents { client, task_manager, import_queue, .. } =
 					service::new_partial(&config, executor)?;
 				Ok((cmd.run(client, import_queue), task_manager))
@@ -107,8 +112,9 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::Revert(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
-				let executor =
-					sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+				let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+					&config.executor,
+				);
 				let PartialComponents { client, task_manager, backend, .. } =
 					service::new_partial(&config, executor)?;
 				let aux_revert = Box::new(|client, _, blocks| {
@@ -139,8 +145,9 @@ pub fn run() -> sc_cli::Result<()> {
 						))
 					},
 					BenchmarkCmd::Block(cmd) => {
-						let executor =
-							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+						let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+							&config.executor,
+						);
 						let PartialComponents { client, .. } =
 							service::new_partial(&config, executor)?;
 						cmd.run(client)
@@ -152,8 +159,9 @@ pub fn run() -> sc_cli::Result<()> {
 					),
 					#[cfg(feature = "runtime-benchmarks")]
 					BenchmarkCmd::Storage(cmd) => {
-						let executor =
-							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+						let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+							&config.executor,
+						);
 						let PartialComponents { client, backend, .. } =
 							service::new_partial(&config, executor)?;
 						let db = backend.expose_db();
@@ -162,8 +170,9 @@ pub fn run() -> sc_cli::Result<()> {
 						cmd.run(config, client, db, storage)
 					},
 					BenchmarkCmd::Overhead(cmd) => {
-						let executor =
-							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+						let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+							&config.executor,
+						);
 						let PartialComponents { client, .. } =
 							service::new_partial(&config, executor)?;
 						let ext_builder = RemarkBuilder::new(client.clone());
@@ -177,8 +186,9 @@ pub fn run() -> sc_cli::Result<()> {
 						)
 					},
 					BenchmarkCmd::Extrinsic(cmd) => {
-						let executor =
-							sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+						let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(
+							&config.executor,
+						);
 						let PartialComponents { client, .. } =
 							service::new_partial(&config, executor)?;
 						// Register the *Remark* and *TKA* builders.
@@ -193,8 +203,9 @@ pub fn run() -> sc_cli::Result<()> {
 
 						cmd.run(client, inherent_benchmark_data()?, Vec::new(), &ext_factory)
 					},
-					BenchmarkCmd::Machine(cmd) =>
-						cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone()),
+					BenchmarkCmd::Machine(cmd) => {
+						cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone())
+					},
 				}
 			})
 		},
@@ -213,10 +224,10 @@ pub fn run() -> sc_cli::Result<()> {
 						components,
 						config,
 						instant: true,
-						rpc_builder: Box::new(move |deny_unsafe, _| {
+						rpc_builder: Box::new(move |_| {
 							let client = client.clone();
 							let pool = pool.clone();
-							let full_deps = rpc::FullDeps { client, pool, deny_unsafe };
+							let full_deps = rpc::FullDeps { client, pool };
 							let io = rpc::create_full(full_deps).expect("Rpc to be initialized");
 
 							Ok(io)
