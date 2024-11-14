@@ -96,7 +96,7 @@ sc-simnode = { path = "../../../simnode", features = ["babe"] }
 sc-cli = { optional = true,  workspace = true }
 frame-benchmarking-cli = { optional = true,  workspace = true }
 try-runtime-cli = { optional = true,  workspace = true }
-serde_json = "1.0.85"
+serde_json = "1.0"
 
 [dev-dependencies]
 tempfile = "3.1.0"

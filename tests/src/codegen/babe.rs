@@ -650,7 +650,8 @@ pub mod api {
 				#[doc = " Get current GRANDPA authority set id."]
 				pub fn current_set_id(
 					&self,
-				) -> ::subxt::runtime_api::Payload<types::CurrentSetId, ::core::primitive::u64> {
+				) -> ::subxt::runtime_api::Payload<types::CurrentSetId, ::core::primitive::u64>
+				{
 					::subxt::runtime_api::Payload::new_static(
 						"GrandpaApi",
 						"current_set_id",
@@ -957,7 +958,8 @@ pub mod api {
 				pub fn account_nonce(
 					&self,
 					account: ::subxt::utils::AccountId32,
-				) -> ::subxt::runtime_api::Payload<types::AccountNonce, ::core::primitive::u32> {
+				) -> ::subxt::runtime_api::Payload<types::AccountNonce, ::core::primitive::u32>
+				{
 					::subxt::runtime_api::Payload::new_static(
 						"AccountNonceApi",
 						"account_nonce",
@@ -2630,7 +2632,8 @@ pub mod api {
 				#[doc = " The maximum length of a block (in bytes)."]
 				pub fn block_length(
 					&self,
-				) -> ::subxt::constants::Address<runtime_types::frame_system::limits::BlockLength> {
+				) -> ::subxt::constants::Address<runtime_types::frame_system::limits::BlockLength>
+				{
 					::subxt::constants::Address::new_static(
 						"System",
 						"BlockLength",

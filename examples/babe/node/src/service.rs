@@ -32,7 +32,7 @@ use sc_executor::{RuntimeVersionOf, WasmExecutor};
 use sc_network::NetworkBackend;
 use sc_network_sync::SyncingService;
 use sc_service::{
-	config::Configuration, error::Error as ServiceError, RpcHandlers, TaskManager, WarpSyncParams,
+	config::Configuration, error::Error as ServiceError, RpcHandlers, TaskManager, WarpSyncConfig,
 };
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sc_transaction_pool_api::OffchainTransactionPoolFactory;
@@ -161,7 +161,6 @@ pub fn new_partial<E>(
 		sc_transaction_pool::FullPool<Block, FullClient<E>>,
 		(
 			impl Fn(
-				node_rpc::DenyUnsafe,
 				sc_rpc::SubscriptionTaskExecutor,
 			) -> Result<jsonrpsee::RpcModule<()>, sc_service::Error>,
 			(
@@ -275,13 +274,12 @@ where
 		let chain_spec = config.chain_spec.cloned_box();
 
 		let rpc_backend = backend.clone();
-		let rpc_extensions_builder = move |deny_unsafe, subscription_executor| {
+		let rpc_extensions_builder = move |subscription_executor| {
 			let deps = node_rpc::FullDeps {
 				client: client.clone(),
 				pool: pool.clone(),
 				select_chain: select_chain.clone(),
 				chain_spec: chain_spec.cloned_box(),
-				deny_unsafe,
 				babe: node_rpc::BabeDeps {
 					keystore: keystore.clone(),
 					babe_worker_handle: babe_worker_handle.clone(),
@@ -341,11 +339,11 @@ pub fn new_full_base(
 	let hwbench = (!disable_hardware_benchmarks)
 		.then_some(config.database.path().map(|database_path| {
 			let _ = std::fs::create_dir_all(&database_path);
-			sc_sysinfo::gather_hwbench(Some(database_path))
+			sc_sysinfo::gather_hwbench(Some(database_path), &SUBSTRATE_REFERENCE_HARDWARE)
 		}))
 		.flatten();
 
-	let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config);
+	let executor = sc_service::new_wasm_executor::<sp_io::SubstrateHostFunctions>(&config.executor);
 
 	let sc_service::PartialComponents {
 		client,
@@ -362,7 +360,7 @@ pub fn new_full_base(
 		Block,
 		H256,
 		sc_network::Litep2pNetworkBackend,
-	>::new(&config.network);
+	>::new(&config.network, config.prometheus_registry().cloned());
 	let metrics = <sc_network::Litep2pNetworkBackend as NetworkBackend<Block, H256>>::register_notification_metrics(
 		config.prometheus_registry(),
 	);
@@ -397,7 +395,7 @@ pub fn new_full_base(
 			spawn_handle: task_manager.spawn_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
-			warp_sync_params: Some(WarpSyncParams::WithProvider(warp_sync)),
+			warp_sync_config: Some(WarpSyncConfig::WithProvider(warp_sync)),
 			metrics,
 			block_relay: None,
 		})?;
@@ -449,7 +447,7 @@ pub fn new_full_base(
 
 	if let Some(hwbench) = hwbench {
 		sc_sysinfo::print_hwbench(&hwbench);
-		match SUBSTRATE_REFERENCE_HARDWARE.check_hardware(&hwbench) {
+		match SUBSTRATE_REFERENCE_HARDWARE.check_hardware(&hwbench, role.is_authority()) {
 			Err(err) if role.is_authority() => {
 				log::warn!(
 					"⚠️  The hardware does not meet the minimal requirements {} for role 'Authority'.",

@@ -143,7 +143,7 @@ async fn start_node_impl(
 	hwbench: Option<sc_sysinfo::HwBench>,
 ) -> sc_service::error::Result<(TaskManager, Arc<ParachainClient>)> {
 	let parachain_config = prepare_node_config(parachain_config);
-	let executor = sc_service::new_wasm_executor::<HostFunctions>(&parachain_config);
+	let executor = sc_service::new_wasm_executor::<HostFunctions>(&parachain_config.executor);
 	let params = new_partial(&parachain_config, executor)?;
 	let (block_import, mut telemetry, telemetry_worker_handle) = params.other;
 
@@ -172,7 +172,9 @@ async fn start_node_impl(
 		_,
 		_,
 		sc_network::NetworkWorker<Block, Hash>,
-	>::new(&parachain_config.network);
+	>::new(
+		&parachain_config.network, parachain_config.prometheus_registry().cloned()
+	);
 	let (network, system_rpc_tx, tx_handler_controller, start_network, sync_service) =
 		build_network(BuildNetworkParams {
 			parachain_config: &parachain_config,
@@ -213,12 +215,9 @@ async fn start_node_impl(
 		let client = client.clone();
 		let transaction_pool = transaction_pool.clone();
 
-		Box::new(move |deny_unsafe, _| {
-			let deps = crate::rpc::FullDeps {
-				client: client.clone(),
-				pool: transaction_pool.clone(),
-				deny_unsafe,
-			};
+		Box::new(move |_| {
+			let deps =
+				crate::rpc::FullDeps { client: client.clone(), pool: transaction_pool.clone() };
 
 			crate::rpc::create_full(deps).map_err(Into::into)
 		})
@@ -254,7 +253,7 @@ async fn start_node_impl(
 		//     _ => {},
 		// }
 
-		match SUBSTRATE_REFERENCE_HARDWARE.check_hardware(&hwbench) {
+		match SUBSTRATE_REFERENCE_HARDWARE.check_hardware(&hwbench, validator) {
 			Err(err) if validator => {
 				log::warn!(
 				"⚠️  The hardware does not meet the minimal requirements {} for role 'Authority' find out more at:\n\
