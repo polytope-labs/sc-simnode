@@ -16,7 +16,7 @@ log = "0.4.17"
 codec = { workspace = true }
 serde = { version = "1.0.152", features = ["derive"] }
 jsonrpsee = { workspace = true, features = ["server"] }
-serde_json = "1.0.116"
+serde_json = "1.0"
 
 # Local
 parachain-runtime = { path = "../runtime" }
