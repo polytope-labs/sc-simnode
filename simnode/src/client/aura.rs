@@ -16,16 +16,18 @@
 
 //! Simnode for Standalone runtimes with Aura Consensus
 
+use polkadot_sdk::*;
+
 use super::*;
 use crate::{timestamp::SlotTimestampProvider, ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
 use futures::{channel::mpsc, future::Either, FutureExt, StreamExt};
-use manual_seal::{
-	rpc::{ManualSeal, ManualSealApiServer},
-	run_manual_seal, EngineCommand, ManualSealParams,
-};
 use num_traits::AsPrimitive;
 use sc_client_api::Backend;
 use sc_consensus::{BlockImport, ImportQueue};
+use sc_consensus_manual_seal::{
+	rpc::{ManualSeal, ManualSealApiServer},
+	run_manual_seal, EngineCommand, ManualSealParams,
+};
 use sc_network::NetworkBackend;
 use sc_service::{
 	build_network, spawn_tasks, BuildNetworkParams, PartialComponents, SpawnTasksParams,
@@ -79,7 +81,7 @@ where
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
-	use manual_seal::consensus::aura::AuraConsensusDataProvider;
+	use sc_consensus_manual_seal::consensus::aura::AuraConsensusDataProvider;
 
 	let SimnodeParams { components, config, instant, rpc_builder } = params;
 	let PartialComponents {

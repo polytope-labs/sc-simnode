@@ -16,6 +16,8 @@
 
 //! Simnode for Standalone runtimes with Parachain Consensus
 
+use polkadot_sdk::*;
+
 use super::*;
 use crate::{
 	timestamp::SlotTimestampProvider, ChainInfo, ParachainSproofInherentProvider, SimnodeApiServer,
@@ -24,12 +26,12 @@ use crate::{
 use async_trait::async_trait;
 use futures::{channel::mpsc, future::Either, lock::Mutex, FutureExt, StreamExt};
 use jsonrpsee::{core::RpcResult, types::ErrorObjectOwned};
-use manual_seal::{
+use num_traits::AsPrimitive;
+use sc_client_api::Backend;
+use sc_consensus_manual_seal::{
 	rpc::{ManualSeal, ManualSealApiServer},
 	run_manual_seal, EngineCommand, ManualSealParams,
 };
-use num_traits::AsPrimitive;
-use sc_client_api::Backend;
 
 use sc_consensus::{BlockImport, ImportQueue};
 use sc_network::NetworkBackend;
@@ -55,7 +57,9 @@ pub struct ParachainRPCHandler<T: ChainInfo> {
 	/// Holds the inner rpc handler for delegating requests
 	inner: SimnodeRpcHandler<T>,
 	/// Sink for sending commands to the manual seal authorship task.
-	sink: futures::channel::mpsc::Sender<manual_seal::EngineCommand<<T::Block as BlockT>::Hash>>,
+	sink: futures::channel::mpsc::Sender<
+		sc_consensus_manual_seal::EngineCommand<<T::Block as BlockT>::Hash>,
+	>,
 	/// parachain inherent provider for sproofing the parachain inherent.
 	parachain: crate::sproof::SharedParachainSproofInherentProvider<T>,
 }
@@ -72,7 +76,7 @@ where
 		>,
 	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
 	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
-	T::Runtime: parachain_info::Config,
+	T::Runtime: staging_parachain_info::Config,
 {
 	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes> {
 		Ok(self.inner.author_extrinsic(call, account)?.into())
@@ -93,8 +97,8 @@ where
 		// insert the upgrade signal into the sproof provider, it'll be included in the next block.
 		let para_id = self
 			.inner
-			.with_state(None, || parachain_info::Pallet::<T::Runtime>::parachain_id());
-		let builder = sproof_builder::RelayStateSproofBuilder {
+			.with_state(None, || staging_parachain_info::Pallet::<T::Runtime>::parachain_id());
+		let builder = cumulus_test_relay_sproof_builder::RelayStateSproofBuilder {
 			para_id,
 			upgrade_go_ahead: Some(signal),
 			..Default::default()
@@ -104,7 +108,7 @@ where
 		let mut sink = self.sink.clone();
 		let (sender, receiver) = oneshot::channel();
 		// NOTE: this sends a Result over the channel.
-		let command = manual_seal::EngineCommand::SealNewBlock {
+		let command = sc_consensus_manual_seal::EngineCommand::SealNewBlock {
 			create_empty: true,
 			finalize: true,
 			parent_hash: None,
@@ -197,11 +201,11 @@ where
 	<<B as BlockT>::Header as Header>::Number: AsPrimitive<u32>,
 	<B as BlockT>::Hash: Unpin,
 	<B as BlockT>::Header: Unpin,
-	C::Runtime: parachain_info::Config,
+	C::Runtime: staging_parachain_info::Config,
 	<C::Runtime as frame_system::Config>::RuntimeCall: Send + Sync,
 	<C::Runtime as frame_system::Config>::AccountId: Send + Sync + From<AccountId32>,
 {
-	use manual_seal::consensus::aura::AuraConsensusDataProvider;
+	use sc_consensus_manual_seal::consensus::aura::AuraConsensusDataProvider;
 
 	let SimnodeParams { components, config, instant, rpc_builder } = params;
 	let PartialComponents {

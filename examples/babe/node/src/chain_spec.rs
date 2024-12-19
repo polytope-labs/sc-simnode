@@ -18,6 +18,8 @@
 
 //! Substrate chain configurations.
 
+use polkadot_sdk::*;
+
 use babe_runtime::{constants::currency::*, wasm_binary_unwrap, Block, SessionKeys, StakerStatus};
 use sc_chain_spec::ChainSpecExtension;
 use sc_service::ChainType;

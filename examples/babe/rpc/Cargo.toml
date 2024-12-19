@@ -14,25 +14,31 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 jsonrpsee = { workspace = true, features = ["server"] }
-pallet-transaction-payment-rpc = { workspace = true }
-sc-chain-spec = { workspace = true }
-sc-client-api = { workspace = true }
-sc-consensus-babe = { workspace = true }
-sc-consensus-grandpa = { workspace = true }
-sc-rpc = { workspace = true }
-sc-rpc-api = { workspace = true }
-sc-rpc-spec-v2 = { workspace = true }
-sc-transaction-pool-api = { workspace = true }
-sp-api = { workspace = true }
-sp-block-builder = { workspace = true }
-sp-blockchain = { workspace = true }
-sp-consensus = { workspace = true }
-sp-consensus-babe = { workspace = true }
-sp-keystore = { workspace = true }
-sp-runtime = { workspace = true }
-sp-core = { workspace = true }
-substrate-frame-rpc-system = { workspace = true }
-substrate-state-trie-migration-rpc = { workspace = true }
-sc-consensus-babe-rpc = { workspace = true }
-sc-consensus-grandpa-rpc = { workspace = true }
-sc-sync-state-rpc = { workspace = true }
+
+[dependencies.polkadot-sdk]
+workspace = true
+default-features = true
+features = [
+    "pallet-transaction-payment-rpc",
+    "sc-chain-spec",
+    "sc-client-api",
+    "sc-consensus-babe",
+    "sc-consensus-grandpa",
+    "sc-rpc",
+    "sc-rpc-api",
+    "sc-rpc-spec-v2",
+    "sc-transaction-pool-api",
+    "sp-api",
+    "sp-block-builder",
+    "sp-blockchain",
+    "sp-consensus",
+    "sp-consensus-babe",
+    "sp-keystore",
+    "sp-runtime",
+    "sp-core",
+    "substrate-frame-rpc-system",
+    "substrate-state-trie-migration-rpc",
+    "sc-consensus-babe-rpc",
+    "sc-consensus-grandpa-rpc",
+    "sc-sync-state-rpc",
+]

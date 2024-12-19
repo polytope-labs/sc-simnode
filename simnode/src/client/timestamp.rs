@@ -19,8 +19,10 @@
 //! Mocked timestamp inherent, allows for manual seal to create blocks for runtimes
 //! that expect this inherent.
 
-use manual_seal::Error;
+use polkadot_sdk::*;
+
 use sc_client_api::{AuxStore, UsageProvider};
+use sc_consensus_manual_seal::Error;
 use sp_api::ProvideRuntimeApi;
 use sp_blockchain::HeaderBackend;
 use sp_consensus_aura::{

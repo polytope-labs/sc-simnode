@@ -16,6 +16,8 @@
 
 //! Utilities for creating the neccessary client subsystems.
 
+use polkadot_sdk::*;
+
 #[cfg(feature = "aura")]
 pub mod aura;
 

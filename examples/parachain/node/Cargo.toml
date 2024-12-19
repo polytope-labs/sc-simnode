@@ -18,71 +18,70 @@ serde = { version = "1.0.152", features = ["derive"] }
 jsonrpsee = { workspace = true, features = ["server"] }
 serde_json = "1.0"
 
-# Local
-parachain-runtime = { path = "../runtime" }
-sc-simnode = { path = "../../../simnode", features = ["parachain"] }
-
-# Substrate
-frame-system = { workspace = true }
-pallet-transaction-payment = { workspace = true }
-frame-benchmarking = { workspace = true }
-frame-benchmarking-cli = { workspace = true }
-pallet-transaction-payment-rpc = { workspace = true }
-sc-basic-authorship = { workspace = true }
-sc-chain-spec = { workspace = true }
-sc-cli = { workspace = true }
-sc-client-api = { workspace = true }
-sc-consensus = { workspace = true }
-sc-executor = { workspace = true }
-sc-network = { workspace = true }
-sc-offchain = { workspace = true }
-sc-network-sync = { workspace = true }
-sc-rpc = { workspace = true }
-sc-service = { workspace = true }
-sc-sysinfo = { workspace = true }
-sc-telemetry = { workspace = true }
 sc-tracing = { workspace = true }
-sc-transaction-pool = { workspace = true }
-sp-transaction-pool = { workspace = true }
-sc-transaction-pool-api = { workspace = true }
-sp-api = { workspace = true }
-sp-block-builder = { workspace = true }
-sp-blockchain = { workspace = true }
-sp-consensus-aura = { workspace = true }
-sp-core = { workspace = true }
-sp-keystore = { workspace = true }
-sp-io = { workspace = true, default-features = true }
-sp-runtime = { workspace = true }
-sp-timestamp = { workspace = true }
-substrate-frame-rpc-system = { workspace = true }
-substrate-prometheus-endpoint = { workspace = true }
-try-runtime-cli = { workspace = true, optional = true  }
+parachain-runtime = { path = "../runtime" }
+sc-simnode = { workspace = true, features = ["parachain"] }
+try-runtime-cli = { workspace = true, optional = true }
 
-# Polkadot
-polkadot-cli = { workspace = true }
-polkadot-primitives = { workspace = true }
-staging-xcm = { workspace = true }
-
-# Cumulus
-cumulus-client-cli = { workspace = true }
-cumulus-client-consensus-aura = { workspace = true }
-cumulus-client-consensus-common = { workspace = true }
-cumulus-client-consensus-proposer = { workspace = true }
-cumulus-client-service = { workspace = true }
-cumulus-client-collator = { workspace = true }
-cumulus-primitives-core = { workspace = true }
-cumulus-primitives-parachain-inherent = { workspace = true }
-cumulus-relay-chain-interface = { workspace = true }
+[dependencies.polkadot-sdk]
+workspace = true
+default-features = true
+features = [
+    "frame-system",
+    "pallet-transaction-payment",
+    "frame-benchmarking",
+    "frame-benchmarking-cli",
+    "pallet-transaction-payment-rpc",
+    "sc-basic-authorship",
+    "sc-chain-spec",
+    "sc-cli",
+    "sc-client-api",
+    "sc-consensus",
+    "sc-executor",
+    "sc-network",
+    "sc-offchain",
+    "sc-network-sync",
+    "sc-rpc",
+    "sc-service",
+    "sc-sysinfo",
+    "sc-telemetry",
+    "sc-transaction-pool",
+    "sp-transaction-pool",
+    "sc-transaction-pool-api",
+    "sp-api",
+    "sp-block-builder",
+    "sp-blockchain",
+    "sp-consensus-aura",
+    "sp-core",
+    "sp-io",
+    "sp-keystore",
+    "sp-runtime",
+    "sp-timestamp",
+    "substrate-frame-rpc-system",
+    "substrate-prometheus-endpoint",
+    "polkadot-cli",
+    "polkadot-primitives",
+    "staging-xcm",
+    "cumulus-client-cli",
+    "cumulus-client-consensus-aura",
+    "cumulus-client-consensus-common",
+    "cumulus-client-consensus-proposer",
+    "cumulus-client-service",
+    "cumulus-client-collator",
+    "cumulus-primitives-core",
+    "cumulus-primitives-parachain-inherent",
+    "cumulus-relay-chain-interface",
+]
 
 [build-dependencies]
-substrate-build-script-utils = { workspace = true }
+polkadot-sdk = { workspace = true, default-features = true, features = ["substrate-build-script-utils"] }
 
 [features]
 default = []
 runtime-benchmarks = [
 	"try-runtime-cli/try-runtime",
 	"parachain-runtime/runtime-benchmarks",
-	"polkadot-cli/runtime-benchmarks",
+	"polkadot-sdk/runtime-benchmarks",
 ]
 try-runtime = [
 	"try-runtime-cli/try-runtime",

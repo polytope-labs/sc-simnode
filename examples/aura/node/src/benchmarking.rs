@@ -2,6 +2,8 @@
 //!
 //! Should only be used for benchmarking as it may break in other contexts.
 
+use polkadot_sdk::*;
+
 use crate::service::FullClient;
 
 use aura_runtime as runtime;

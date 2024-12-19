@@ -16,16 +16,18 @@
 
 //! Simnode for Standalone runtimes with Babe Consensus
 
+use polkadot_sdk::*;
+
 use futures::{channel::mpsc, future::Either, FutureExt, StreamExt};
-use manual_seal::{
-	consensus::babe::BabeConsensusDataProvider,
-	rpc::{ManualSeal, ManualSealApiServer},
-	run_manual_seal, EngineCommand, ManualSealParams,
-};
 use num_traits::AsPrimitive;
 use sc_client_api::Backend;
 use sc_consensus::{BlockImport, ImportQueue};
 use sc_consensus_babe::BabeLink;
+use sc_consensus_manual_seal::{
+	consensus::babe::BabeConsensusDataProvider,
+	rpc::{ManualSeal, ManualSealApiServer},
+	run_manual_seal, EngineCommand, ManualSealParams,
+};
 use sc_network::NetworkBackend;
 use sc_service::{
 	build_network, spawn_tasks, BuildNetworkParams, PartialComponents, SpawnTasksParams,
