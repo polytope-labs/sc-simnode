@@ -47,7 +47,7 @@ rand = "0.8"
 # node-specific dependencies
 babe-runtime = { path = "../runtime" }
 node-rpc = { package = "babe-node-rpc", path = "../rpc" }
-sc-simnode = { path = "../../../simnode", features = ["babe"] }
+sc-simnode = { workspace = true, features = ["babe"] }
 
 # CLI-specific dependencies
 sc-service = { workspace = true }

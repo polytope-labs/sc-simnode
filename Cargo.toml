@@ -33,3 +33,7 @@ cumulus-pallet-parachain-system = { version = "0.17.1", default-features = false
 substrate-wasm-builder = "24.0.1"
 sc-service = "0.46.0"
 sc-tracing = "37.0.1"
+
+# local crates
+simnode-runtime-api = { path = "./runtime-api", version = "16.0.0", default-features = false }
+sc-simnode = { path = "./simnode", version = "16.0.0" }

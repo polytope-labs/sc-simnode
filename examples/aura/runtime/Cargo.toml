@@ -17,7 +17,7 @@ codec = { workspace = true, features = ["derive"] }
 scale-info = { workspace = true, features = ["derive"] }
 
 # Local Dependencies
-simnode-runtime-api = { path = "../../../runtime-api", default-features = false }
+simnode-runtime-api = { workspace = true }
 
 [dependencies.polkadot-sdk]
 workspace = true

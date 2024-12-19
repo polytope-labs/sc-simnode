@@ -1,6 +1,6 @@
 [package]
 name = "sc-simnode"
-version = "1.15.0"
+version = "16.0.0"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -12,10 +12,6 @@ keywords = ["substrate", "polkadot-sdk", "integration-testing", "e2e-tests"]
 readme = "../README.md"
 
 [dependencies]
-# not using polkadot-sdk because i need this feature
-sc-service = { workspace = true, features = ["test-helpers"] }
-sp-runtime-interface = { workspace = true, default-features = true }
-
 codec = { workspace = true }
 num-traits = "0.2.14"
 async-trait = "0.1.57"
@@ -26,7 +22,9 @@ tokio = { version = "1.13", features = ["signal"] }
 clap = { version = "4.0.9", features = ["derive"] }
 jsonrpsee = { workspace = true,  features = ["server", "client-core", "macros"]  }
 
-simnode-runtime-api = { version = "1.9.0", path = "../runtime-api" }
+sc-service = { workspace = true, features = ["test-helpers"] }
+sp-runtime-interface = { workspace = true, default-features = true }
+simnode-runtime-api = { workspace = true, default-features = true }
 
 [dependencies.polkadot-sdk]
 workspace = true

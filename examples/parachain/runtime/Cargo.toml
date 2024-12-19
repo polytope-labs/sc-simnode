@@ -23,7 +23,7 @@ smallvec = "1.10.0"
 cumulus-pallet-parachain-system = { workspace = true }
 
 # Local
-simnode-runtime-api = { path = "../../../runtime-api", default-features = false }
+simnode-runtime-api = { workspace = true }
 
 [dependencies.polkadot-sdk]
 workspace = true
