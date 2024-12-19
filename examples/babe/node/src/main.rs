@@ -18,7 +18,7 @@
 
 //! Substrate Node CLI
 
-#![warn(missing_docs)]
+use polkadot_sdk::*;
 
 fn main() -> sc_cli::Result<()> {
 	babe_node::run()

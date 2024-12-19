@@ -1,5 +1,7 @@
 #![cfg(test)]
 
+use polkadot_sdk::*;
+
 use crate::codegen::aura::{
 	api,
 	api::{

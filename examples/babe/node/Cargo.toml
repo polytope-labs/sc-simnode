@@ -44,84 +44,87 @@ futures = "0.3.21"
 log = "0.4.17"
 rand = "0.8"
 
-# primitives
-sp-consensus-babe = { workspace = true }
-sp-consensus-grandpa = { workspace = true }
-sp-api = { workspace = true }
-sp-core = { workspace = true }
-sp-runtime = { workspace = true }
-sp-timestamp = { workspace = true }
-sp-inherents = { workspace = true }
-sp-keyring = { workspace = true}
-sp-keystore = { workspace = true }
-sp-consensus = { workspace = true }
-sp-transaction-pool = { workspace = true }
-sp-transaction-storage-proof = { workspace = true, default-features = true }
-sp-io = {  workspace = true, default-features = true }
-
-# client dependencies
-sc-client-api = { workspace = true }
-sc-chain-spec = { workspace = true }
-sc-consensus = { workspace = true }
-sc-transaction-pool = { workspace = true }
-sc-transaction-pool-api = { workspace = true }
-sc-network = { workspace = true}
-sc-network-common = { workspace = true }
-sc-network-sync = { workspace = true}
-sc-consensus-slots = { workspace = true }
-sc-consensus-babe = { workspace = true }
-sc-consensus-grandpa = { workspace = true }
-sc-rpc = { workspace = true }
-sc-basic-authorship = { workspace = true }
-sc-service = { workspace = true }
-sc-telemetry = { workspace = true }
-sc-executor = { workspace = true }
-sc-sync-state-rpc = { workspace = true }
-sc-sysinfo = { workspace = true }
-sc-storage-monitor = { workspace = true }
-sc-offchain = { workspace = true }
-
-# frame dependencies
-frame-system = { workspace = true }
-frame-benchmarking = { workspace = true }
-frame-system-rpc-runtime-api = { workspace = true }
-pallet-transaction-payment = { workspace = true }
-
 # node-specific dependencies
 babe-runtime = { path = "../runtime" }
 node-rpc = { package = "babe-node-rpc", path = "../rpc" }
 sc-simnode = { path = "../../../simnode", features = ["babe"] }
 
 # CLI-specific dependencies
-sc-cli = { optional = true,  workspace = true }
-frame-benchmarking-cli = { optional = true,  workspace = true }
+sc-service = { workspace = true }
 try-runtime-cli = { optional = true,  workspace = true }
 serde_json = "1.0"
 
+[dependencies.polkadot-sdk]
+workspace = true
+default-features = true
+features = [
+    "sp-consensus-babe",
+    "sp-consensus-grandpa",
+    "sp-api",
+    "sp-core",
+    "sp-runtime",
+    "sp-timestamp",
+    "sp-inherents",
+    "sp-keystore",
+    "sp-consensus",
+    "sp-transaction-pool",
+    "sc-client-api",
+    "sc-chain-spec",
+    "sc-consensus",
+    "sc-transaction-pool",
+    "sc-transaction-pool-api",
+    "sc-network-common",
+    "sc-consensus-slots",
+    "sc-consensus-babe",
+    "sc-consensus-grandpa",
+    "sc-rpc",
+    "sc-cli",
+    "sc-basic-authorship",
+    "sc-telemetry",
+    "sc-executor",
+    "sc-sync-state-rpc",
+    "sc-sysinfo",
+    "sc-storage-monitor",
+    "sc-offchain",
+    "frame-system",
+    "frame-benchmarking",
+    "frame-system-rpc-runtime-api",
+    "pallet-transaction-payment",
+    "sp-keyring",
+    "sp-transaction-storage-proof",
+    "sp-io",
+    "sc-network",
+    "sc-network-sync",
+    "frame-benchmarking-cli",
+]
+
 [dev-dependencies]
 tempfile = "3.1.0"
-#sp-tracing = { workspace = true }
-sc-keystore = { workspace = true }
-#sc-service-test = { workspace = true }
-sc-consensus-epochs = { workspace = true }
+
+[dev-dependencies.polkadot-sdk]
+workspace = true
+default-features = true
+features = [
+    "sc-keystore",
+    "sc-consensus-epochs"
+]
 
 [build-dependencies]
-substrate-build-script-utils = { optional = true,  workspace = true }
+polkadot-sdk = { workspace = true, default-features = true, features = ["substrate-build-script-utils"] }
 
 [features]
 default = ["cli"]
 cli = [
-    "sc-cli",
-    "frame-benchmarking-cli",
+    "polkadot-sdk/sc-cli",
+    "polkadot-sdk/frame-benchmarking-cli",
     "sc-service/rocksdb",
     "clap",
-    "substrate-build-script-utils",
     "try-runtime-cli",
 ]
 runtime-benchmarks = [
+    "polkadot-sdk/runtime-benchmarks",
     "babe-runtime/runtime-benchmarks",
-    "frame-benchmarking-cli/runtime-benchmarks"
 ]
-# Enable features that allow the runtime to be tried and debugged. Name might be subject to change
-# in the near future.
+# Enable features that allow the runtime to be tried and debugged.
+# Name might be subject to change in the near future.
 try-runtime = ["babe-runtime/try-runtime", "try-runtime-cli/try-runtime"]

@@ -16,6 +16,8 @@
 
 //! Host function overrides for signature verification.
 
+use polkadot_sdk::*;
+
 use sp_core::{ecdsa, ed25519, sr25519};
 use sp_runtime_interface::runtime_interface;
 

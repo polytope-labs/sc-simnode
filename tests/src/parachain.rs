@@ -1,4 +1,5 @@
 #![cfg(test)]
+use polkadot_sdk::*;
 
 use crate::codegen::parachain::{
 	api,

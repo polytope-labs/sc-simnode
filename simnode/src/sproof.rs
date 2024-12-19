@@ -17,17 +17,19 @@
 //! Parachain inherent data provider, useful for signalling relay chain authorizations to
 //! parachain simnodes.
 
+use polkadot_sdk::*;
+
 use crate::{client::FullClientFor, with_state, ChainInfo};
 use codec::Encode;
+use cumulus_primitives_parachain_inherent::ParachainInherentData;
 use futures::lock::Mutex;
 use num_traits::AsPrimitive;
-use parachain_inherent::ParachainInherentData;
 use polkadot_primitives::PersistedValidationData;
 
+use cumulus_test_relay_sproof_builder::RelayStateSproofBuilder;
 use sp_blockchain::HeaderBackend;
 use sp_runtime::traits::{Block, Header};
 use sp_wasm_interface::{anyhow, anyhow::anyhow};
-use sproof_builder::RelayStateSproofBuilder;
 use std::{marker::PhantomData, sync::Arc};
 
 /// Provides the inherent for parachain runtimes. Can also be manipulated to send relay chain
@@ -49,7 +51,7 @@ pub type SharedParachainSproofInherentProvider<T> = Arc<Mutex<ParachainSproofInh
 impl<T> ParachainSproofInherentProvider<T>
 where
 	T: ChainInfo,
-	T::Runtime: parachain_info::Config,
+	T::Runtime: staging_parachain_info::Config,
 	<<T::Block as Block>::Header as Header>::Number: AsPrimitive<u32>,
 {
 	/// Construct a new sproof-er
@@ -76,7 +78,7 @@ where
 	) -> Result<ParachainInherentData, anyhow::Error> {
 		let mut sproof = self.sproof_builder.take().unwrap_or_default();
 		sproof.para_id = with_state::<T, _>(self.client.clone(), None, || {
-			parachain_info::Pallet::<T::Runtime>::parachain_id()
+			staging_parachain_info::Pallet::<T::Runtime>::parachain_id()
 		});
 		sproof.current_slot = if self.slot_duration == 12_000 {
 			// relay chain is twice as fast the parachain

@@ -20,6 +20,8 @@
 //!
 //! Should only be used for benchmarking as it may break in other contexts.
 
+use polkadot_sdk::*;
+
 use crate::service::{create_extrinsic, FullClient};
 
 use babe_runtime::{AccountId, Balance, BalancesCall, SystemCall};

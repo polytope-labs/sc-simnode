@@ -20,6 +20,8 @@
 
 //! Service implementation. Specialized wrapper over substrate service.
 
+use polkadot_sdk::*;
+
 use crate::Cli;
 use babe_runtime::{opaque::Block, RuntimeApi};
 use codec::Encode;

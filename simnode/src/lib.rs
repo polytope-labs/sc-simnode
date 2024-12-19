@@ -16,6 +16,9 @@
 #![deny(missing_docs, unused_extern_crates)]
 
 //! ### sc-simnode
+
+use polkadot_sdk::*;
+
 use sc_client_api::ExecutorProvider;
 use sp_api::ConstructRuntimeApi;
 use sp_blockchain::HeaderBackend;

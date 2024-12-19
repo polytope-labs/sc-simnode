@@ -17,6 +17,8 @@
 
 //! Some configurable implementations as associated type for the substrate runtime.
 
+use polkadot_sdk::*;
+
 use frame_support::traits::{Currency, OnUnbalanced};
 
 use crate::{Authorship, Balances, NegativeImbalance};
@@ -32,6 +34,8 @@ impl OnUnbalanced<NegativeImbalance> for Author {
 
 #[cfg(test)]
 mod multiplier_tests {
+	use polkadot_sdk::*;
+
 	use frame_support::{
 		dispatch::DispatchClass,
 		weights::{Weight, WeightToFee},

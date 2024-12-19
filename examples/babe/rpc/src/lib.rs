@@ -31,6 +31,8 @@
 #![warn(missing_docs)]
 #![warn(unused_crate_dependencies)]
 
+use polkadot_sdk::*;
+
 use std::sync::Arc;
 
 use jsonrpsee::RpcModule;

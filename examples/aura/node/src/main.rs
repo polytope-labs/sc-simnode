@@ -1,6 +1,8 @@
 //! Substrate Node Template CLI library.
 #![warn(missing_docs)]
 
+use polkadot_sdk::*;
+
 mod chain_spec;
 #[macro_use]
 mod service;

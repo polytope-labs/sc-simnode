@@ -12,81 +12,74 @@ keywords = ["substrate", "polkadot-sdk", "integration-testing", "e2e-tests"]
 readme = "../README.md"
 
 [dependencies]
-# client deps
-sc-executor = { workspace = true }
+# not using polkadot-sdk because i need this feature
 sc-service = { workspace = true, features = ["test-helpers"] }
-sc-telemetry = { workspace = true }
-sc-informant = { workspace = true }
-sc-network = { workspace = true }
-sc-cli = { workspace = true }
-sc-basic-authorship = { workspace = true }
-sc-rpc = { workspace = true }
-sc-offchain = { workspace = true }
-sc-tracing = { workspace = true }
-sc-transaction-pool = { workspace = true }
-sc-client-db = { workspace = true }
-sc-transaction-pool-api = { workspace = true }
-sc-client-api = { workspace = true }
-sc-rpc-server = { workspace = true }
-
-# consensus
-sc-consensus-babe = { workspace = true }
-manual-seal = { workspace = true }
-sc-consensus = { workspace = true }
-sc-consensus-slots = { workspace = true }
-sc-consensus-aura = { workspace = true, default-features = true }
-
-# primitive deps
-sp-consensus-aura = { workspace = true, default-features = true }
-sp-consensus-slots = { workspace = true, default-features = true }
-sp-consensus-babe = { workspace = true, default-features = true }
-sp-core = { workspace = true, default-features = true }
-sp-blockchain = { workspace = true, default-features = true }
-sp-block-builder = { workspace = true, default-features = true }
-sp-api = { workspace = true, default-features = true }
-sp-io = { workspace = true, default-features = true }
-sp-transaction-pool = { workspace = true, default-features = true }
-sp-consensus = { workspace = true, default-features = true }
-sp-runtime = { workspace = true, default-features = true }
-sp-session = { workspace = true, default-features = true }
-sp-offchain = { workspace = true, default-features = true }
-sp-inherents = { workspace = true, default-features = true }
-sp-keyring = { workspace = true, default-features = true }
-sp-externalities = { workspace = true, default-features = true }
-sp-state-machine = { workspace = true, default-features = true }
-sp-trie = { workspace = true, default-features = true }
-sp-timestamp = { workspace = true, default-features = true }
-sp-wasm-interface = { workspace = true, default-features = true }
 sp-runtime-interface = { workspace = true, default-features = true }
 
-# pallets
-frame-system = { workspace = true, default-features = true }
-
-# parachain stuff
-cumulus-client-cli = { workspace = true }
-cumulus-client-collator = { workspace = true }
-cumulus-client-service = { workspace = true }
-parachain-inherent = { workspace = true }
-sproof-builder = { workspace = true }
-parachain-info = { workspace = true }
-
-# polkadot
-polkadot-primitives = { workspace = true }
-
-# others
 codec = { workspace = true }
+num-traits = "0.2.14"
+async-trait = "0.1.57"
 log = "0.4.8"
 rand = "0.8.5"
 futures = "0.3.16"
 tokio = { version = "1.13", features = ["signal"] }
 clap = { version = "4.0.9", features = ["derive"] }
-# Calling RPC
 jsonrpsee = { workspace = true,  features = ["server", "client-core", "macros"]  }
-num-traits = "0.2.14"
-async-trait = "0.1.57"
-# local deps
+
 simnode-runtime-api = { version = "1.9.0", path = "../runtime-api" }
 
+[dependencies.polkadot-sdk]
+workspace = true
+default-features = true
+features = [
+    "sc-executor",
+    "sc-telemetry",
+    "sc-informant",
+    "sc-network",
+    "sc-cli",
+    "sc-basic-authorship",
+    "sc-rpc",
+    "sc-offchain",
+    "sc-tracing",
+    "sc-transaction-pool",
+    "sc-client-db",
+    "sc-transaction-pool-api",
+    "sc-client-api",
+    "sc-rpc-server",
+    "sc-consensus-babe",
+    "sc-consensus-manual-seal",
+    "sc-consensus",
+    "sc-consensus-slots",
+    "cumulus-client-cli",
+    "cumulus-client-collator",
+    "cumulus-client-service",
+    "cumulus-primitives-parachain-inherent",
+    "cumulus-test-relay-sproof-builder",
+    "staging-parachain-info",
+    "sc-consensus-aura",
+    "sp-consensus-aura",
+    "sp-consensus-slots",
+    "sp-consensus-babe",
+    "sp-core",
+    "sp-blockchain",
+    "sp-block-builder",
+    "sp-api",
+    "sp-io",
+    "sp-transaction-pool",
+    "sp-consensus",
+    "sp-runtime",
+    "sp-session",
+    "sp-offchain",
+    "sp-inherents",
+    "sp-keyring",
+    "sp-externalities",
+    "sp-state-machine",
+    "sp-trie",
+    "sp-timestamp",
+    "sp-wasm-interface",
+    "frame-system",
+    "polkadot-primitives",
+]
 
 [features]
 default = ["std"]
