@@ -20,7 +20,6 @@ name = "aura-node"
 clap = { version = "4.0.9", features = ["derive"] }
 futures = { version = "0.3.21", features = ["thread-pool"] }
 jsonrpsee = { workspace = true, features = ["server"] }
-try-runtime-cli = { optional = true, workspace = true }
 serde_json = "1.0"
 
 aura-runtime = { path = "../runtime" }
@@ -81,5 +80,4 @@ runtime-benchmarks = [
 try-runtime = [
     "aura-runtime/try-runtime",
     "polkadot-sdk/try-runtime",
-    "try-runtime-cli/try-runtime"
 ]

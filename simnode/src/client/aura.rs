@@ -33,7 +33,7 @@ use sc_service::{
 	build_network, spawn_tasks, BuildNetworkParams, PartialComponents, SpawnTasksParams,
 	TFullBackend, TFullClient, TaskManager,
 };
-use sc_transaction_pool::FullPool;
+use sc_transaction_pool::TransactionPoolWrapper;
 use sc_transaction_pool_api::{OffchainTransactionPoolFactory, TransactionPool};
 use simnode_runtime_api::CreateTransactionApi;
 use sp_api::{ApiExt, ConstructRuntimeApi, Core};
@@ -49,7 +49,7 @@ pub async fn start_simnode<C, B, S, I, BI, U>(
 		TFullClient<C::Block, C::RuntimeApi, Executor>,
 		TFullBackend<B>,
 		S,
-		FullPool<B, FullClientFor<C>>,
+		TransactionPoolWrapper<B, FullClientFor<C>>,
 		I,
 		BI,
 		U,
@@ -133,7 +133,7 @@ where
 				network_provider: Arc::new(network.clone()),
 				enable_http_requests: true,
 				custom_extensions: |_| vec![],
-			})
+			})?
 			.run(client.clone(), task_manager.spawn_handle())
 			.boxed(),
 		);

@@ -22,7 +22,7 @@ use polkadot_sdk::*;
 use sc_client_api::ExecutorProvider;
 use sp_api::ConstructRuntimeApi;
 use sp_blockchain::HeaderBackend;
-use sp_runtime::traits::{Block as BlockT, SignedExtension};
+use sp_runtime::traits::{Block as BlockT, TransactionExtension};
 use sp_state_machine::{Ext, OverlayedChanges};
 use std::sync::Arc;
 
@@ -50,7 +50,7 @@ pub trait ChainInfo: Sized {
 	type RuntimeApi: ConstructRuntimeApi<Self::Block, FullClientFor<Self>> + Send + Sync + 'static;
 
 	/// The signed extras required by the runtime
-	type SignedExtras: SignedExtension;
+	type SignedExtras: TransactionExtension<<Self::Runtime as frame_system::Config>::RuntimeCall>;
 
 	/// This is for cases you don't yet have the simnode runtime api implemented.
 	/// this function is caled in an externalities provided environment, so feel free to read state.
