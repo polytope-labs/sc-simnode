@@ -40,10 +40,6 @@ pub enum Subcommand {
 	/// Runs the node with signature verification override and manual seal.
 	Simnode(sc_simnode::cli::SimnodeCli),
 
-	/// Try some testing command against a specified runtime state.
-	#[cfg(feature = "try-runtime")]
-	TryRuntime(try_runtime_cli::TryRuntimeCmd),
-
 	/// Errors since the binary was not build with `--features try-runtime`.
 	#[cfg(not(feature = "try-runtime"))]
 	TryRuntime,

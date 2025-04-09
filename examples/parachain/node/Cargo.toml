@@ -21,7 +21,6 @@ serde_json = "1.0"
 sc-tracing = { workspace = true }
 parachain-runtime = { path = "../runtime" }
 sc-simnode = { workspace = true, features = ["parachain"] }
-try-runtime-cli = { workspace = true, optional = true }
 
 [dependencies.polkadot-sdk]
 workspace = true
@@ -79,11 +78,9 @@ polkadot-sdk = { workspace = true, default-features = true, features = ["substra
 [features]
 default = []
 runtime-benchmarks = [
-	"try-runtime-cli/try-runtime",
 	"parachain-runtime/runtime-benchmarks",
 	"polkadot-sdk/runtime-benchmarks",
 ]
 try-runtime = [
-	"try-runtime-cli/try-runtime",
 	"parachain-runtime/try-runtime"
 ]
