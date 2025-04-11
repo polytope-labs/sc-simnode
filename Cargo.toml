@@ -23,16 +23,18 @@ members = [
 codec = { version = "3.1.3", package = "parity-scale-codec", default-features = false }
 scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 jsonrpsee = "0.24"
-polkadot-sdk = { version = "0.12.2", default-features = false }
+# crates which cannot be used from polkadot-sdk
+
+polkadot-sdk = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412", default-features = false }
 
 # crates which cannot be used from polkadot-sdk
-sp-core = { version = "35.0.0", default-features = false }
-sp-runtime-interface = { version = "29.0.0", default-features = false }
-cumulus-pallet-parachain-system = { version = "0.18.1", default-features = false }
-substrate-wasm-builder = "25.0.0"
-sc-service = "0.49.0"
-sc-tracing = "38.0.0"
-sp-api-proc-macro = "21.0.0"
+sp-core = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412", default-features = false }
+sp-runtime-interface = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412", default-features = false }
+cumulus-pallet-parachain-system = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412", default-features = false }
+substrate-wasm-builder = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412" }
+sc-service = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412" }
+sc-tracing = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412" }
+sp-api-proc-macro = { git ="https://github.com/paritytech/polkadot-sdk", branch = "stable2412" }
 
 # local crates
 simnode-runtime-api = { path = "./runtime-api", version = "2412.0.0", default-features = false }
