@@ -1,6 +1,6 @@
 [package]
 name = "simnode-runtime-api"
-version = "2412.0.0"
+version = "2503.0.0"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -17,7 +17,4 @@ polkadot-sdk = { workspace = true, features = ["sp-api", "sp-std"] }
 
 [features]
 default = ["std"]
-std = [
-  "codec/std",
-  "polkadot-sdk/std",
-]
+std = ["codec/std", "polkadot-sdk/std"]

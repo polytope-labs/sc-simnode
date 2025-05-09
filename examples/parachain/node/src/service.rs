@@ -180,7 +180,7 @@ async fn start_node_impl(
 	>::new(
 		&parachain_config.network, parachain_config.prometheus_registry().cloned()
 	);
-	let (network, system_rpc_tx, tx_handler_controller, start_network, sync_service) =
+	let (network, system_rpc_tx, tx_handler_controller, sync_service) =
 		build_network(BuildNetworkParams {
 			parachain_config: &parachain_config,
 			net_config,
@@ -326,7 +326,7 @@ async fn start_node_impl(
 		)?;
 	}
 
-	start_network.start_network();
+	// Network starts automatically
 
 	Ok((task_manager, client))
 }
@@ -427,6 +427,7 @@ fn start_consensus(
 		collator_service,
 		// Async backing time
 		authoring_duration: Duration::from_millis(1500),
+		max_pov_percentage: Some(100),
 	};
 
 	let fut =
