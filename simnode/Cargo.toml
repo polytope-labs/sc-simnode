@@ -1,6 +1,6 @@
 [package]
 name = "sc-simnode"
-version = "2412.0.0"
+version = "2503.0.0"
 authors = ["Polytope Labs <hello@polytope.technology>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -20,9 +20,9 @@ rand = "0.8.5"
 futures = "0.3.16"
 tokio = { version = "1.13", features = ["signal"] }
 clap = { version = "4.0.9", features = ["derive"] }
-jsonrpsee = { workspace = true,  features = ["server", "client-core", "macros"]  }
+jsonrpsee = { workspace = true, features = ["server", "client-core", "macros"] }
 
-sc-service = { workspace = true, features = ["test-helpers"] }
+sc-service = { workspace = true }
 sp-runtime-interface = { workspace = true, default-features = true }
 simnode-runtime-api = { workspace = true, default-features = true }
 

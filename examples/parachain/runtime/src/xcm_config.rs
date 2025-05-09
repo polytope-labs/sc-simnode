@@ -198,6 +198,7 @@ impl staging_xcm_executor::Config for XcmConfig {
 	type UniversalLocation = UniversalLocation;
 	type Barrier = Barrier;
 	type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
+	type XcmEventEmitter = PolkadotXcm;
 	type Trader =
 		UsingComponents<WeightToFee, RelayLocation, AccountId, Balances, ToAuthor<Runtime>>;
 	type ResponseHandler = PolkadotXcm;
@@ -248,6 +249,7 @@ impl pallet_xcm::Config for Runtime {
 	type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
 	type UniversalLocation = UniversalLocation;
 	type RuntimeOrigin = RuntimeOrigin;
+	type AuthorizedAliasConsideration = ();
 	type RuntimeCall = RuntimeCall;
 
 	const VERSION_DISCOVERY_QUEUE_SIZE: u32 = 100;

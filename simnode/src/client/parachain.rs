@@ -236,7 +236,7 @@ where
 	let metrics = <sc_network::Litep2pNetworkBackend as NetworkBackend<B, B::Hash>>::register_notification_metrics(
 		config.prometheus_registry(),
 	);
-	let (network, system_rpc_tx, tx_handler_controller, _network_starter, sync_service) = {
+	let (network, system_rpc_tx, tx_handler_controller, sync_service) = {
 		let params = BuildNetworkParams {
 			config: &config,
 			net_config,
@@ -319,8 +319,6 @@ where
 		telemetry: telemetry.as_mut(),
 	};
 	spawn_tasks(params)?;
-
-	_network_starter.start_network();
 
 	let task = run_manual_seal(ManualSealParams {
 		block_import,
