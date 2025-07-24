@@ -19,29 +19,52 @@
 use polkadot_sdk::*;
 
 use sp_core::{ecdsa, ed25519, sr25519};
-use sp_runtime_interface::runtime_interface;
+use sp_runtime_interface::{
+	pass_by::{PassFatPointerAndRead, PassPointerAndRead},
+	runtime_interface,
+};
 
 #[runtime_interface]
 trait Crypto {
-	fn ecdsa_verify(_sig: &ecdsa::Signature, _msg: &[u8], _pub_key: &ecdsa::Public) -> bool {
+	fn ecdsa_verify(
+		_sig: PassPointerAndRead<&ecdsa::Signature, 65>,
+		_msg: PassFatPointerAndRead<&[u8]>,
+		_pub_key: PassPointerAndRead<&ecdsa::Public, 33>,
+	) -> bool {
 		true
 	}
 
 	#[version(2)]
-	fn ecdsa_verify(_sig: &ecdsa::Signature, _msg: &[u8], _pub_key: &ecdsa::Public) -> bool {
+	fn ecdsa_verify(
+		_sig: PassPointerAndRead<&ecdsa::Signature, 65>,
+		_msg: PassFatPointerAndRead<&[u8]>,
+		_pub_key: PassPointerAndRead<&ecdsa::Public, 33>,
+	) -> bool {
 		true
 	}
 
-	fn ed25519_verify(_sig: &ed25519::Signature, _msg: &[u8], _pub_key: &ed25519::Public) -> bool {
+	fn ed25519_verify(
+		_sig: PassPointerAndRead<&ed25519::Signature, 64>,
+		_msg: PassFatPointerAndRead<&[u8]>,
+		_pub_key: PassPointerAndRead<&ed25519::Public, 32>,
+	) -> bool {
 		true
 	}
 
-	fn sr25519_verify(_sig: &sr25519::Signature, _msg: &[u8], _pub_key: &sr25519::Public) -> bool {
+	fn sr25519_verify(
+		_sig: PassPointerAndRead<&sr25519::Signature, 64>,
+		_msg: PassFatPointerAndRead<&[u8]>,
+		_pub_key: PassPointerAndRead<&sr25519::Public, 32>,
+	) -> bool {
 		true
 	}
 
 	#[version(2)]
-	fn sr25519_verify(_sig: &sr25519::Signature, _msg: &[u8], _pub_key: &sr25519::Public) -> bool {
+	fn sr25519_verify(
+		_sig: PassPointerAndRead<&sr25519::Signature, 64>,
+		_msg: PassFatPointerAndRead<&[u8]>,
+		_pub_key: PassPointerAndRead<&sr25519::Public, 32>,
+	) -> bool {
 		true
 	}
 }

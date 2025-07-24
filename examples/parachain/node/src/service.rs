@@ -29,7 +29,7 @@ use polkadot_primitives::{CollatorPair, ValidationCode};
 use sc_client_api::Backend;
 use sc_consensus::ImportQueue;
 use sc_executor::{RuntimeVersionOf, WasmExecutor};
-use sc_network::NetworkBlock;
+use sc_network::{NetworkBackend, NetworkBlock};
 use sc_service::{Configuration, PartialComponents, TFullBackend, TFullClient, TaskManager};
 use sc_simnode::parachain::ParachainSelectChain;
 use sc_telemetry::{Telemetry, TelemetryHandle, TelemetryWorker, TelemetryWorkerHandle};
@@ -156,16 +156,17 @@ async fn start_node_impl(
 	let backend = params.backend.clone();
 	let mut task_manager = params.task_manager;
 
-	let (relay_chain_interface, collator_key) = build_relay_chain_interface(
-		polkadot_config,
-		&parachain_config,
-		telemetry_worker_handle,
-		&mut task_manager,
-		collator_options.clone(),
-		hwbench.clone(),
-	)
-	.await
-	.map_err(|e| sc_service::Error::Application(Box::new(e) as Box<_>))?;
+	let (relay_chain_interface, collator_key, _relay_chain_network, _paranode_rx) =
+		build_relay_chain_interface(
+			polkadot_config,
+			&parachain_config,
+			telemetry_worker_handle,
+			&mut task_manager,
+			collator_options.clone(),
+			hwbench.clone(),
+		)
+		.await
+		.map_err(|e| sc_service::Error::Application(Box::new(e) as Box<_>))?;
 
 	let _force_authoring = parachain_config.force_authoring;
 	let validator = parachain_config.role.is_authority();
@@ -191,6 +192,9 @@ async fn start_node_impl(
 			relay_chain_interface: relay_chain_interface.clone(),
 			import_queue: params.import_queue,
 			sybil_resistance_level: CollatorSybilResistance::Resistant,
+			metrics: sc_network::NetworkWorker::<Block, Hash>::register_notification_metrics(
+				parachain_config.prometheus_config.as_ref().map(|config| &config.registry),
+			),
 		})
 		.await?;
 
@@ -305,6 +309,7 @@ async fn start_node_impl(
 		relay_chain_slot_duration,
 		recovery_handle: Box::new(overseer_handle.clone()),
 		sync_service: sync_service.clone(),
+		prometheus_registry: prometheus_registry.as_ref(),
 	})?;
 
 	if validator {
