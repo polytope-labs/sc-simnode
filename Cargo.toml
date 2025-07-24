@@ -28,14 +28,14 @@ jsonrpsee = "0.24"
 polkadot-sdk = { version = "2506.0.0", default-features = false }
 
 # crates which cannot be used from polkadot-sdk
-sp-core = { version = "36.1.0", default-features = false }
-sp-runtime-interface = { version = "29.0.1", default-features = false }
-cumulus-pallet-parachain-system = { version = "0.20.0", default-features = false }
-substrate-wasm-builder = "26.0.0"
-sc-service = "0.50.0"
-sc-network-sync = "0.48.0"
-sc-tracing = "39.0.0"
+sp-core = { version = "37.0.0", default-features = false }
+sp-runtime-interface = { version = "30.0.0", default-features = false }
+cumulus-pallet-parachain-system = { version = "0.21.0", default-features = false }
+substrate-wasm-builder = "27.0.0"
+sc-service = "0.52.0"
+sc-network-sync = "0.50.0"
+sc-tracing = "40.0.0"
 
 # local crates
-simnode-runtime-api = { path = "./runtime-api", version = "2503.0.0", default-features = false }
-sc-simnode = { path = "./simnode", version = "2503.0.0" }
+simnode-runtime-api = { path = "./runtime-api", version = "2506.0.0", default-features = false }
+sc-simnode = { path = "./simnode", version = "2506.0.0" }
