@@ -30,6 +30,7 @@ use frame_election_provider_support::{
 	bounds::{ElectionBounds, ElectionBoundsBuilder},
 	onchain, SequentialPhragmen,
 };
+
 use frame_support::{
 	construct_runtime, derive_impl,
 	dispatch::DispatchClass,
@@ -442,7 +443,7 @@ impl_opaque_keys! {
 impl pallet_session::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type ValidatorId = <Self as frame_system::Config>::AccountId;
-	type ValidatorIdOf = pallet_staking::StashOf<Self>;
+	type ValidatorIdOf = sp_runtime::traits::ConvertInto;
 	type ShouldEndSession = Babe;
 	type NextSessionRotation = Babe;
 	type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
@@ -453,6 +454,7 @@ impl pallet_session::Config for Runtime {
 }
 
 impl pallet_session::historical::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
 	type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
 	type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
 }
@@ -517,6 +519,7 @@ impl pallet_staking::Config for Runtime {
 	type OldCurrency = Balances;
 	type RuntimeHoldReason = RuntimeHoldReason;
 	type Filter = ();
+	type MaxValidatorSet = ConstU32<300>;
 }
 
 parameter_types! {
@@ -554,7 +557,9 @@ impl onchain::Config for OnChainSeqPhragmen {
 	type Solver = SequentialPhragmen<AccountId, Perbill>;
 	type DataProvider = Staking;
 	type WeightInfo = ();
-	type MaxWinners = ConstU32<100>;
+	type Sort = frame_support::traits::ConstBool<true>;
+	type MaxBackersPerWinner = ConstU32<64>;
+	type MaxWinnersPerPage = ConstU32<100>;
 	type Bounds = Bounds;
 }
 
@@ -672,6 +677,10 @@ where
 	fn create_inherent(call: RuntimeCall) -> UncheckedExtrinsic {
 		UncheckedExtrinsic::new_bare(call)
 	}
+
+	fn create_bare(call: RuntimeCall) -> UncheckedExtrinsic {
+		UncheckedExtrinsic::new_bare(call)
+	}
 }
 
 impl frame_system::offchain::SigningTypes for Runtime {
@@ -715,7 +724,7 @@ construct_runtime!(
 		Grandpa: pallet_grandpa,
 		Sudo: pallet_sudo,
 		Offences: pallet_offences,
-		Historical: pallet_session_historical::{Pallet},
+		Historical: pallet_session_historical::{Pallet, Event<T>},
 	}
 );
 
