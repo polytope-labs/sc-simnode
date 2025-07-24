@@ -14,7 +14,13 @@ readme = "../README.md"
 [dependencies]
 codec = { workspace = true }
 polkadot-sdk = { workspace = true, features = ["sp-api", "sp-std"] }
+# std won't build without it
+tokio = { version = "1.46", features = ["net"], optional = true }
 
 [features]
 default = ["std"]
-std = ["codec/std", "polkadot-sdk/std"]
+std = [
+	"codec/std",
+	"polkadot-sdk/std",
+	"tokio",
+]
