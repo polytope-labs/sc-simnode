@@ -22,7 +22,7 @@ jobs:
               with:
                   toolchain: stable
 
-            - uses: Swatinem/rust-cache@v1
+            - uses: Swatinem/rust-cache@v2
             - name: Install protoc
               run: |
                   sudo apt-get update
@@ -35,16 +35,16 @@ jobs:
         runs-on: arc-runner-set
         steps:
             - name: Checkout sources
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
-            - uses: actions-rs/toolchain@v1
+            - name: Install stable toolchain
+              uses: dtolnay/rust-toolchain@master
               with:
                   toolchain: stable
-            - run: |
-                  rustup target add wasm32-unknown-unknown
-                  rustup component add rust-src
+                  targets: wasm32-unknown-unknown,wasm32v1-none
+                  components: rust-src
 
-            - uses: Swatinem/rust-cache@v1
+            - uses: Swatinem/rust-cache@v2
 
             - name: Install protoc
               run: |
