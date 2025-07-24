@@ -39,6 +39,7 @@ features = [
     "sp-version",
     "sp-io",
     "sp-genesis-builder",
+    "sp-npos-elections",
     "frame-executive",
     "frame-election-provider-support",
     "frame-benchmarking",
