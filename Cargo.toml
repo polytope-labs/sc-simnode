@@ -37,5 +37,5 @@ sc-network-sync = "0.54.0"
 sc-tracing = "44.0.0"
 
 # local crates
-simnode-runtime-api = { path = "./runtime-api", version = "2506.0.0", default-features = false }
-sc-simnode = { path = "./simnode", version = "2506.0.0" }
+simnode-runtime-api = { path = "./runtime-api", version = "2512.1.0", default-features = false }
+sc-simnode = { path = "./simnode", version = "2512.1.0" }
