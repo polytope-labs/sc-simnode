@@ -36,6 +36,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 # third-party dependencies
 array-bytes = "4.1"
+async-trait = "0.1"
 clap = { version = "4.0.9", features = ["derive"], optional = true }
 codec = { workspace = true }
 serde = { version = "1.0.136", features = ["derive"] }

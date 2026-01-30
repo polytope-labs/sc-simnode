@@ -51,6 +51,42 @@ type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
 type FullGrandpaBlockImport<E = WasmExecutor<sp_io::SubstrateHostFunctions>> =
 	sc_consensus_grandpa::GrandpaBlockImport<FullBackend, Block, FullClient<E>, FullSelectChain>;
 
+/// Inherent data provider for BABE consensus.
+#[derive(Clone)]
+pub struct BabeInherentDataProvider {
+	slot_duration: sp_consensus_babe::SlotDuration,
+}
+
+impl BabeInherentDataProvider {
+	pub fn new(slot_duration: sp_consensus_babe::SlotDuration) -> Self {
+		Self { slot_duration }
+	}
+}
+
+#[async_trait::async_trait]
+impl sp_inherents::CreateInherentDataProviders<Block, ()> for BabeInherentDataProvider {
+	type InherentDataProviders = (
+		sp_consensus_babe::inherents::InherentDataProvider,
+		sp_timestamp::InherentDataProvider,
+	);
+
+	async fn create_inherent_data_providers(
+		&self,
+		_parent: <Block as sp_runtime::traits::Block>::Hash,
+		_extra_args: (),
+	) -> Result<Self::InherentDataProviders, Box<dyn std::error::Error + Send + Sync>> {
+		let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+		let slot = sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
+			*timestamp,
+			self.slot_duration,
+		);
+		Ok((slot, timestamp))
+	}
+}
+
+type FullBabeBlockImport<E = WasmExecutor<sp_io::SubstrateHostFunctions>> =
+	sc_consensus_babe::BabeBlockImport<Block, FullClient<E>, FullGrandpaBlockImport<E>, BabeInherentDataProvider, FullSelectChain>;
+
 /// Our native executor instance.
 pub struct ExecutorDispatch;
 
@@ -166,7 +202,7 @@ pub fn new_partial<E>(
 				sc_rpc::SubscriptionTaskExecutor,
 			) -> Result<jsonrpsee::RpcModule<()>, sc_service::Error>,
 			(
-				sc_consensus_babe::BabeBlockImport<Block, FullClient<E>, FullGrandpaBlockImport<E>>,
+				FullBabeBlockImport<E>,
 				sc_consensus_grandpa::LinkHalf<Block, FullClient<E>, FullSelectChain>,
 				sc_consensus_babe::BabeLink<Block>,
 			),
@@ -226,35 +262,27 @@ where
 
 	let justification_import = grandpa_block_import.clone();
 
+	let slot_duration = sc_consensus_babe::configuration(&*client)?.slot_duration();
+	let inherent_data_provider = BabeInherentDataProvider::new(slot_duration);
 	let (block_import, babe_link) = sc_consensus_babe::block_import(
 		sc_consensus_babe::configuration(&*client)?,
 		grandpa_block_import,
 		client.clone(),
+		inherent_data_provider,
+		select_chain.clone(),
+		OffchainTransactionPoolFactory::new(transaction_pool.clone()),
 	)?;
 
-	let slot_duration = babe_link.config().slot_duration();
 	let (import_queue, babe_worker_handle) =
 		sc_consensus_babe::import_queue(sc_consensus_babe::ImportQueueParams {
 			link: babe_link.clone(),
 			block_import: block_import.clone(),
 			justification_import: Some(Box::new(justification_import)),
 			client: client.clone(),
-			select_chain: select_chain.clone(),
-			create_inherent_data_providers: move |_, ()| async move {
-				let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
-
-				let slot =
-					sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
-						*timestamp,
-						slot_duration,
-					);
-
-				Ok((slot, timestamp))
-			},
+			slot_duration,
 			spawner: &task_manager.spawn_essential_handle(),
 			registry: config.prometheus_registry(),
 			telemetry: telemetry.as_ref().map(|x| x.handle()),
-			offchain_tx_pool_factory: OffchainTransactionPoolFactory::new(transaction_pool.clone()),
 		})?;
 
 	let import_setup = (block_import, grandpa_link, babe_link);
@@ -337,7 +365,7 @@ pub fn new_full_base(
 	config: Configuration,
 	disable_hardware_benchmarks: bool,
 	with_startup_data: impl FnOnce(
-		&sc_consensus_babe::BabeBlockImport<Block, FullClient, FullGrandpaBlockImport>,
+		&FullBabeBlockImport,
 		&sc_consensus_babe::BabeLink<Block>,
 	),
 ) -> Result<NewFullBase, ServiceError> {
@@ -448,6 +476,7 @@ pub fn new_full_base(
 		tx_handler_controller,
 		sync_service: sync_service.clone(),
 		telemetry: telemetry.as_mut(),
+		tracing_execute_block: None,
 	})?;
 
 	if let Some(hwbench) = hwbench {
