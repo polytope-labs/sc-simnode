@@ -32,7 +32,7 @@ use sp_api::{ApiExt, ConstructRuntimeApi, ProvideRuntimeApi};
 use sp_blockchain::HeaderBackend;
 use sp_core::{
 	crypto::{AccountId32, Ss58Codec},
-	Bytes,
+	Bytes, H256,
 };
 use sp_runtime::{
 	traits::{Block as BlockT, Header},
@@ -46,8 +46,13 @@ use std::sync::Arc;
 pub trait SimnodeApi {
 	/// Constructs an extrinsic with an empty signature and the given AccountId as the Signer using
 	/// simnode's runtime api.
+	///
+	/// The optional `at` parameter specifies which block's state to use when creating the
+	/// transaction (for nonce lookup, etc.). If not provided, defaults to the best block.
+	/// This is useful when building transactions for fork branches that are not the current
+	/// best chain.
 	#[method(name = "simnode_authorExtrinsic")]
-	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes>;
+	fn author_extrinsic(&self, call: Bytes, account: String, at: Option<H256>) -> RpcResult<Bytes>;
 
 	/// reverts `n` number of blocks and their state from the chain.
 	#[method(name = "simnode_revertBlocks")]
@@ -83,8 +88,13 @@ where
 		Self { client, backend }
 	}
 
-	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Vec<u8>> {
-		let at = self.client.info().best_hash;
+	fn author_extrinsic(
+		&self,
+		call: Bytes,
+		account: String,
+		at: Option<<T::Block as BlockT>::Hash>,
+	) -> RpcResult<Vec<u8>> {
+		let at = at.unwrap_or_else(|| self.client.info().best_hash);
 
 		let has_api = self
 			.client
@@ -134,7 +144,7 @@ where
 					None,
 				)
 			})?;
-			let extra = self.with_state(None, || T::signed_extras(account.clone().into()));
+			let extra = self.with_state(Some(at), || T::signed_extras(account.clone().into()));
 			let ext = UncheckedExtrinsicFor::<T>::new_signed(
 				call,
 				MultiAddress::Id(account.into()),
@@ -178,8 +188,12 @@ where
 	<T::Runtime as frame_system::Config>::AccountId: From<AccountId32>,
 	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 {
-	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes> {
-		Ok(self.author_extrinsic(call, account)?.into())
+	fn author_extrinsic(&self, call: Bytes, account: String, at: Option<H256>) -> RpcResult<Bytes> {
+		let at = at.map(|h| {
+			let bytes: [u8; 32] = h.into();
+			codec::Decode::decode(&mut &bytes[..]).expect("H256 is 32 bytes, same as block hash")
+		});
+		Ok(self.author_extrinsic(call, account, at)?.into())
 	}
 
 	fn revert_blocks(&self, n: u32) -> RpcResult<()> {

@@ -29,12 +29,14 @@ use std::sync::Arc;
 pub mod cli;
 pub mod client;
 pub mod overrides;
+pub mod proposer;
 pub mod rpc;
 pub mod sproof;
 
 pub use cli::*;
 pub use client::*;
 pub use overrides::*;
+pub use proposer::*;
 pub use rpc::*;
 pub use sproof::*;
 

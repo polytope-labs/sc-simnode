@@ -36,6 +36,7 @@ features = [
     "sc-network",
     "sc-cli",
     "sc-basic-authorship",
+    "sc-block-builder",
     "sc-rpc",
     "sc-offchain",
     "sc-tracing",

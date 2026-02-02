@@ -18,10 +18,12 @@
 
 use polkadot_sdk::*;
 
+use codec::Decode;
+
 use super::*;
 use crate::{
-	timestamp::SlotTimestampProvider, ChainInfo, ParachainSproofInherentProvider, SimnodeApiServer,
-	SimnodeRpcHandler,
+	proposer::ForkAwareProposerFactory, timestamp::SlotTimestampProvider, ChainInfo,
+	ParachainSproofInherentProvider, SimnodeApiServer, SimnodeRpcHandler,
 };
 use async_trait::async_trait;
 use futures::{channel::mpsc, future::Either, lock::Mutex, FutureExt, StreamExt};
@@ -47,7 +49,7 @@ use sp_block_builder::BlockBuilder;
 use sp_blockchain::HeaderBackend;
 use sp_consensus::SelectChain;
 use sp_consensus_aura::AuraApi;
-use sp_core::{crypto::AccountId32, traits::SpawnEssentialNamed, Bytes};
+use sp_core::{crypto::AccountId32, traits::SpawnEssentialNamed, Bytes, H256};
 use sp_runtime::traits::{Block as BlockT, Header};
 use sp_transaction_pool::runtime_api::TaggedTransactionQueue;
 use std::sync::Arc;
@@ -78,8 +80,12 @@ where
 	<<T::Block as BlockT>::Header as Header>::Number: num_traits::cast::AsPrimitive<u32>,
 	T::Runtime: staging_parachain_info::Config,
 {
-	fn author_extrinsic(&self, call: Bytes, account: String) -> RpcResult<Bytes> {
-		Ok(self.inner.author_extrinsic(call, account)?.into())
+	fn author_extrinsic(&self, call: Bytes, account: String, at: Option<H256>) -> RpcResult<Bytes> {
+		let at = at.map(|h| {
+			let bytes: [u8; 32] = h.into();
+			Decode::decode(&mut &bytes[..]).expect("H256 is 32 bytes, same as block hash")
+		});
+		Ok(self.inner.author_extrinsic(call, account, at)?.into())
 	}
 
 	fn revert_blocks(&self, n: u32) -> RpcResult<()> {
@@ -273,12 +279,13 @@ where
 	}
 
 	// Proposer object for block authorship.
-	let env = sc_basic_authorship::ProposerFactory::new(
+	// Use ForkAwareProposerFactory to properly handle building blocks on non-best-chain parents
+	// (fork scenarios). The standard ProposerFactory uses pool.ready_at(parent) which doesn't
+	// return transactions as "ready" for non-best parents.
+	let env = ForkAwareProposerFactory::new(
 		task_manager.spawn_handle(),
 		client.clone(),
 		pool.clone(),
-		config.prometheus_registry(),
-		None,
 	);
 
 	// Channel for the rpc handler to communicate with the authorship task.
