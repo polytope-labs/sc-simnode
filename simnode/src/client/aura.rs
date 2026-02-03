@@ -19,10 +19,7 @@
 use polkadot_sdk::*;
 
 use super::*;
-use crate::{
-	proposer::ForkAwareProposerFactory, timestamp::SlotTimestampProvider, ChainInfo,
-	SimnodeApiServer, SimnodeRpcHandler,
-};
+use crate::{timestamp::SlotTimestampProvider, ChainInfo, SimnodeApiServer, SimnodeRpcHandler};
 use futures::{channel::mpsc, future::Either, FutureExt, StreamExt};
 use num_traits::AsPrimitive;
 use sc_client_api::Backend;
@@ -143,13 +140,12 @@ where
 	}
 
 	// Proposer object for block authorship.
-	// Use ForkAwareProposerFactory to properly handle building blocks on non-best-chain parents
-	// (fork scenarios). The standard ProposerFactory uses pool.ready_at(parent) which doesn't
-	// return transactions as "ready" for non-best parents.
-	let env = ForkAwareProposerFactory::new(
+	let env = sc_basic_authorship::ProposerFactory::new(
 		task_manager.spawn_handle(),
 		client.clone(),
 		pool.clone(),
+		config.prometheus_registry(),
+		None,
 	);
 
 	// Channel for the rpc handler to communicate with the authorship task.
