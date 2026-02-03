@@ -317,6 +317,7 @@ where
 		tx_handler_controller,
 		sync_service,
 		telemetry: telemetry.as_mut(),
+		tracing_execute_block: None,
 	};
 	spawn_tasks(params)?;
 

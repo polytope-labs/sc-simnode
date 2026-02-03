@@ -241,6 +241,7 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
 		sync_service: sync_service.clone(),
 		config,
 		telemetry: telemetry.as_mut(),
+		tracing_execute_block: None,
 	})?;
 
 	if role.is_authority() {
