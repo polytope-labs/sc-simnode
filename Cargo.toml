@@ -39,3 +39,6 @@ sc-tracing = "46.0.0"
 # local crates
 simnode-runtime-api = { path = "./runtime-api", version = "2604.0.0", default-features = false }
 sc-simnode = { path = "./simnode", version = "2604.0.0" }
+
+[patch.crates-io]
+core2 = { git = "https://github.com/technocreatives/core2", rev = "545e84bcb0f235b12e21351e0c69767958efe2a7" }
