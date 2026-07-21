@@ -43,6 +43,13 @@ use sp_core::{crypto::Pair, traits::CodeExecutor, H256};
 use sp_runtime::{generic, SaturatedConversion};
 use std::{path::Path, sync::Arc};
 
+/// Retention period for transaction storage proofs.
+///
+/// This runtime has no transaction storage pallet to source the value from, so we keep the
+/// `DEFAULT_STORAGE_PERIOD` that `sp-transaction-storage-proof` applied internally before it
+/// became a caller-supplied parameter.
+const STORAGE_PROOF_RETENTION_PERIOD: u32 = 100_800;
+
 /// The full client type definition.
 pub type FullClient<E = WasmExecutor<sp_io::SubstrateHostFunctions>> =
 	sc_service::TFullClient<Block, RuntimeApi, E>;
@@ -65,10 +72,8 @@ impl BabeInherentDataProvider {
 
 #[async_trait::async_trait]
 impl sp_inherents::CreateInherentDataProviders<Block, ()> for BabeInherentDataProvider {
-	type InherentDataProviders = (
-		sp_consensus_babe::inherents::InherentDataProvider,
-		sp_timestamp::InherentDataProvider,
-	);
+	type InherentDataProviders =
+		(sp_consensus_babe::inherents::InherentDataProvider, sp_timestamp::InherentDataProvider);
 
 	async fn create_inherent_data_providers(
 		&self,
@@ -76,16 +81,23 @@ impl sp_inherents::CreateInherentDataProviders<Block, ()> for BabeInherentDataPr
 		_extra_args: (),
 	) -> Result<Self::InherentDataProviders, Box<dyn std::error::Error + Send + Sync>> {
 		let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
-		let slot = sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
-			*timestamp,
-			self.slot_duration,
-		);
+		let slot =
+			sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
+				*timestamp,
+				self.slot_duration,
+			);
 		Ok((slot, timestamp))
 	}
 }
 
 type FullBabeBlockImport<E = WasmExecutor<sp_io::SubstrateHostFunctions>> =
-	sc_consensus_babe::BabeBlockImport<Block, FullClient<E>, FullGrandpaBlockImport<E>, BabeInherentDataProvider, FullSelectChain>;
+	sc_consensus_babe::BabeBlockImport<
+		Block,
+		FullClient<E>,
+		FullGrandpaBlockImport<E>,
+		BabeInherentDataProvider,
+		FullSelectChain,
+	>;
 
 /// Our native executor instance.
 pub struct ExecutorDispatch;
@@ -231,6 +243,7 @@ where
 			config,
 			telemetry.as_ref().map(|(_, telemetry)| telemetry.handle()),
 			executor,
+			Default::default(),
 		)?;
 	let client = Arc::new(client);
 
@@ -364,10 +377,7 @@ pub struct NewFullBase {
 pub fn new_full_base(
 	config: Configuration,
 	disable_hardware_benchmarks: bool,
-	with_startup_data: impl FnOnce(
-		&FullBabeBlockImport,
-		&sc_consensus_babe::BabeLink<Block>,
-	),
+	with_startup_data: impl FnOnce(&FullBabeBlockImport, &sc_consensus_babe::BabeLink<Block>),
 ) -> Result<NewFullBase, ServiceError> {
 	let hwbench = (!disable_hardware_benchmarks)
 		.then_some(config.database.path().map(|database_path| {
@@ -426,6 +436,7 @@ pub fn new_full_base(
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
 			spawn_handle: task_manager.spawn_handle(),
+			spawn_essential_handle: task_manager.spawn_essential_handle(),
 			import_queue,
 			block_announce_validator_builder: None,
 			warp_sync_config: Some(WarpSyncConfig::WithProvider(warp_sync)),
@@ -539,6 +550,7 @@ pub fn new_full_base(
 						sp_transaction_storage_proof::registration::new_data_provider(
 							&*client_clone,
 							&parent,
+							STORAGE_PROOF_RETENTION_PERIOD,
 						)?;
 
 					Ok((slot, timestamp, storage_proof))

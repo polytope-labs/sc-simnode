@@ -64,7 +64,6 @@ features = [
     "cumulus-client-cli",
     "cumulus-client-consensus-aura",
     "cumulus-client-consensus-common",
-    "cumulus-client-consensus-proposer",
     "cumulus-client-service",
     "cumulus-client-collator",
     "cumulus-primitives-core",

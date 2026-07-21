@@ -17,10 +17,10 @@ jobs:
             - name: Checkout sources
               uses: actions/checkout@main
 
-            - name: Install stable toolchain
+            - name: Install pinned toolchain
               uses: dtolnay/rust-toolchain@master
               with:
-                  toolchain: stable
+                  toolchain: "1.94.1"
                   targets: wasm32-unknown-unknown,wasm32v1-none
                   components: rust-src
 
@@ -39,10 +39,10 @@ jobs:
             - name: Checkout sources
               uses: actions/checkout@v4
 
-            - name: Install stable toolchain
+            - name: Install pinned toolchain
               uses: dtolnay/rust-toolchain@master
               with:
-                  toolchain: stable
+                  toolchain: "1.94.1"
                   targets: wasm32-unknown-unknown,wasm32v1-none
                   components: rust-src
 
