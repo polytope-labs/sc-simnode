@@ -25,20 +25,17 @@ scale-info = { version = "2.1.1", default-features = false, features = [
     "derive",
 ] }
 jsonrpsee = "0.24"
-polkadot-sdk = { version = "2604.2.0", default-features = false }
+polkadot-sdk = { version = "2606.0.0", default-features = false }
 
 # crates which cannot be used from polkadot-sdk
-sp-core = { version = "41.0.0", default-features = false }
-sp-runtime-interface = { version = "35.0.0", default-features = false }
-cumulus-pallet-parachain-system = { version = "0.28.0", default-features = false }
-substrate-wasm-builder = "33.0.0"
-sc-service = "0.59.0"
-sc-network-sync = "0.56.1"
-sc-tracing = "46.0.0"
+sp-core = { version = "43.0.0", default-features = false }
+sp-runtime-interface = { version = "37.0.0", default-features = false }
+cumulus-pallet-parachain-system = { version = "0.29.0", default-features = false }
+substrate-wasm-builder = "34.0.0"
+sc-service = "0.60.0"
+sc-network-sync = "0.57.0"
+sc-tracing = "47.0.0"
 
 # local crates
-simnode-runtime-api = { path = "./runtime-api", version = "2604.0.0", default-features = false }
-sc-simnode = { path = "./simnode", version = "2604.0.0" }
-
-[patch.crates-io]
-core2 = { git = "https://github.com/technocreatives/core2", rev = "545e84bcb0f235b12e21351e0c69767958efe2a7" }
+simnode-runtime-api = { path = "./runtime-api", version = "2606.0.0", default-features = false }
+sc-simnode = { path = "./simnode", version = "2606.0.0" }
